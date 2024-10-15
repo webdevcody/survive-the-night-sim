@@ -10,12 +10,23 @@ export default defineSchema({
     userId: v.id("users"),
     body: v.string(),
   }),
-
   games: defineTable({
     modelId: v.string(),
-    // Other fields can be added as needed
+    currentLevel: v.number(),
+    status: v.union(v.literal("in_progress"), v.literal("completed")),
   }),
-
+  maps: defineTable({
+    level: v.number(),
+    grid: v.array(v.array(v.string())),
+    width: v.number(),
+    height: v.number(),
+  }).index("by_level", ["level"]),
+  scores: defineTable({
+    modelId: v.string(),
+    gameId: v.id("games"),
+    score: v.number(),
+    level: v.number(),
+  }).index("by_game_and_level", ["gameId", "level"]),
   results: defineTable({
     gameId: v.id("games"),
     roundId: v.string(),
@@ -24,8 +35,4 @@ export default defineSchema({
     reasoning: v.string(),
   }),
 
-  scores: defineTable({
-    modelId: v.string(),
-    score: v.number(),
-  }),
 });

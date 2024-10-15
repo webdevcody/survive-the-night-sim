@@ -9,7 +9,7 @@ Before you can run the project, you'll need to setup a
 1. `npm i`
 2. `npm run dev`
 3. `use http://localhost:3000 for SITE_URL when prompted`
-4. `Y for cofigure GitHub OAuth`
+4. `Y for configure GitHub OAuth`
 5. `create a github OAuth app at https://github.com/settings/applications/new`
 6. `paste client id when prompted`
 7. `paste client secret when prompted`
