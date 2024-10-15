@@ -45,7 +45,7 @@ export const saveRoundMutation = mutation({
           // Create new score entry
           updatedScore = await ctx.db.insert("scores", {
             modelId: game.modelId,
-            score: 0,
+            score: 1,
           });
         }
       }
