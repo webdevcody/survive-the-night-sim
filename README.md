@@ -23,6 +23,10 @@ In convex, please add the following environment variables:
 
 - `npx convex env set MOCK_OPEN_AI true`
 
+Add optional environment variable/s for simulating real AI models without mockup responses(when mockup flags are set to FALSE):
+
+- `npx convex env set OPENAI_API_KEY YOUR_API_KEY`
+
 also, you may need to run, but I think the initial setup does that.
 
 `npx @convex-dev/auth` to get the proper convex jwks setup
