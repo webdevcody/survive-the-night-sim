@@ -15,7 +15,7 @@ export function closestEntity(entity: Entity, targets: Entity[]): Entity {
       continue;
     }
 
-    const targetPosition = positionAsNumber(entity.getPosition());
+    const targetPosition = positionAsNumber(target.getPosition());
     const score = Math.abs(entityPosition - targetPosition);
 
     scores.push({ target, score });
