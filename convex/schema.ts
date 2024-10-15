@@ -10,4 +10,22 @@ export default defineSchema({
     userId: v.id("users"),
     body: v.string(),
   }),
+
+  games: defineTable({
+    modelId: v.string(),
+    // Other fields can be added as needed
+  }),
+
+  results: defineTable({
+    gameId: v.id("games"),
+    roundId: v.string(),
+    level: v.number(),
+    isWin: v.boolean(),
+    reasoning: v.string(),
+  }),
+
+  scores: defineTable({
+    modelId: v.string(),
+    score: v.number(),
+  }),
 });
