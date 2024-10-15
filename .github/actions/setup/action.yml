@@ -1,0 +1,14 @@
+name: setup-action
+description: 'Setup Node.js ⚙️ - Install dependencies 🔧'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install Node.js ⚙️
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Install dependencies 🔧
+      run: npm install
+      shell: bash
