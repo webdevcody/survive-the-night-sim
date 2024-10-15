@@ -27,4 +27,12 @@ export default defineSchema({
     score: v.number(),
     level: v.number(),
   }).index("by_game_and_level", ["gameId", "level"]),
+  results: defineTable({
+    gameId: v.id("games"),
+    roundId: v.string(),
+    level: v.number(),
+    isWin: v.boolean(),
+    reasoning: v.string(),
+  }),
+
 });
