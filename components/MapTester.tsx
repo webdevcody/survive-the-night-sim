@@ -48,7 +48,7 @@ function convertNumberGridToStringMap(grid: number[][]): string[][] {
 }
 
 const MapTester = ({ map }: { map: string[][] }) => {
-  const getPlayerMap = useAction(api.openai.playerMap);
+  const getPlayerMap = useAction(api.openai.playMapAction);
   const [resMap, setResMap] = useState<null | number[][]>();
   const [loading, setLoading] = useState(false);
 
