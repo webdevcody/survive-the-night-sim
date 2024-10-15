@@ -6,7 +6,7 @@ import {
 import { Zombie } from "../entities/Zombie";
 import { ZombieSurvival } from "../ZombieSurvival";
 
-export function pathFinder(
+export function pathfinder(
   initialGame: ZombieSurvival,
   initialZombie: Zombie,
 ): Direction[] {

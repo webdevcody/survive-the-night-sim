@@ -3,7 +3,7 @@ import { Entity, EntityType } from "./Entity";
 import { Position } from "../Position";
 import { ZombieSurvival } from "../ZombieSurvival";
 import { entityAt } from "../lib/entity-at";
-import { pathFinder } from "../lib/path-finder";
+import { pathfinder } from "../lib/pathfinder";
 
 export class Zombie extends Entity {
   public static Destructible = true;
@@ -77,7 +77,7 @@ export class Zombie extends Entity {
       return;
     }
 
-    let nextDirection = direction ?? pathFinder(this.game, this)[0];
+    let nextDirection = direction ?? pathfinder(this.game, this)[0];
 
     if (typeof nextDirection === "undefined") {
       const lastMove = this.predictLastMove();
