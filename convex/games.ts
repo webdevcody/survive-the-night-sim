@@ -1,6 +1,26 @@
 import { v } from "convex/values";
-import { internal } from "../_generated/api";
-import { internalMutation } from "../_generated/server";
+import { internalAction, internalMutation } from "./_generated/server";
+import { internal } from "./_generated/api";
+
+export const playMapAction = internalAction({
+  args: {
+    mapId: v.id("maps"),
+    gameId: v.id("games"),
+    modelId: v.string(),
+    level: v.number(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.runMutation(internal.games.insertScore, {
+      modelId: args.modelId,
+      gameId: args.gameId,
+      level: args.level,
+    });
+
+    console.log(
+      `Playing map ${args.mapId} for game ${args.gameId} at level ${args.level}`,
+    );
+  },
+});
 
 export const createNewGame = internalMutation({
   args: { modelId: v.string() },
@@ -21,7 +41,7 @@ export const createNewGame = internalMutation({
     }
 
     // not sure if this is the way to do this
-    await ctx.scheduler.runAfter(0, internal.games.actions.playMapAction, {
+    await ctx.scheduler.runAfter(0, internal.games.playMapAction, {
       mapId: firstMap._id,
       gameId,
       modelId: args.modelId,

@@ -1,25 +1,35 @@
 import OpenAI from "openai";
-import { action, query } from "./_generated/server";
+import { action } from "./_generated/server";
 import { v } from "convex/values";
 import { z } from "zod";
 import { zodResponseFormat } from "openai/helpers/zod";
-
-const openai = new OpenAI();
 
 const ResponseSchema = z.object({
   map: z.array(z.array(z.number())),
   reasoning: z.string(),
   playerCoordinates: z.array(z.number()),
-  BoxCoordinates: z.array(z.array(z.number())),
+  boxCoordinates: z.array(z.array(z.number())),
 });
 
-export const playerMap = action({
+export const playMapAction = action({
   args: {
     map: v.array(v.array(v.number())),
     mapId: v.string(),
     level: v.number(),
   },
   handler: async (_, args) => {
+    if (process.env.MOCK_OPEN_AI) {
+      return {
+        map: args.map,
+        reasoning: "This is a mock response",
+        playerCoordinates: [0, 0],
+        boxCoordinates: [],
+      };
+    }
+
+    // moving here for now so that I can get this deployed without a real key
+    const openai = new OpenAI();
+
     try {
       const completion = await openai.beta.chat.completions.parse({
         model: "gpt-4o-2024-08-06",
