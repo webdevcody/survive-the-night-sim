@@ -8,11 +8,12 @@ Before you can run the project, you'll need to setup a
 
 1. `npm i`
 2. `npm run dev`
-3. `use http://localhost:3000 for SITE_URL when prompted`
-4. `Y for configure GitHub OAuth`
-5. `create a github OAuth app at https://github.com/settings/applications/new`
-6. `paste client id when prompted`
-7. `paste client secret when prompted`
+3. use http://localhost:3000 for SITE_URL when prompted
+4. Y for configure GitHub OAuth
+5. create a github OAuth app at https://github.com/settings/applications/new
+6. for authorization callback URL enter, https://YOUR_CONVEX_PROJECT_NAME.convex.site/api/auth/callback/github`
+7. paste client id when prompted
+8. paste client secret when prompted
 
 ## Env Setup
 
