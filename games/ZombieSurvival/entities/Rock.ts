@@ -1,4 +1,4 @@
-import { Entity } from "./Entity";
+import { Entity, EntityType } from "./Entity";
 import { Position } from "../Position";
 
 export class Rock extends Entity {
@@ -6,6 +6,6 @@ export class Rock extends Entity {
   public static Health = -1;
 
   public constructor(position: Position) {
-    super(Rock.Destructible, Rock.Health, position);
+    super(EntityType.Rock, Rock.Destructible, Rock.Health, position);
   }
 }

@@ -1,5 +1,5 @@
-import { Direction } from "../Direction";
-import { Entity } from "./Entity";
+import { Direction, allDirections, move } from "../Direction";
+import { Entity, EntityType } from "./Entity";
 import { Position } from "../Position";
 import { ZombieSurvival } from "../ZombieSurvival";
 import { entityAt } from "../lib/entity-at";
@@ -10,51 +10,97 @@ export class Zombie extends Entity {
   public static Health = 2;
 
   private game: ZombieSurvival;
-  private path: Direction[];
-  private pathIdx = 0;
 
   public constructor(game: ZombieSurvival, position: Position) {
-    super(Zombie.Destructible, Zombie.Health, position);
+    super(EntityType.Zombie, Zombie.Destructible, Zombie.Health, position);
     this.game = game;
-    this.path = pathFinder(game, this);
   }
 
-  public walk() {
-    const nextDirection = this.path[this.pathIdx++];
+  public listMoves(): Direction[] {
+    const entities = this.game.getAllEntities();
+    const result: Direction[] = [];
 
-    if (typeof nextDirection === "undefined") {
-      throw new Error("Zombie out of moves");
+    for (const direction of allDirections) {
+      const position = move(this.position, direction);
+
+      if (
+        position.x < 0 ||
+        position.y < 0 ||
+        position.x >= this.game.boardWidth ||
+        position.y >= this.game.boardHeight
+      ) {
+        continue;
+      }
+
+      const entity = entityAt(entities, position);
+
+      if (entity !== null && !entity.isDestructible()) {
+        continue;
+      }
+
+      result.push(direction);
     }
 
-    const newPosition: Position = { ...this.position };
+    return result;
+  }
 
-    switch (nextDirection) {
-      case Direction.Down: {
-        newPosition.y += 1;
-        break;
+  public predictLastMove(): Direction | null {
+    const entities = this.game.getAllEntities();
+    const position = this.position;
+
+    const downEntity = entityAt(entities, move(position, Direction.Down));
+    const leftEntity = entityAt(entities, move(position, Direction.Left));
+    const rightEntity = entityAt(entities, move(position, Direction.Right));
+    const upEntity = entityAt(entities, move(position, Direction.Up));
+
+    if (downEntity?.getType() === EntityType.Player) {
+      return Direction.Down;
+    }
+
+    if (leftEntity?.getType() === EntityType.Player) {
+      return Direction.Left;
+    }
+
+    if (rightEntity?.getType() === EntityType.Player) {
+      return Direction.Right;
+    }
+
+    if (upEntity?.getType() === EntityType.Player) {
+      return Direction.Up;
+    }
+
+    return null;
+  }
+
+  public walk(direction: Direction | null = null) {
+    let nextDirection = direction ?? pathFinder(this.game, this)[0];
+
+    if (typeof nextDirection === "undefined") {
+      const lastMove = this.predictLastMove();
+
+      if (lastMove === null) {
+        throw new Error("Zombie out of moves");
       }
-      case Direction.Left: {
-        newPosition.x -= 1;
-        break;
-      }
-      case Direction.Right: {
-        newPosition.x += 1;
-        break;
-      }
-      case Direction.Up: {
-        newPosition.y -= 1;
-        break;
-      }
+
+      nextDirection = lastMove;
     }
 
     const entities = this.game.getAllEntities();
+    const newPosition = move(this.position, nextDirection);
     const entity = entityAt(entities, newPosition);
 
     if (entity !== null) {
-      entity.hit();
+      if (entity.getType() !== EntityType.Zombie) {
+        entity.hit();
+      }
+
       return;
     }
 
-    this.position = newPosition;
+    this.walkTo(newPosition);
+  }
+
+  public walkTo(position: Position) {
+    this.position = position;
   }
 }

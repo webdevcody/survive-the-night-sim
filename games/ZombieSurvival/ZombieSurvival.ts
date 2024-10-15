@@ -3,13 +3,19 @@ import { Entity } from "./entities/Entity";
 import { Player } from "./entities/Player";
 import { Rock } from "./entities/Rock";
 import { Zombie } from "./entities/Zombie";
+import { entityAt } from "./lib/entity-at";
 
 export class ZombieSurvival {
-  private readonly boardHeight: number;
-  private readonly boardWidth: number;
-  private readonly entities: Entity[];
-  private readonly player: Player;
-  private readonly zombies: Zombie[];
+  public readonly boardHeight: number;
+  public readonly boardWidth: number;
+  private entities: Entity[];
+  private player: Player;
+  private zombies: Zombie[];
+
+  public static fromSnapshot(snapshot: string): ZombieSurvival {
+    const config = snapshot.split(".").map((it) => it.split(""));
+    return new ZombieSurvival(config);
+  }
 
   public constructor(config: string[][]) {
     if (config.length === 0 || config[0].length == 0) {
@@ -25,7 +31,7 @@ export class ZombieSurvival {
 
     for (let y = 0; y < this.boardHeight; y++) {
       for (let x = 0; x < this.boardWidth; x++) {
-        const code = config[x][y];
+        const code = config[y][x];
 
         switch (code.toLowerCase()) {
           case "b": {
@@ -68,15 +74,58 @@ export class ZombieSurvival {
   }
 
   public getAllEntities(): Entity[] {
-    return [this.zombies, this.player, this.entities].flat();
+    return [this.entities, this.zombies, this.player].flat();
+  }
+
+  public getEntities(): Entity[] {
+    return this.entities;
   }
 
   public getPlayer(): Player {
     return this.player;
   }
 
+  public getSnapshot(): string {
+    return this.getState()
+      .map((it) => it.join(""))
+      .join(".");
+  }
+
+  public getState(): string[][] {
+    const entities = this.getAllEntities();
+    let config: string[][] = [];
+
+    for (let y = 0; y < this.boardHeight; y++) {
+      const item: string[] = [];
+
+      for (let x = 0; x < this.boardWidth; x++) {
+        const entity = entityAt(entities, { x, y });
+        item.push(entity === null ? " " : entity.toConfig());
+      }
+
+      config.push(item);
+    }
+
+    return config;
+  }
+
+  public getZombie(): Zombie {
+    const zombie = this.zombies[0];
+
+    if (typeof zombie === "undefined") {
+      throw new Error("Tried getting non-existing first zombie");
+    }
+
+    return zombie;
+  }
+
   public getZombies(): Zombie[] {
     return this.zombies;
+  }
+
+  public setZombies(zombies: Zombie[]): this {
+    this.zombies = zombies;
+    return this;
   }
 
   public step() {

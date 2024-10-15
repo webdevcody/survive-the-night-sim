@@ -1,4 +1,4 @@
-import { Entity } from "./Entity";
+import { Entity, EntityType } from "./Entity";
 import { Position } from "../Position";
 import { ZombieSurvival } from "../ZombieSurvival";
 import { closestEntity } from "../lib/closest-entity";
@@ -11,7 +11,7 @@ export class Player extends Entity {
   private game: ZombieSurvival;
 
   public constructor(game: ZombieSurvival, position: Position) {
-    super(Player.Destructible, Player.Health, position);
+    super(EntityType.Player, Player.Destructible, Player.Health, position);
     this.game = game;
   }
 
