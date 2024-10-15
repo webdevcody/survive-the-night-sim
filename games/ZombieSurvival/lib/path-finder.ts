@@ -25,20 +25,14 @@ export function pathFinder(
       continue;
     }
 
+    graph.set(snapshot, {});
     const game = ZombieSurvival.fromSnapshot(snapshot);
     const moves = game.getZombie().listMoves();
-
-    graph.set(snapshot, {});
 
     moves.forEach((move) => {
       const game = ZombieSurvival.fromSnapshot(snapshot);
       game.getZombie().walk(move);
       const newSnapshot = game.getSnapshot();
-
-      if (game.finished()) {
-        wins.add(newSnapshot);
-        return;
-      }
 
       if (graph.has(newSnapshot) || queue.includes(newSnapshot)) {
         return;
@@ -50,7 +44,11 @@ export function pathFinder(
         graphItem[directionToString(move)] = newSnapshot;
       }
 
-      queue.push(newSnapshot);
+      if (game.finished()) {
+        wins.add(newSnapshot);
+      } else {
+        queue.push(newSnapshot);
+      }
     });
   }
 

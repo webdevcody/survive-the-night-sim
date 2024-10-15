@@ -73,6 +73,10 @@ export class Zombie extends Entity {
   }
 
   public walk(direction: Direction | null = null) {
+    if (this.dead()) {
+      return;
+    }
+
     let nextDirection = direction ?? pathFinder(this.game, this)[0];
 
     if (typeof nextDirection === "undefined") {

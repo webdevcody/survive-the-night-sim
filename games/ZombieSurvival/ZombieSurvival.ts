@@ -110,13 +110,7 @@ export class ZombieSurvival {
   }
 
   public getZombie(): Zombie {
-    const zombie = this.zombies[0];
-
-    if (typeof zombie === "undefined") {
-      throw new Error("Tried getting non-existing first zombie");
-    }
-
-    return zombie;
+    return this.zombies[0];
   }
 
   public getZombies(): Zombie[] {
@@ -124,6 +118,10 @@ export class ZombieSurvival {
   }
 
   public setZombies(zombies: Zombie[]): this {
+    if (zombies.length === 0) {
+      throw new Error("Tried setting zero zombies");
+    }
+
     this.zombies = zombies;
     return this;
   }
@@ -132,6 +130,10 @@ export class ZombieSurvival {
     this.player.shoot();
 
     for (const zombie of this.zombies) {
+      if (this.player.dead()) {
+        break;
+      }
+
       zombie.walk();
     }
   }
