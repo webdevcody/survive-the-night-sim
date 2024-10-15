@@ -1,0 +1,21 @@
+name: Deploy Convex
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code 🔄
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ⚙️ - Install dependencies 🔧
+        uses: ./.github/actions/setup
+
+      - name: Deploy Convex 🚀
+        env:
+          CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
+        run: npx convex deploy
