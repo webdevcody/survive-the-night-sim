@@ -14,6 +14,15 @@ Before you can run the project, you'll need to setup a
 6. `paste client id when prompted`
 7. `paste client secret when prompted`
 
+## Env Setup
+
+This starter project works with [convex](https://www.convex.dev) so to run you need to use the [.env.example](.env.example) file to create your own .env file.
+
+## Deployment
+
+When deploying you need to set the HOSTNAME of the application to your FQDN, such as `https://you-domain.com`
+
+
 ## Join the community
 
 Want to help build on this project?
