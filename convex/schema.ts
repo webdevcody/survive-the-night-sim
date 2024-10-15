@@ -6,10 +6,6 @@ import { v } from "convex/values";
 // requires indexes defined on `authTables`.
 export default defineSchema({
   ...authTables,
-  messages: defineTable({
-    userId: v.id("users"),
-    body: v.string(),
-  }),
   games: defineTable({
     modelId: v.string(),
     currentLevel: v.number(),
@@ -34,5 +30,4 @@ export default defineSchema({
     isWin: v.boolean(),
     reasoning: v.string(),
   }),
-
 });

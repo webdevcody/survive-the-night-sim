@@ -4,53 +4,21 @@ import { Map } from "@/app/map";
 import { api } from "@/convex/_generated/api";
 import { useAction } from "convex/react";
 import React, { useState } from "react";
-
-function convertStringMapToNumberGrid(map: string[][]): number[][] {
-  return map.map((row) =>
-    row.map((cell) => {
-      switch (cell) {
-        case "P":
-          return 3; // Player
-        case "Z":
-          return 1; // Zombie
-        case "R":
-          return 2; // Rocks
-        case "B":
-          return 4; // Block
-        case " ":
-          return 0; // Empty Space
-        default:
-          return 0; // Default to empty space
-      }
-    }),
-  );
-}
-
-function convertNumberGridToStringMap(grid: number[][]): string[][] {
-  return grid.map((row) =>
-    row.map((cell) => {
-      switch (cell) {
-        case 3:
-          return "P"; // Player
-        case 1:
-          return "Z"; // Zombie
-        case 2:
-          return "R"; // Rocks
-        case 4:
-          return "B"; // Block
-        case 0:
-          return " "; // Empty Space
-        default:
-          return " "; // Default to empty space
-      }
-    }),
-  );
-}
+import { Button } from "./ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { AI_MODELS } from "@/app/constants";
 
 const MapTester = ({ map }: { map: string[][] }) => {
   const getPlayerMap = useAction(api.openai.playMapAction);
-  const [resMap, setResMap] = useState<null | number[][]>();
+  const [resMap, setResMap] = useState<null | string[][]>();
   const [loading, setLoading] = useState(false);
+  const [model, setModel] = useState(AI_MODELS[0].model);
 
   const handleClick = async () => {
     setLoading(true);
@@ -58,7 +26,7 @@ const MapTester = ({ map }: { map: string[][] }) => {
       const res = await getPlayerMap({
         level: 1,
         mapId: "zombiemap",
-        map: convertStringMapToNumberGrid(map),
+        map,
       });
 
       // type safe resulting object
@@ -72,13 +40,29 @@ const MapTester = ({ map }: { map: string[][] }) => {
   };
 
   return (
-    <div>
-      <button onClick={handleClick} disabled={loading}>
-        Test Output
-      </button>
-      {loading && <p>Loading result map...</p>}
-      {resMap && <Map map={convertNumberGridToStringMap(resMap)} />}
-    </div>
+    <>
+      <div className="flex gap-4">
+        <Select value={model} onValueChange={(value) => setModel(value)}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Select model" />
+          </SelectTrigger>
+          <SelectContent>
+            {AI_MODELS.map((model) => (
+              <SelectItem key={model.model} value={model.model}>
+                {model.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button onClick={handleClick} disabled={loading}>
+          Run Simulation
+        </Button>
+      </div>
+      <div className="flex flex-col gap-4">
+        {loading && <p>Loading result map...</p>}
+        {resMap && <Map map={resMap} />}
+      </div>
+    </>
   );
 };
 

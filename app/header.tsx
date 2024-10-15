@@ -25,11 +25,22 @@ export default function Header() {
   const { isAuthenticated } = useConvexAuth();
 
   return (
-    <header className="flex justify-between items-center py-4 px-6 shadow-sm border-b">
+    <header className="flex justify-between items-center py-4 px-6 shadow-sm border-b bg-slate-950">
       <Link href="/" className="flex items-center">
-        <Image src="/convex.svg" alt="Logo" width={32} height={32} />
+        <Image src="/logo.png" alt="Logo" width={32} height={32} />
         <span className="ml-2 text-xl font-bold">SurviveTheNight</span>
       </Link>
+
+      <div className="flex items-center">
+        <span className="mr-2 text-sm text-gray-200">Synced using Convex</span>
+        <Link
+          href="https://www.convex.dev"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Image src="/convex.svg" alt="Convex" width={24} height={24} />
+        </Link>
+      </div>
 
       {!isAuthenticated ? (
         <SignInWithGitHub />

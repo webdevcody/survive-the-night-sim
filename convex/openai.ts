@@ -5,7 +5,7 @@ import { z } from "zod";
 import { zodResponseFormat } from "openai/helpers/zod";
 
 const ResponseSchema = z.object({
-  map: z.array(z.array(z.number())),
+  map: z.array(z.array(z.string())),
   reasoning: z.string(),
   playerCoordinates: z.array(z.number()),
   boxCoordinates: z.array(z.array(z.number())),
@@ -13,14 +13,18 @@ const ResponseSchema = z.object({
 
 export const playMapAction = action({
   args: {
-    map: v.array(v.array(v.number())),
+    map: v.array(v.array(v.string())),
     mapId: v.string(),
     level: v.number(),
   },
   handler: async (_, args) => {
     if (process.env.MOCK_OPEN_AI) {
+      const existingMap = [...args.map.map((row) => [...row])];
+      existingMap[0][0] = "P";
+      existingMap[0][1] = "B";
+      existingMap[0][2] = "B";
       return {
-        map: args.map,
+        map: existingMap,
         reasoning: "This is a mock response",
         playerCoordinates: [0, 0],
         boxCoordinates: [],
@@ -37,13 +41,13 @@ export const playMapAction = action({
           {
             role: "system",
             content: `You're given a 2d grid of nums such that.
-                      0 represents an empty space.
-                      1 represents a zombie. Zombies move one Manhattan step every turn and aim to reach the player.
-                      2 represents rocks, which players can shoot over but zombies cannot pass through or break.
-                      3 represents the player, who cannot move. The player's goal is to shoot and kill zombies before they reach them.
-                      4 represents blocks that can be placed before the round begins to hinder the zombies. You can place up to two blocks on the map.
-                      Your goal is to place the player (3) and two blocks (4) in locations that maximize the player's survival by delaying the zombies' approach while allowing the player clear lines of sight to shoot them before they get too close.
-                      Returning a 2d grid with the player and blocks placed in the optimal locations, with the coordinates player (3) and the blocks (4), also provide reasoning for the choices.`,
+                      " " represents an empty space.
+                      "Z" represents a zombie. Zombies move one Manhattan step every turn and aim to reach the player.
+                      "R" represents rocks, which players can shoot over but zombies cannot pass through or break.
+                      "P" represents the player, who cannot move. The player's goal is to shoot and kill zombies before they reach them.
+                      "B" represents blocks that can be placed before the round begins to hinder the zombies. You can place up to two blocks on the map.
+                      Your goal is to place the player ("P") and two blocks ("B") in locations that maximize the player's survival by delaying the zombies' approach while allowing the player clear lines of sight to shoot them before they get too close.
+                      Returning a 2d grid with the player and blocks placed in the optimal locations, with the coordinates player ("P") and the blocks ("B"), also provide reasoning for the choices.`,
           },
           {
             role: "user",
