@@ -1,3 +1,4 @@
+import MapTester from "@/components/MapTester";
 import { Map } from "./map";
 
 const hardCodedMapTemp = [
@@ -14,8 +15,9 @@ const hardCodedMapTemp = [
 
 export default function MainPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex flex-col items-center justify-center">
       <Map map={hardCodedMapTemp} />
+      <MapTester map={hardCodedMapTemp} />
     </div>
   );
 }
