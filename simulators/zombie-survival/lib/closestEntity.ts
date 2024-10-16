@@ -1,13 +1,14 @@
 import { Entity } from "../entities/Entity";
-import { positionAsNumber } from "../Position";
 
 export interface ClosestEntityScore {
-  score: number;
+  distance: number;
   target: Entity;
 }
 
 export function closestEntity(entity: Entity, targets: Entity[]): Entity {
-  const entityPosition = positionAsNumber(entity.getPosition());
+  const entityPosition = entity.getPosition();
+  const x1 = entityPosition.x;
+  const y1 = entityPosition.y;
   const scores: ClosestEntityScore[] = [];
 
   for (const target of targets) {
@@ -15,16 +16,18 @@ export function closestEntity(entity: Entity, targets: Entity[]): Entity {
       continue;
     }
 
-    const targetPosition = positionAsNumber(target.getPosition());
-    const score = Math.abs(entityPosition - targetPosition);
+    const targetPosition = target.getPosition();
+    const x2 = targetPosition.x;
+    const y2 = targetPosition.y;
+    const distance = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 
-    scores.push({ target, score });
+    scores.push({ distance, target });
   }
 
   if (scores.length === 0) {
     throw new Error("No alive targets found");
   }
 
-  scores.sort((a, b) => a.score - b.score);
+  scores.sort((a, b) => a.distance - b.distance);
   return scores[0].target;
 }

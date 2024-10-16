@@ -19,12 +19,13 @@ Before you can run the project, you'll need to setup a
 
 This starter project works with [convex](https://www.convex.dev) so to run you need to use the [.env.example](.env.example) file to create your own .env file.
 
-In convex, please add the following environment variables:
+If you want to mock all models - in convex, please add the following environment variables:
 
-- `npx convex env set MOCK_OPEN_AI true`
+- `npx convex env set MOCK_MODELS true`
 
 Add optional environment variable/s for simulating real AI models without mockup responses(when mockup flags are set to FALSE):
 
+- `npx convex env set GEMINI_API_KEY YOUR_API_KEY`
 - `npx convex env set OPENAI_API_KEY YOUR_API_KEY`
 
 also, you may need to run, but I think the initial setup does that.

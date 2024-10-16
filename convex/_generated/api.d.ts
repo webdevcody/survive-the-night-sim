@@ -18,11 +18,9 @@ import type {
 import type * as auth from "../auth.js";
 import type * as constants from "../constants.js";
 import type * as games from "../games.js";
-import type * as gemini from "../gemini.js";
 import type * as http from "../http.js";
 import type * as init from "../init.js";
 import type * as maps from "../maps.js";
-import type * as openai from "../openai.js";
 import type * as results from "../results.js";
 import type * as scores from "../scores.js";
 import type * as users from "../users.js";
@@ -39,11 +37,9 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   constants: typeof constants;
   games: typeof games;
-  gemini: typeof gemini;
   http: typeof http;
   init: typeof init;
   maps: typeof maps;
-  openai: typeof openai;
   results: typeof results;
   scores: typeof scores;
   users: typeof users;
