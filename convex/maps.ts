@@ -98,12 +98,12 @@ export const seedMaps = internalMutation({
       await ctx.db.delete(map._id);
     }
 
-    for (const [idx, map] of LEVELS.entries()) {
+    LEVELS.forEach((map, idx) => {
       ctx.db.insert("maps", {
         level: idx + 1,
         grid: map.grid,
       });
-    }
+    });
   },
 });
 
