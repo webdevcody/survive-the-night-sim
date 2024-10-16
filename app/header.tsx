@@ -39,6 +39,9 @@ export default function Header() {
         <Link href="/play">
           <Button variant="ghost">Play</Button>
         </Link>
+        <Link href="/leaderboard">
+          <Button variant="ghost">Leaderboard</Button>
+        </Link>
       </nav>
 
       <div className="flex items-center space-x-4">
