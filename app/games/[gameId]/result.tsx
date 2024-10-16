@@ -3,7 +3,8 @@
 import { Doc } from "@/convex/_generated/dataModel";
 import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
-import { Visualizer } from "./visualizer";
+import { ResultStatus } from "@/app/result-status";
+import { Visualizer } from "../../visualizer";
 import Link from "next/link";
 
 export const Result = ({ result }: { result: Doc<"results"> }) => {
@@ -33,11 +34,7 @@ export const Result = ({ result }: { result: Doc<"results"> }) => {
       </Link>
       <Visualizer map={result.map} autoStart={true} />
       <div className="flex flex-col">
-        <div
-          className={`font-bold ${result.isWin ? "text-green-500" : "text-red-500"}`}
-        >
-          {result.isWin ? "Won" : "Lost"}
-        </div>
+        <ResultStatus result={result} />
         {result.reasoning !== "" && <p>{result.reasoning}</p>}
       </div>
     </div>

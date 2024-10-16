@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
-import { Visualizer } from "@/app/games/[gameId]/visualizer";
+import { Visualizer } from "../../visualizer";
 import { Map } from "@/app/map";
 import Link from "next/link";
 import { ChevronLeftIcon } from "@radix-ui/react-icons";
