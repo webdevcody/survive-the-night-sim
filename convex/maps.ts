@@ -91,19 +91,20 @@ const LEVELS = [
 
 export const seedMaps = internalMutation({
   handler: async (ctx) => {
-    // delete all existing maps
-    const maps = await ctx.db.query("maps").collect();
+    const firstMap = await ctx.db.query("maps").first();
 
-    for (const map of maps) {
-      await ctx.db.delete(map._id);
+    if (firstMap) {
+      return;
     }
 
-    LEVELS.forEach((map, idx) => {
-      ctx.db.insert("maps", {
-        level: idx + 1,
-        grid: map.grid,
-      });
-    });
+    await Promise.all(
+      LEVELS.map((map, idx) =>
+        ctx.db.insert("maps", {
+          level: idx + 1,
+          grid: map.grid,
+        }),
+      ),
+    );
   },
 });
 
@@ -139,12 +140,9 @@ export const playMapAction = internalAction({
       },
     );
 
-    const map: Doc<"maps"> | null = (await ctx.runQuery(
-      api.maps.getMapByLevel,
-      {
-        level: args.level,
-      },
-    )) as any;
+    const map = await ctx.runQuery(api.maps.getMapByLevel, {
+      level: args.level,
+    });
 
     if (!map) {
       throw new Error("Map not found");

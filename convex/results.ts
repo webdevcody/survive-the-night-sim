@@ -22,7 +22,7 @@ export const getLastCompletedResults = query({
   handler: async ({ db }) => {
     const results = await db
       .query("results")
-      .filter((q) => q.eq(q.field("status"), "completed"))
+      .withIndex("by_status", (q) => q.eq("status", "completed"))
       .order("desc")
       .take(20);
 
@@ -68,6 +68,10 @@ export const failResult = internalMutation({
       error: args.error,
       status: "failed",
     });
+
+    await ctx.runMutation(internal.results.scheduleNextPlay, {
+      resultId: args.resultId,
+    });
   },
 });
 
@@ -94,10 +98,6 @@ export const updateResult = internalMutation({
 
     const game = await ctx.db.get(result.gameId);
 
-    const maps = await ctx.db.query("maps").collect();
-
-    const lastLevel = maps.reduce((max, map) => Math.max(max, map.level), 0);
-
     if (!game) {
       throw new Error("Game not found");
     }
@@ -114,20 +114,48 @@ export const updateResult = internalMutation({
       });
     }
 
-    if (result.level < lastLevel) {
-      const map = await ctx.runQuery(api.maps.getMapByLevel, {
-        level: result.level + 1,
-      });
+    await ctx.runMutation(internal.results.scheduleNextPlay, {
+      resultId: args.resultId,
+    });
+  },
+});
 
-      if (!map) {
-        throw new Error("Next map not found");
-      }
+export const scheduleNextPlay = internalMutation({
+  args: {
+    resultId: v.id("results"),
+  },
+  handler: async (ctx, args) => {
+    const result = await ctx.db.get(args.resultId);
 
-      await ctx.scheduler.runAfter(0, internal.maps.playMapAction, {
-        gameId: result.gameId,
-        modelId: game.modelId,
-        level: result.level + 1,
-      });
+    if (!result) {
+      throw new Error("Result not found");
     }
+
+    const maps = await ctx.db.query("maps").collect();
+    const lastLevel = maps.reduce((max, map) => Math.max(max, map.level), 0);
+
+    if (result.level >= lastLevel) {
+      return;
+    }
+
+    const map = await ctx.runQuery(api.maps.getMapByLevel, {
+      level: result.level + 1,
+    });
+
+    const game = await ctx.db.get(result.gameId);
+
+    if (!game) {
+      throw new Error("Game not found");
+    }
+
+    if (!map) {
+      throw new Error("Next map not found");
+    }
+
+    await ctx.scheduler.runAfter(0, internal.maps.playMapAction, {
+      gameId: result.gameId,
+      modelId: game.modelId,
+      level: result.level + 1,
+    });
   },
 });
