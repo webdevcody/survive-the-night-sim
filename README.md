@@ -22,6 +22,7 @@ This starter project works with [convex](https://www.convex.dev) so to run you n
 If you want to mock all models - in convex, please add the following environment variables:
 
 - `npx convex env set MOCK_MODELS true`
+- `npx convex env set NODE_ENV development`
 
 Add optional environment variable/s for simulating real AI models without mockup responses(when mockup flags are set to FALSE):
 

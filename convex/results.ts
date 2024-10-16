@@ -49,25 +49,6 @@ export const createInitialResult = internalMutation({
   },
 });
 
-// export const failResult = internalMutation({
-//   args: {
-//     resultId: v.id("results"),
-//     error: v.string(),
-//   },
-//   handler: async (ctx, args) => {
-//     const result = await ctx.db.get(args.resultId);
-
-//     if (!result) {
-//       throw new Error("Result not found");
-//     }
-
-//     await ctx.db.patch(args.resultId, {
-//       error: args.error,
-//       status: "failed",
-//     });
-//   },
-// });
-
 export const updateResult = internalMutation({
   args: {
     resultId: v.id("results"),
@@ -93,13 +74,13 @@ export const updateResult = internalMutation({
 
     const game = await ctx.db.get(result.gameId);
 
-    const maps = await ctx.db.query("maps").collect();
-
-    const lastLevel = maps.reduce((max, map) => Math.max(max, map.level), 0);
-
     if (!game) {
       throw new Error("Game not found");
     }
+
+    const maps = await ctx.db.query("maps").collect();
+
+    const lastLevel = maps.reduce((max, map) => Math.max(max, map.level), 0);
 
     await ctx.runMutation(internal.leaderboard.updateRankings, {
       modelId: game.modelId,

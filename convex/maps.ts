@@ -1,6 +1,5 @@
 import { internalAction, internalMutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { Doc } from "./_generated/dataModel";
 import { ZombieSurvival } from "../simulators/zombie-survival";
 import { api, internal } from "./_generated/api";
 import { runModel } from "../models";
@@ -23,87 +22,24 @@ const LEVELS = [
       ["Z", " "],
     ],
   },
-  // {
-  //   grid: [
-  //     ["Z", " ", " ", "R", " "],
-  //     [" ", "R", " ", " ", " "],
-  //     [" ", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", "Z"],
-  //     [" ", " ", " ", " ", " "],
-  //   ],
-  // },
-  // {
-  //   grid: [
-  //     ["Z", " ", " ", "R", " "],
-  //     [" ", "R", " ", " ", " "],
-  //     [" ", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", "Z"],
-  //     [" ", " ", " ", " ", " "],
-  //   ],
-  // },
-  // {
-  //   grid: [
-  //     [" ", " ", "R", " ", "Z"],
-  //     [" ", " ", " ", " ", " "],
-  //     [" ", " ", " ", "R", " "],
-  //     ["Z", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", " "],
-  //   ],
-  // },
-  // {
-  //   grid: [
-  //     ["Z", " ", " ", "R", " ", " ", " "],
-  //     [" ", " ", " ", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", " ", "Z", " "],
-  //     [" ", " ", " ", " ", " ", " ", " "],
-  //     [" ", "R", " ", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", "R", " ", " "],
-  //   ],
-  // },
-  // {
-  //   grid: [
-  //     [" ", "Z", " ", " ", "R", " ", " "],
-  //     [" ", " ", " ", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", " ", " ", "Z"],
-  //     [" ", " ", "R", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", " ", " ", " "],
-  //   ],
-  // },
-  // {
-  //   grid: [
-  //     [" ", " ", " ", " ", "R", "Z", " ", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
-  //     ["Z", " ", " ", " ", " ", "R", " ", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", "R", " ", " ", " ", " ", "Z", " "],
-  //     [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
-  //     [" ", " ", "R", " ", " ", " ", " ", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", " ", " ", "Z", " ", " ", " ", " "],
-  //     ["B", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
-  //     ["Z", " ", " ", " ", "Z", " ", " ", " ", " ", " ", "Z"],
-  //   ],
-  // },
 ];
 
 export const seedMaps = internalMutation({
   handler: async (ctx) => {
-    // delete all existing maps
-    const maps = await ctx.db.query("maps").collect();
+    const firstMap = await ctx.db.query("maps").first();
 
-    for (const map of maps) {
-      await ctx.db.delete(map._id);
+    if (firstMap) {
+      return;
     }
 
-    LEVELS.forEach((map, idx) => {
-      ctx.db.insert("maps", {
-        level: idx + 1,
-        grid: map.grid,
-      });
-    });
+    await Promise.all(
+      LEVELS.map((map, idx) =>
+        ctx.db.insert("maps", {
+          level: idx + 1,
+          grid: map.grid,
+        }),
+      ),
+    );
   },
 });
 
@@ -139,12 +75,9 @@ export const playMapAction = internalAction({
       },
     );
 
-    const map: Doc<"maps"> | null = (await ctx.runQuery(
-      api.maps.getMapByLevel,
-      {
-        level: args.level,
-      },
-    )) as any;
+    const map = await ctx.runQuery(api.maps.getMapByLevel, {
+      level: args.level,
+    });
 
     if (!map) {
       throw new Error("Map not found");

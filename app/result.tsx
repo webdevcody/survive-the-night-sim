@@ -1,8 +1,8 @@
 "use client";
 
-import { ResultStatus } from "../result-status";
+import { ResultStatus } from "./result-status";
 import { type ResultWithGame } from "@/convex/results";
-import { Visualizer } from "../visualizer";
+import { Visualizer } from "./visualizer";
 import { format } from "date-fns";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
@@ -40,6 +40,12 @@ export default function Result({ result }: { result: ResultWithGame }) {
             >
               Night #{result.level}
             </Link>{" "}
+            <Link
+              href={`/games/${result.game._id}`}
+              className="whitespace-nowrap hover:underline cursor-pointer"
+            >
+              Game {result.game._id.substring(0, 8)}...
+            </Link>
             <div className="flex gap-2">
               The <span className="font-bold">{result.game.modelId}</span> model
               {result.status === "inProgress" ? (

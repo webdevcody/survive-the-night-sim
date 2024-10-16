@@ -5,8 +5,9 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
-import { useConvexAuth } from "convex/react";
+import { useConvexAuth, useQuery } from "convex/react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { api } from "@/convex/_generated/api";
 
 function SignInWithGitHub() {
   const { signIn } = useAuthActions();
@@ -24,6 +25,7 @@ function SignInWithGitHub() {
 export default function Header() {
   const { signOut } = useAuthActions();
   const { isAuthenticated } = useConvexAuth();
+  const flags = useQuery(api.flags.getFlags);
 
   return (
     <header className="flex justify-between items-center py-4 px-6 shadow-sm border-b">
@@ -33,7 +35,7 @@ export default function Header() {
       </Link>
 
       <nav className="flex items-center space-x-4">
-        <Link href="/watch">
+        <Link href="/">
           <Button variant="ghost">Watch</Button>
         </Link>
         <Link href="/play">
@@ -42,6 +44,11 @@ export default function Header() {
         <Link href="/leaderboard">
           <Button variant="ghost">Leaderboard</Button>
         </Link>
+        {flags?.showTestPage && (
+          <Link href="/test">
+            <Button variant="ghost">Test</Button>
+          </Link>
+        )}
       </nav>
 
       <div className="flex items-center space-x-4">

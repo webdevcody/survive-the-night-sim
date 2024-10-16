@@ -53,7 +53,7 @@ export async function runModel(
   const [playerRow, playerCol] = result.playerCoordinates;
 
   if (originalMap[playerRow][playerCol] !== " ") {
-    throw new Error("Tried to place player in a non-empty space, silly AI");
+    throw new Error("Tried to place player in a non-empty space");
   }
 
   originalMap[playerRow][playerCol] = "P";
@@ -62,7 +62,7 @@ export async function runModel(
     const [blockRow, blockCol] = block;
 
     if (originalMap[blockRow][blockCol] !== " ") {
-      throw new Error("Tried to place a block in a non-empty space, silly AI");
+      throw new Error("Tried to place a block in a non-empty space");
     }
 
     originalMap[blockRow][blockCol] = "B";

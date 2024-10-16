@@ -1,50 +1,85 @@
 "use client";
 
+import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { useAction, useMutation } from "convex/react";
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { AI_MODELS } from "@/convex/constants";
-import { useRouter } from "next/navigation";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+} from "@/components/ui/table";
+import { TableHeader } from "@/components/ui/table";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import Result from "./result";
 
-export default function MainPage() {
-  const startNewGame = useMutation(api.games.startNewGame);
-  const [model, setModel] = useState(AI_MODELS[0].model);
-  const router = useRouter();
+export default function GamePage() {
+  const results = useQuery(api.results.getLastCompletedResults);
+  const globalRanking = useQuery(api.leaderboard.getGlobalRankings);
 
-  const handleClick = async () => {
-    await startNewGame({
-      modelId: model,
-    }).then((gameId) => {
-      router.push(`/games/${gameId}`);
-    });
-  };
+  if (results === undefined) {
+    return (
+      <div className="min-h-screen container mx-auto pt-12 pb-24 space-y-8">
+        <h1 className="text-2xl font-bold">Recent Games</h1>
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
+  if (results.length === 0) {
+    return (
+      <div className="min-h-screen container mx-auto pt-12 pb-24 space-y-8">
+        <h1 className="text-2xl font-bold">Recent Games</h1>
+        <p>No results yet</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto min-h-screen flex flex-col items-center pt-12 gap-8">
-      <h1 className="text-4xl font-bold mb-8">Zombie Map Simulator</h1>
+    <div className="min-h-screen container mx-auto pt-12 pb-24 flex gap-12">
+      <div className="space-y-8 flex-grow">
+        <h1 className="text-2xl font-bold">Recent Games</h1>
+        <div className="h-[80vh] overflow-y-auto flex flex-col gap-4">
+          {results.map((result) => (
+            <Result key={result._id} result={result} />
+          ))}
+        </div>
+      </div>
 
-      <div className="flex justify-center gap-4">
-        <Select value={model} onValueChange={(value) => setModel(value)}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select model" />
-          </SelectTrigger>
-          <SelectContent>
-            {AI_MODELS.map((model) => (
-              <SelectItem key={model.model} value={model.model}>
-                {model.name}
-              </SelectItem>
+      <div className="space-y-8">
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold">LLM Leaderboard</h2>
+          <Button asChild>
+            <Link href="/leaderboard">View Full Leaderboard</Link>
+          </Button>
+        </div>
+        <Table className="w-[500px]">
+          <TableHeader>
+            <TableRow>
+              <TableHead>Model ID</TableHead>
+              <TableHead className="text-right">Wins</TableHead>
+              <TableHead className="text-right">Losses</TableHead>
+              <TableHead className="text-right">Total Games</TableHead>
+              <TableHead className="text-right">Win Ratio</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {globalRanking?.map((item) => (
+              <TableRow key={item._id}>
+                <TableCell>{item.modelId}</TableCell>
+                <TableCell className="text-right">{item.wins}</TableCell>
+                <TableCell className="text-right">{item.losses}</TableCell>
+                <TableCell className="text-right">
+                  {item.wins + item.losses}
+                </TableCell>
+                <TableCell className="text-right">
+                  {((item.wins / (item.wins + item.losses)) * 100).toFixed(2)}%
+                </TableCell>
+              </TableRow>
             ))}
-          </SelectContent>
-        </Select>
-        <Button onClick={handleClick}>Test Model</Button>
+          </TableBody>
+        </Table>
       </div>
     </div>
   );
