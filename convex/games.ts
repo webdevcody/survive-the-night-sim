@@ -1,6 +1,6 @@
 import { v } from "convex/values";
-import { internalMutation, mutation, query } from "./_generated/server";
-import { api, internal } from "./_generated/api";
+import { mutation, query } from "./_generated/server";
+import { internal } from "./_generated/api";
 import { AI_MODEL_IDS } from "./constants";
 
 export const startNewGame = mutation({

@@ -9,12 +9,14 @@ export function Visualizer({
   autoReplay = false,
   autoStart = false,
   controls = true,
+  cellSize = "64",
   map,
   onSimulationEnd,
 }: {
   autoReplay?: boolean;
   autoStart?: boolean;
   controls?: boolean;
+  cellSize?: string;
   map: string[][];
   onSimulationEnd?: (isWin: boolean) => void;
 }) {
@@ -84,7 +86,12 @@ export function Visualizer({
           {row.map((cell, x) => (
             <div
               key={x}
-              className={`size-8 border flex items-center justify-center text-2xl bg-slate-950`}
+              style={{
+                width: `${cellSize}px`,
+                height: `${cellSize}px`,
+                fontSize: `${parseInt(cellSize) / 2}px`,
+              }}
+              className={`border flex items-center justify-center dark:bg-black bg-slate-50`}
             >
               {cell}
             </div>

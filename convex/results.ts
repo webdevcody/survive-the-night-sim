@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { internalMutation, query } from "./_generated/server";
 import { api, internal } from "./_generated/api";
+import { PLAY_DELAY } from "./constants";
 
 export type ResultWithGame = Awaited<
   ReturnType<typeof getLastCompletedResults>
@@ -20,11 +21,7 @@ export const getResults = query({
 
 export const getLastCompletedResults = query({
   handler: async ({ db }) => {
-    const results = await db
-      .query("results")
-      .filter((q) => q.eq(q.field("status"), "completed"))
-      .order("desc")
-      .take(20);
+    const results = await db.query("results").order("desc").take(20);
 
     return Promise.all(
       results.map(async (result) => ({
@@ -52,31 +49,32 @@ export const createInitialResult = internalMutation({
   },
 });
 
-export const failResult = internalMutation({
-  args: {
-    resultId: v.id("results"),
-    error: v.string(),
-  },
-  handler: async (ctx, args) => {
-    const result = await ctx.db.get(args.resultId);
+// export const failResult = internalMutation({
+//   args: {
+//     resultId: v.id("results"),
+//     error: v.string(),
+//   },
+//   handler: async (ctx, args) => {
+//     const result = await ctx.db.get(args.resultId);
 
-    if (!result) {
-      throw new Error("Result not found");
-    }
+//     if (!result) {
+//       throw new Error("Result not found");
+//     }
 
-    await ctx.db.patch(args.resultId, {
-      error: args.error,
-      status: "failed",
-    });
-  },
-});
+//     await ctx.db.patch(args.resultId, {
+//       error: args.error,
+//       status: "failed",
+//     });
+//   },
+// });
 
 export const updateResult = internalMutation({
   args: {
     resultId: v.id("results"),
     isWin: v.boolean(),
     reasoning: v.string(),
-    map: v.array(v.array(v.string())),
+    map: v.optional(v.array(v.array(v.string()))),
+    error: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const result = await ctx.db.get(args.resultId);
@@ -88,8 +86,9 @@ export const updateResult = internalMutation({
     await ctx.db.patch(args.resultId, {
       isWin: args.isWin,
       reasoning: args.reasoning,
-      status: "completed",
-      map: args.map,
+      status: args.error ? "failed" : "completed",
+      map: args.map ?? [],
+      error: args.error,
     });
 
     const game = await ctx.db.get(result.gameId);
@@ -123,7 +122,7 @@ export const updateResult = internalMutation({
         throw new Error("Next map not found");
       }
 
-      await ctx.scheduler.runAfter(0, internal.maps.playMapAction, {
+      await ctx.scheduler.runAfter(PLAY_DELAY, internal.maps.playMapAction, {
         gameId: result.gameId,
         modelId: game.modelId,
         level: result.level + 1,

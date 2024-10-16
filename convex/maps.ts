@@ -184,16 +184,22 @@ export const playMapAction = internalAction({
             ? error
             : "Unexpected error happened";
 
-      await ctx.runMutation(internal.results.failResult, {
+      // await ctx.runMutation(internal.results.failResult, {
+      //   resultId,
+      //   error: errorMessage,
+      // });
+      await ctx.runMutation(internal.results.updateResult, {
         resultId,
+        isWin: false,
+        reasoning: errorMessage,
         error: errorMessage,
       });
 
-      await ctx.runMutation(internal.leaderboard.updateRankings, {
-        modelId: args.modelId,
-        level: args.level,
-        isWin: false,
-      });
+      // await ctx.runMutation(internal.leaderboard.updateRankings, {
+      //   modelId: args.modelId,
+      //   level: args.level,
+      //   isWin: false,
+      // });
     }
   },
 });

@@ -92,15 +92,14 @@ export default function PlayLevelPage({
   const mapHeight = playerMap.length > 0 ? playerMap.length : map.grid.length;
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="container mx-auto min-h-screen flex flex-col items-center py-12 pb-24 gap-8">
+      <Button variant="outline" asChild className="flex gap-2 items-center">
+        <Link href="/play" passHref>
+          <ChevronLeftIcon /> Play Different Night
+        </Link>
+      </Button>
       <div className="flex justify-between items-center mb-6">
-        <Button variant="outline" asChild className="flex gap-2 items-center">
-          <Link href="/play" passHref>
-            <ChevronLeftIcon /> Back to Levels
-          </Link>
-        </Button>
-        <h1 className="text-3xl font-bold text-center">Level {level}</h1>
-        <div className="w-[100px]"></div> {/* Spacer for alignment */}
+        <h1 className="text-3xl font-bold text-center">Night #{level}</h1>
       </div>
       <div className="mb-4 flex justify-center gap-4">
         <Button
