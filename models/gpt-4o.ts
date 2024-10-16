@@ -24,7 +24,6 @@ export const gpt4o: ModelHandler = async (prompt, map) => {
         content: JSON.stringify(map),
       },
     ],
-    temperature: 0.5,
     response_format: zodResponseFormat(ResponseSchema, "game_map"),
   });
 
