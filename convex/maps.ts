@@ -140,12 +140,9 @@ export const playMapAction = internalAction({
       },
     );
 
-    const map: Doc<"maps"> | null = (await ctx.runQuery(
-      api.maps.getMapByLevel,
-      {
-        level: args.level,
-      },
-    )) as any;
+    const map = await ctx.runQuery(api.maps.getMapByLevel, {
+      level: args.level,
+    });
 
     if (!map) {
       throw new Error("Map not found");
