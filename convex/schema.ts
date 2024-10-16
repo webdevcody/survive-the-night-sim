@@ -36,7 +36,9 @@ export default defineSchema({
       v.literal("completed"),
       v.literal("failed"),
     ),
-  }).index("by_gameId_level", ["gameId", "level"]),
+  })
+    .index("by_gameId_level", ["gameId", "level"])
+    .index("by_status", ["status"]),
   globalrankings: defineTable({
     modelId: v.string(),
     wins: v.number(),

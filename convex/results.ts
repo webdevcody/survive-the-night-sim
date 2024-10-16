@@ -22,7 +22,7 @@ export const getLastCompletedResults = query({
   handler: async ({ db }) => {
     const results = await db
       .query("results")
-      .filter((q) => q.eq(q.field("status"), "completed"))
+      .withIndex("by_status", (q) => q.eq("status", "completed"))
       .order("desc")
       .take(20);
 
