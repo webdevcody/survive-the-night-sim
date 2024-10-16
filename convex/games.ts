@@ -10,8 +10,9 @@ export const testModel = mutation({
   },
   handler: async (ctx, args) => {
     const flags = await ctx.runQuery(api.flags.getFlags);
+
     if (!flags?.showTestPage) {
-      return "test";
+      throw new Error("Test page is not enabled");
     }
 
     const gameId = (await ctx.runMutation(internal.games.startNewGame, {

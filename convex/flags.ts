@@ -4,7 +4,7 @@ export const getFlags = query({
   args: {},
   handler: async (ctx) => {
     return {
-      showTestPage: process.env.NODE_ENV === "development",
+      showTestPage: process.env.FLAG_TEST_PAGE === "true",
     };
   },
 });
