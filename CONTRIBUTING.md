@@ -2,7 +2,7 @@ This is a community project for my discord, so please join if you want to partic
 
 ## How to Contribute
 
-if you see an issue, leave a comment saying "I want to work on this", then I will assign it to you.
+if you see an issue, leave a comment saying "I want to work on this", and put your discord name somewhere in the comment.
 
 ## Join the Discord
 
