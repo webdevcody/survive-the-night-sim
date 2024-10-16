@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
-import { type ModelResult } from ".";
+import { type ModelHandler } from ".";
 
 const schema = {
   description: "Game Round Results",
@@ -41,13 +41,13 @@ const schema = {
 };
 
 interface GeminiResponse {
-  map: string[][];
-  reasoning: string;
-  playerCoordinates: number[];
   boxCoordinates: number[][];
+  map: string[][];
+  playerCoordinates: number[];
+  reasoning: string;
 }
 
-export async function gemini15pro(map: string[][]): Promise<ModelResult> {
+export const gemini15pro: ModelHandler = async (prompt, map) => {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
   const model = genAI.getGenerativeModel({
@@ -59,20 +59,7 @@ export async function gemini15pro(map: string[][]): Promise<ModelResult> {
   });
 
   const result = await model.generateContent(
-    `You're given a 2d grid of nums such that.
-    " " represents an empty space.
-    "Z" represents a zombie. Zombies move one Manhattan step every turn and aim to reach the player.
-    "R" represents rocks, which players can shoot over but zombies cannot pass through or break.
-    "P" represents the player, who cannot move. The player's goal is to shoot and kill zombies before they reach them.
-    "B" represents blocks that can be placed before the round begins to hinder the zombies. You can place up to two blocks on the map.
-
-    Your goal is to place the player ("P") and two blocks ("B") in locations that maximize the player's survival by delaying the zombies' approach.
-    You can shoot any zombie regardless of where it is on the grid.
-    Returning a 2d grid with the player and blocks placed in the optimal locations, with the coordinates player ("P") and the blocks ("B"), also provide reasoning for the choices.
-
-    You can't replace rocks R or zombies Z with blocks.  If there is no room to place a block, do not place any.
-
-    Grid: ${JSON.stringify(map)}`,
+    `${prompt}\n\nGrid: ${JSON.stringify(map)}`,
   );
 
   // todo: check if the response is valid acc to types and the player and box coordinates are valid,
@@ -81,7 +68,8 @@ export async function gemini15pro(map: string[][]): Promise<ModelResult> {
   const parsedResponse = JSON.parse(result.response.text()) as GeminiResponse;
 
   return {
-    solution: parsedResponse.map,
+    boxCoordinates: parsedResponse.boxCoordinates,
+    playerCoordinates: parsedResponse.playerCoordinates,
     reasoning: parsedResponse.reasoning,
   };
-}
+};

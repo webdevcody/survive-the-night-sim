@@ -33,7 +33,7 @@ export default function Header() {
       </Link>
 
       <nav className="flex items-center space-x-4">
-        <Link href="/">
+        <Link href="/watch">
           <Button variant="ghost">Watch</Button>
         </Link>
         <Link href="/play">

@@ -2,6 +2,10 @@ import { v } from "convex/values";
 import { internalMutation, query } from "./_generated/server";
 import { api, internal } from "./_generated/api";
 
+export type ResultWithGame = Awaited<
+  ReturnType<typeof getLastCompletedResults>
+>[number];
+
 export const getResults = query({
   args: { gameId: v.id("games") },
   handler: async ({ db }, args) => {
@@ -11,6 +15,23 @@ export const getResults = query({
       .collect();
     results.sort((a, b) => b.level - a.level);
     return results;
+  },
+});
+
+export const getLastCompletedResults = query({
+  handler: async ({ db }) => {
+    const results = await db
+      .query("results")
+      .filter((q) => q.eq(q.field("status"), "completed"))
+      .order("desc")
+      .take(20);
+
+    return Promise.all(
+      results.map(async (result) => ({
+        ...result,
+        game: await db.get(result.gameId),
+      })),
+    );
   },
 });
 

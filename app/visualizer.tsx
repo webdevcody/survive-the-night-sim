@@ -2,19 +2,25 @@ import { Button } from "@/components/ui/button";
 import { ZombieSurvival } from "@/simulators/zombie-survival";
 import { useEffect, useRef, useState } from "react";
 
+const AUTO_REPLAY_SPEED = 1_500;
 const REPLAY_SPEED = 600;
 
 export function Visualizer({
-  map,
+  autoReplay = false,
   autoStart = false,
+  controls = true,
+  map,
   onSimulationEnd,
 }: {
-  map: string[][];
+  autoReplay?: boolean;
   autoStart?: boolean;
+  controls?: boolean;
+  map: string[][];
   onSimulationEnd?: (isWin: boolean) => void;
 }) {
   const simulator = useRef<ZombieSurvival | null>(null);
   const interval = useRef<NodeJS.Timeout | null>(null);
+  const timeout = useRef<NodeJS.Timeout | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [mapState, setMapState] = useState(map);
   const [needsReset, setNeedsReset] = useState(false);
@@ -25,17 +31,30 @@ export function Visualizer({
     simulator.current = new ZombieSurvival(clonedMap);
     setMapState(simulator.current!.getState());
     setIsRunning(true);
+
     interval.current = setInterval(() => {
       if (simulator.current!.finished()) {
         clearInterval(interval.current!);
         interval.current = null;
+
+        if (autoReplay) {
+          timeout.current = setTimeout(() => {
+            timeout.current = null;
+            startSimulation();
+          }, AUTO_REPLAY_SPEED);
+
+          return;
+        }
+
         setIsRunning(false);
+
         if (onSimulationEnd) {
-          console.log("here");
           onSimulationEnd(!simulator.current!.getPlayer().dead());
         }
+
         return;
       }
+
       simulator.current!.step();
       setMapState(simulator.current!.getState());
     }, REPLAY_SPEED);
@@ -51,6 +70,9 @@ export function Visualizer({
     return () => {
       if (interval.current) {
         clearInterval(interval.current);
+      }
+      if (timeout.current) {
+        clearTimeout(timeout.current);
       }
     };
   }, []);
@@ -69,22 +91,24 @@ export function Visualizer({
           ))}
         </div>
       ))}
-      <div className="flex gap-2 justify-center py-2">
-        <Button onClick={startSimulation} disabled={isRunning}>
-          Replay
-        </Button>
-        <Button
-          disabled={isRunning}
-          onClick={() => {
-            simulator.current = new ZombieSurvival(map);
-            setMapState(simulator.current!.getState());
-            setIsRunning(false);
-            setNeedsReset(false);
-          }}
-        >
-          Reset
-        </Button>
-      </div>
+      {controls && (
+        <div className="flex gap-2 justify-center py-2">
+          <Button onClick={startSimulation} disabled={isRunning}>
+            Replay
+          </Button>
+          <Button
+            disabled={isRunning}
+            onClick={() => {
+              simulator.current = new ZombieSurvival(map);
+              setMapState(simulator.current!.getState());
+              setIsRunning(false);
+              setNeedsReset(false);
+            }}
+          >
+            Reset
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

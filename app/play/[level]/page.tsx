@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
-import { Visualizer } from "@/app/games/[gameId]/visualizer";
+import { Visualizer } from "../../visualizer";
 import { Map } from "@/app/map";
 import Link from "next/link";
 import { ChevronLeftIcon } from "@radix-ui/react-icons";
@@ -19,6 +19,10 @@ export default function PlayLevelPage({
   const [playerMap, setPlayerMap] = useState<string[][]>([]);
   const [isSimulating, setIsSimulating] = useState(false);
   const [gameResult, setGameResult] = useState<"WON" | "LOST" | null>(null);
+  const [placementMode, setPlacementMode] = useState<"player" | "block">(
+    "player",
+  );
+  const [blockCount, setBlockCount] = useState(0);
 
   if (!map) {
     return <div>Loading...</div>;
@@ -27,6 +31,7 @@ export default function PlayLevelPage({
   function handleRetryClicked() {
     setIsSimulating(false);
     setGameResult(null);
+    setBlockCount(0);
     if (map) {
       setPlayerMap(map.grid);
     }
@@ -38,21 +43,33 @@ export default function PlayLevelPage({
     const newMap =
       playerMap.length > 0 ? [...playerMap] : map.grid.map((row) => [...row]);
 
-    // Remove existing player if any
-    for (let i = 0; i < newMap.length; i++) {
-      for (let j = 0; j < newMap[i].length; j++) {
-        if (newMap[i][j] === "P") {
-          newMap[i][j] = " ";
+    if (placementMode === "player") {
+      // Remove existing player if any
+      for (let i = 0; i < newMap.length; i++) {
+        for (let j = 0; j < newMap[i].length; j++) {
+          if (newMap[i][j] === "P") {
+            newMap[i][j] = " ";
+          }
         }
+      }
+
+      // Place new player
+      if (newMap[y][x] === " ") {
+        newMap[y][x] = "P";
+      }
+    } else if (placementMode === "block" && blockCount < 2) {
+      // Place new block
+      if (newMap[y][x] === " ") {
+        newMap[y][x] = "B";
+        setBlockCount(blockCount + 1);
       }
     }
 
-    // Place new player
-    if (newMap[y][x] === " ") {
-      newMap[y][x] = "P";
-    }
-
     setPlayerMap(newMap);
+  };
+
+  const handlePlacementModeChange = (mode: "player" | "block") => {
+    setPlacementMode(mode);
   };
 
   const runSimulation = () => {
@@ -70,6 +87,10 @@ export default function PlayLevelPage({
     setGameResult(isWin ? "WON" : "LOST");
   };
 
+  const mapWidth =
+    playerMap.length > 0 ? playerMap[0].length : map.grid[0].length;
+  const mapHeight = playerMap.length > 0 ? playerMap.length : map.grid.length;
+
   return (
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-6">
@@ -80,6 +101,22 @@ export default function PlayLevelPage({
         </Button>
         <h1 className="text-3xl font-bold text-center">Level {level}</h1>
         <div className="w-[100px]"></div> {/* Spacer for alignment */}
+      </div>
+      <div className="mb-4 flex justify-center gap-4">
+        <Button
+          onClick={() => handlePlacementModeChange("player")}
+          disabled={playerMap.some((row) => row.includes("P"))}
+          variant={placementMode === "player" ? "default" : "outline"}
+        >
+          Place Player
+        </Button>
+        <Button
+          onClick={() => handlePlacementModeChange("block")}
+          disabled={blockCount >= 2}
+          variant={placementMode === "block" ? "default" : "outline"}
+        >
+          Place Block ({2 - blockCount} left)
+        </Button>
       </div>
       <div className="mb-8 flex flex-col items-center">
         <h2 className="text-xl font-semibold mb-4">
@@ -106,8 +143,8 @@ export default function PlayLevelPage({
             <div
               className="absolute inset-0 grid"
               style={{
-                gridTemplateColumns: `repeat(${map.width}, minmax(0, 1fr))`,
-                gridTemplateRows: `repeat(${map.height}, minmax(0, 1fr))`,
+                gridTemplateColumns: `repeat(${mapWidth}, minmax(0, 1fr))`,
+                gridTemplateRows: `repeat(${mapHeight}, minmax(0, 1fr))`,
               }}
             >
               {(playerMap.length > 0 ? playerMap : map.grid).map((row, y) =>

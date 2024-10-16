@@ -14,8 +14,6 @@ export default defineSchema({
   maps: defineTable({
     level: v.number(),
     grid: v.array(v.array(v.string())),
-    width: v.number(),
-    height: v.number(),
   }).index("by_level", ["level"]),
   scores: defineTable({
     modelId: v.string(),
