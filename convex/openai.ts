@@ -1,11 +1,11 @@
 import OpenAI from "openai";
-import { internalAction } from "./_generated/server";
 import { v } from "convex/values";
 import { z } from "zod";
 import { zodResponseFormat } from "openai/helpers/zod";
-import { api, internal } from "./_generated/api";
 import { Doc } from "./_generated/dataModel";
 import { ZombieSurvival } from "../simulators/zombie-survival";
+import { api, internal } from "./_generated/api";
+import { internalAction } from "./_generated/server";
 
 const ResponseSchema = z.object({
   map: z.array(z.array(z.string())),
@@ -42,15 +42,19 @@ export const playMapAction = internalAction({
 
     if (process.env.MOCK_OPEN_AI === "true") {
       const existingMap = [...map.grid.map((row) => [...row])];
+
       existingMap[0][0] = "P";
       existingMap[0][1] = "B";
       existingMap[0][2] = "B";
-      return {
-        map: existingMap,
+
+      await ctx.runMutation(internal.results.updateResult, {
+        resultId,
+        isWin: ZombieSurvival.isWin(existingMap),
         reasoning: "This is a mock response",
-        playerCoordinates: [0, 0],
-        boxCoordinates: [],
-      };
+        map: existingMap,
+      });
+
+      return;
     }
 
     // moving here for now so that I can get this deployed without a real key
@@ -68,11 +72,11 @@ export const playMapAction = internalAction({
                       "R" represents rocks, which players can shoot over but zombies cannot pass through or break.
                       "P" represents the player, who cannot move. The player's goal is to shoot and kill zombies before they reach them.
                       "B" represents blocks that can be placed before the round begins to hinder the zombies. You can place up to two blocks on the map.
-                      
+
                       Your goal is to place the player ("P") and two blocks ("B") in locations that maximize the player's survival by delaying the zombies' approach.
                       You can shoot any zombie regardless of where it is on the grid.
                       Returning a 2d grid with the player and blocks placed in the optimal locations, with the coordinates player ("P") and the blocks ("B"), also provide reasoning for the choices.
-                      
+
                       You can't replace rocks R or zombies Z with blocks.  If there is no room to place a block, do not place any.`,
           },
           {
@@ -84,16 +88,11 @@ export const playMapAction = internalAction({
       });
 
       const response = completion.choices[0].message;
-      if (response.parsed) {
-        const game = new ZombieSurvival(response.parsed.map);
-        while (!game.finished()) {
-          game.step();
-        }
-        const isWin = !game.getPlayer().dead();
 
+      if (response.parsed) {
         await ctx.runMutation(internal.results.updateResult, {
           resultId,
-          isWin,
+          isWin: ZombieSurvival.isWin(response.parsed.map),
           reasoning: response.parsed.reasoning,
           map: response.parsed.map,
         });
