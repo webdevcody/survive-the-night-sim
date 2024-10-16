@@ -37,6 +37,3 @@ next-env.d.ts
 
 # ignored for the template, you probably want to remove it:
 package-lock.json
-
-# convex generated files
-convex/_generated
