@@ -25,11 +25,19 @@ export const startNewGame = mutation({
       throw new Error("No map found for level 1");
     }
 
-    await ctx.scheduler.runAfter(0, internal.openai.playMapAction, {
-      gameId,
-      modelId: args.modelId,
-      level: 1,
-    });
+    if (args.modelId === "gpt-4o") {
+      await ctx.scheduler.runAfter(0, internal.openai.playMapAction, {
+        gameId,
+        modelId: args.modelId,
+        level: 1,
+      });
+    } else if (args.modelId === "gemini-1.5-pro") {
+      await ctx.scheduler.runAfter(0, internal.gemini.playMapAction, {
+        gameId,
+        modelId: args.modelId,
+        level: 1,
+      });
+    }
 
     return gameId;
   },

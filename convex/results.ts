@@ -77,11 +77,19 @@ export const updateResult = internalMutation({
         throw new Error("Next map not found");
       }
 
-      await ctx.scheduler.runAfter(0, internal.openai.playMapAction, {
-        modelId: game.modelId,
-        level: result.level + 1,
-        gameId: result.gameId,
-      });
+      if (game.modelId === "gpt-4o") {
+        await ctx.scheduler.runAfter(0, internal.openai.playMapAction, {
+          gameId: result.gameId,
+          modelId: game.modelId,
+          level: result.level + 1,
+        });
+      } else if (game.modelId === "gemini-1.5-pro") {
+        await ctx.scheduler.runAfter(0, internal.gemini.playMapAction, {
+          gameId: result.gameId,
+          modelId: game.modelId,
+          level: result.level + 1,
+        });
+      }
     }
   },
 });
