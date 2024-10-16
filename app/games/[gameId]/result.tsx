@@ -26,7 +26,7 @@ export const Result = ({ result }: { result: Doc<"results"> }) => {
     <div className="flex items-center gap-8">
       <div className="whitespace-nowrap">Level {map.level}</div>
       <Visualizer map={result.map} />
-      <div className="flex flex-col align-items-top">
+      <div className="flex flex-col">
         <div
           className={`font-bold ${result.isWin ? "text-green-500" : "text-red-500"}`}
         >
