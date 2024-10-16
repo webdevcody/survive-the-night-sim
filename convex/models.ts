@@ -1,8 +1,8 @@
 import { AI_MODELS } from "./constants";
-import { api, internal } from "./_generated/api";
+import { api } from "./_generated/api";
 import { internalMutation, query } from "./_generated/server";
 
-export const scheduleModelsGames = internalMutation({
+export const runActiveModelsGames = internalMutation({
   handler: async (ctx) => {
     const models = await ctx.runQuery(api.models.getActiveModels);
 
@@ -11,8 +11,6 @@ export const scheduleModelsGames = internalMutation({
         ctx.runMutation(api.games.startNewGame, { modelId: model.slug }),
       ),
     );
-
-    await ctx.scheduler.runAfter(300_000, internal.models.scheduleModelsGames);
   },
 });
 

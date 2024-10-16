@@ -5,6 +5,5 @@ export default internalMutation({
   handler: async (ctx) => {
     await ctx.runMutation(internal.maps.seedMaps);
     await ctx.runMutation(internal.models.seedModels);
-    await ctx.runMutation(internal.models.scheduleModelsGames);
   },
 });
