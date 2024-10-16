@@ -170,6 +170,12 @@ export const playMapAction = internalAction({
         resultId,
         error: errorMessage,
       });
+
+      await ctx.runMutation(internal.leaderboard.updateRankings, {
+        modelId: args.modelId,
+        level: args.level,
+        isWin: false,
+      });
     }
   },
 });

@@ -34,4 +34,15 @@ export default defineSchema({
       v.literal("failed"),
     ),
   }).index("by_gameId_level", ["gameId", "level"]),
+  globalrankings: defineTable({
+    modelId: v.string(),
+    wins: v.number(),
+    losses: v.number(),
+  }).index("by_modelId", ["modelId"]),
+  levelrankings: defineTable({
+    modelId: v.string(),
+    level: v.number(),
+    wins: v.number(),
+    losses: v.number(),
+  }).index("by_modelId_level", ["modelId", "level"]),
 });

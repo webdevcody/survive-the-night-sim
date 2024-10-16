@@ -81,6 +81,12 @@ export const updateResult = internalMutation({
       throw new Error("Game not found");
     }
 
+    await ctx.runMutation(internal.leaderboard.updateRankings, {
+      modelId: game.modelId,
+      level: result.level,
+      isWin: args.isWin,
+    });
+
     if (args.isWin) {
       await ctx.runMutation(internal.scores.incrementScore, {
         modelId: game.modelId,

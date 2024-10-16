@@ -20,6 +20,7 @@ import type * as constants from "../constants.js";
 import type * as games from "../games.js";
 import type * as http from "../http.js";
 import type * as init from "../init.js";
+import type * as leaderboard from "../leaderboard.js";
 import type * as maps from "../maps.js";
 import type * as results from "../results.js";
 import type * as scores from "../scores.js";
@@ -39,6 +40,7 @@ declare const fullApi: ApiFromModules<{
   games: typeof games;
   http: typeof http;
   init: typeof init;
+  leaderboard: typeof leaderboard;
   maps: typeof maps;
   results: typeof results;
   scores: typeof scores;
