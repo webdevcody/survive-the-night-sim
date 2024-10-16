@@ -5,6 +5,7 @@ export const getFlags = query({
   handler: async (ctx) => {
     return {
       showTestPage: process.env.FLAG_TEST_PAGE === "true",
+      enableCronJobs: process.env.FLAG_CRON_JOBS === "true",
     };
   },
 });

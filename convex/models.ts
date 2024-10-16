@@ -4,6 +4,11 @@ import { internalMutation, query } from "./_generated/server";
 
 export const runActiveModelsGames = internalMutation({
   handler: async (ctx) => {
+    const flags = await ctx.runQuery(api.flags.getFlags);
+    if (!flags.enableCronJobs) {
+      return;
+    }
+
     const models = await ctx.runQuery(api.models.getActiveModels);
 
     await Promise.all(

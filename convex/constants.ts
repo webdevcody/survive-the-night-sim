@@ -16,3 +16,7 @@ export const AI_MODEL_IDS = AI_MODELS.map((model) => model.model);
 export const PLAY_DELAY = process.env.PLAY_DELAY
   ? parseInt(process.env.PLAY_DELAY)
   : 0;
+
+export const CRON_INTERVAL = process.env.CRON_INTERVAL
+  ? parseInt(process.env.CRON_INTERVAL)
+  : 60;
