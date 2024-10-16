@@ -15,6 +15,7 @@ function SignInWithGitHub() {
       variant="outline"
       type="button"
       onClick={() => void signIn("github", { redirectTo: "/" })}
+      className="dark:invert"
     >
       <GitHubLogoIcon className="mr-2 h-4 w-4" /> GitHub
     </Button>
