@@ -1,9 +1,9 @@
 This is a community project for my discord, so please join if you want to participate.
 
-You can still contribute without being part of discord, but it would be nice.
+## How to Contribute
 
-## Join the community
+if you see an issue, leave a comment saying "I want to work on this", then I will assign it to you.
 
-Want to help build on this project?
+## Join the Discord
 
-- Join the [WDC Discord](https://discord.gg/N2uEyp7Rfu)
+The [WDC Discord](https://discord.gg/N2uEyp7Rfu) is where we are discussing this project. We recommend you join if you want to participate.

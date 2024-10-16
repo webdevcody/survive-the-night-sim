@@ -18,6 +18,7 @@ import type {
 import type * as auth from "../auth.js";
 import type * as constants from "../constants.js";
 import type * as games from "../games.js";
+import type * as gemini from "../gemini.js";
 import type * as http from "../http.js";
 import type * as init from "../init.js";
 import type * as maps from "../maps.js";
@@ -37,6 +38,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   constants: typeof constants;
   games: typeof games;
+  gemini: typeof gemini;
   http: typeof http;
   init: typeof init;
   maps: typeof maps;
