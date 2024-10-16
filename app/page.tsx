@@ -1,8 +1,8 @@
 "use client";
 
-import { api } from "@/convex/_generated/api";
-import { useAction, useMutation } from "convex/react";
-import React, { useState } from "react";
+import React from "react";
+import { useQuery, useMutation } from "convex/react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -11,13 +11,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { AI_MODELS } from "@/convex/constants";
-import { useRouter } from "next/navigation";
+import { api } from "@/convex/_generated/api";
 
 export default function MainPage() {
+  const models = useQuery(api.models.getActiveModels);
   const startNewGame = useMutation(api.games.startNewGame);
-  const [model, setModel] = useState(AI_MODELS[0].model);
+  const [model, setModel] = React.useState("");
   const router = useRouter();
+
+  React.useEffect(() => {
+    if (models !== undefined && models.length !== 0) {
+      setModel(models[0].slug);
+    }
+  }, [models]);
 
   const handleClick = async () => {
     await startNewGame({
@@ -37,11 +43,12 @@ export default function MainPage() {
             <SelectValue placeholder="Select model" />
           </SelectTrigger>
           <SelectContent>
-            {AI_MODELS.map((model) => (
-              <SelectItem key={model.model} value={model.model}>
-                {model.name}
-              </SelectItem>
-            ))}
+            {models !== undefined &&
+              models.map((model) => (
+                <SelectItem key={model._id} value={model.slug}>
+                  {model.name}
+                </SelectItem>
+              ))}
           </SelectContent>
         </Select>
         <Button onClick={handleClick}>Test Model</Button>

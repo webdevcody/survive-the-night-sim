@@ -19,6 +19,11 @@ export default defineSchema({
     modelId: v.string(),
     score: v.number(),
   }).index("by_modelId", ["modelId"]),
+  models: defineTable({
+    slug: v.string(),
+    active: v.boolean(),
+    name: v.string(),
+  }).index("by_active", ["active"]),
   results: defineTable({
     gameId: v.id("games"),
     level: v.number(),
