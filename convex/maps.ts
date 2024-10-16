@@ -139,17 +139,9 @@ export const playMapAction = internalAction({
       existingMap[0][1] = "B";
       existingMap[0][2] = "B";
 
-      const game = new ZombieSurvival(existingMap);
-
-      while (!game.finished()) {
-        game.step();
-      }
-
-      const isWin = !game.getPlayer().dead();
-
       await ctx.runMutation(internal.results.updateResult, {
         resultId,
-        isWin,
+        isWin: ZombieSurvival.isWin(existingMap),
         reasoning: "This is a mock response",
         map: existingMap,
       });
@@ -159,23 +151,25 @@ export const playMapAction = internalAction({
 
     try {
       const { solution, reasoning } = await runModel(args.modelId, map.grid);
-      const game = new ZombieSurvival(solution);
-
-      while (!game.finished()) {
-        game.step();
-      }
-
-      const isWin = !game.getPlayer().dead();
 
       await ctx.runMutation(internal.results.updateResult, {
         resultId,
-        isWin,
+        isWin: ZombieSurvival.isWin(solution),
         reasoning,
         map: solution,
       });
     } catch (error) {
-      // todo: handle error
-      console.log(error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : typeof error === "string"
+            ? error
+            : "Unexpected error happened";
+
+      await ctx.runMutation(internal.results.failResult, {
+        resultId,
+        error: errorMessage,
+      });
     }
   },
 });

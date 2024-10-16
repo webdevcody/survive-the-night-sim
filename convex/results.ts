@@ -31,6 +31,25 @@ export const createInitialResult = internalMutation({
   },
 });
 
+export const failResult = internalMutation({
+  args: {
+    resultId: v.id("results"),
+    error: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const result = await ctx.db.get(args.resultId);
+
+    if (!result) {
+      throw new Error("Result not found");
+    }
+
+    await ctx.db.patch(args.resultId, {
+      error: args.error,
+      status: "failed",
+    });
+  },
+});
+
 export const updateResult = internalMutation({
   args: {
     resultId: v.id("results"),
