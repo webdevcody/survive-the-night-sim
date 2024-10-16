@@ -360,3 +360,20 @@ test("player gets killed behind walls", () => {
 
   expect(game.finished()).toBeTruthy();
 });
+
+test("zombie dies after player killing it", () => {
+  const game = new ZombieSurvival([
+    ["P", " "],
+    [" ", "Z"],
+  ]);
+
+  game.step();
+  game.step();
+
+  expect(game.getState()).toStrictEqual([
+    ["P", " "],
+    [" ", " "],
+  ]);
+
+  expect(game.finished()).toBeTruthy();
+});

@@ -134,10 +134,6 @@ export class ZombieSurvival {
         break;
       }
 
-      if (zombie.dead()) {
-        continue;
-      }
-
       zombie.walk();
     }
   }
