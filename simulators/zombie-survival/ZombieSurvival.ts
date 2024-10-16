@@ -17,6 +17,16 @@ export class ZombieSurvival {
     return new ZombieSurvival(config);
   }
 
+  public static isWin(config: string[][]): boolean {
+    const game = new ZombieSurvival(config);
+
+    while (!game.finished()) {
+      game.step();
+    }
+
+    return !game.getPlayer().dead();
+  }
+
   public constructor(config: string[][]) {
     if (config.length === 0 || config[0].length == 0) {
       throw new Error("Config is empty");

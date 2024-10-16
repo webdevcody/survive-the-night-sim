@@ -77,10 +77,10 @@ export const updateResult = internalMutation({
         throw new Error("Next map not found");
       }
 
-      await ctx.scheduler.runAfter(0, internal.openai.playMapAction, {
+      await ctx.scheduler.runAfter(0, internal.maps.playMapAction, {
+        gameId: result.gameId,
         modelId: game.modelId,
         level: result.level + 1,
-        gameId: result.gameId,
       });
     }
   },

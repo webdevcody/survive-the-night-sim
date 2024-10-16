@@ -1,14 +1,14 @@
 import type { Config } from "tailwindcss";
 
-const config = {
-  darkMode: "selector",
+const config: Config = {
+  darkMode: "class", // Use 'class' strategy for toggling dark mode
   content: [
     "./pages/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
     "./app/**/*.{ts,tsx}",
     "./src/**/*.{ts,tsx}",
   ],
-  safelist: ["dark"],
+  safelist: ["dark", "light"], // Safelist the 'light' class
   prefix: "",
   theme: {
     container: {
@@ -53,6 +53,42 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Light mode colors
+        light: {
+          border: "hsl(var(--light-border))",
+          input: "hsl(var(--light-input))",
+          ring: "hsl(var(--light-ring))",
+          background: "hsl(var(--light-background))",
+          foreground: "hsl(var(--light-foreground))",
+          primary: {
+            DEFAULT: "hsl(var(--light-primary))",
+            foreground: "hsl(var(--light-primary-foreground))",
+          },
+          secondary: {
+            DEFAULT: "hsl(var(--light-secondary))",
+            foreground: "hsl(var(--light-secondary-foreground))",
+          },
+          destructive: {
+            DEFAULT: "hsl(var(--light-destructive))",
+            foreground: "hsl(var(--light-destructive-foreground))",
+          },
+          muted: {
+            DEFAULT: "hsl(var(--light-muted))",
+            foreground: "hsl(var(--light-muted-foreground))",
+          },
+          accent: {
+            DEFAULT: "hsl(var(--light-accent))",
+            foreground: "hsl(var(--light-accent-foreground))",
+          },
+          popover: {
+            DEFAULT: "hsl(var(--light-popover))",
+            foreground: "hsl(var(--light-popover-foreground))",
+          },
+          card: {
+            DEFAULT: "hsl(var(--light-card))",
+            foreground: "hsl(var(--light-card-foreground))",
+          },
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -69,13 +105,8 @@ const config = {
           to: { height: "0" },
         },
       },
-      animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
-      },
     },
   },
-  plugins: [require("tailwindcss-animate")],
-} satisfies Config;
+};
 
 export default config;
