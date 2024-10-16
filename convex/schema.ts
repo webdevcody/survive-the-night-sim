@@ -26,6 +26,7 @@ export default defineSchema({
     level: v.number(),
     isWin: v.boolean(),
     reasoning: v.string(),
+    map: v.array(v.array(v.string())),
     status: v.union(v.literal("inProgress"), v.literal("completed")),
   }).index("by_gameId_level", ["gameId", "level"]),
 });

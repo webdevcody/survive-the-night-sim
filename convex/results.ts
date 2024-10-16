@@ -26,6 +26,7 @@ export const createInitialResult = internalMutation({
       reasoning: "",
       status: "inProgress",
       isWin: false,
+      map: [],
     });
   },
 });
@@ -35,6 +36,7 @@ export const updateResult = internalMutation({
     resultId: v.id("results"),
     isWin: v.boolean(),
     reasoning: v.string(),
+    map: v.array(v.array(v.string())),
   },
   handler: async (ctx, args) => {
     const result = await ctx.db.get(args.resultId);
@@ -47,6 +49,7 @@ export const updateResult = internalMutation({
       isWin: args.isWin,
       reasoning: args.reasoning,
       status: "completed",
+      map: args.map,
     });
 
     const game = await ctx.db.get(result.gameId);

@@ -1,6 +1,6 @@
 "use client";
 
-import { Map } from "@/app/map";
+import { Visualizer } from "./visualizer";
 import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
 import { useQuery } from "convex/react";
@@ -19,7 +19,7 @@ export const Result = ({ result }: { result: Doc<"results"> }) => {
   return (
     <div className="flex items-center gap-8" key={map._id}>
       <div>Level {map.level}</div>
-      <Map map={map.grid} />
+      <Visualizer map={result.map} />
       <div
         className={`font-bold ${result.isWin ? "text-green-500" : "text-red-500"}`}
       >

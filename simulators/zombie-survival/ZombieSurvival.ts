@@ -3,7 +3,7 @@ import { Entity } from "./entities/Entity";
 import { Player } from "./entities/Player";
 import { Rock } from "./entities/Rock";
 import { Zombie } from "./entities/Zombie";
-import { entityAt } from "./lib/entity-at";
+import { entityAt } from "./lib/entityAt";
 
 export class ZombieSurvival {
   public readonly boardHeight: number;

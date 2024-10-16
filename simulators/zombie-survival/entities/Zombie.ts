@@ -2,7 +2,7 @@ import { Direction, allDirections, move } from "../Direction";
 import { Entity, EntityType } from "./Entity";
 import { Position } from "../Position";
 import { ZombieSurvival } from "../ZombieSurvival";
-import { entityAt } from "../lib/entity-at";
+import { entityAt } from "../lib/entityAt";
 import { pathfinder } from "../lib/pathfinder";
 
 export class Zombie extends Entity {
