@@ -32,7 +32,16 @@ export default function Header() {
         <span className="ml-2 text-xl font-bold">SurviveTheNight</span>
       </Link>
 
-      <div className="flex items-center">
+      <nav className="flex items-center space-x-4">
+        <Link href="/">
+          <Button variant="ghost">Watch</Button>
+        </Link>
+        <Link href="/play">
+          <Button variant="ghost">Play</Button>
+        </Link>
+      </nav>
+
+      <div className="flex items-center space-x-4">
         <span className="mr-2 text-sm">Synced using Convex</span>
         <Link
           href="https://www.convex.dev"
@@ -41,11 +50,9 @@ export default function Header() {
         >
           <Image src="/convex.svg" alt="Convex" width={24} height={24} />
         </Link>
-      </div>
 
-      <div className="flex">
-        <div className="flex hover:bg-slate-500 mr-3 rounded-md px-1">
-          <ThemeToggle/>
+        <div className="flex hover:bg-slate-500 rounded-md px-1">
+          <ThemeToggle />
         </div>
         {!isAuthenticated ? (
           <SignInWithGitHub />
