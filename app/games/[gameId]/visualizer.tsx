@@ -9,6 +9,7 @@ export function Visualizer({ map }: { map: string[][] }) {
   const interval = useRef<NodeJS.Timeout | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [mapState, setMapState] = useState(map);
+  const [needsReset, setNeedsReset] = useState(false);
 
   return (
     <div>
@@ -24,27 +25,41 @@ export function Visualizer({ map }: { map: string[][] }) {
           ))}
         </div>
       ))}
-      <Button
-        onClick={() => {
-          const clonedMap = JSON.parse(JSON.stringify(map));
-          simulator.current = new ZombieSurvival(clonedMap);
-          setMapState(simulator.current!.getState());
-          setIsRunning(true);
-          interval.current = setInterval(() => {
-            if (simulator.current!.finished()) {
-              clearInterval(interval.current!);
-              interval.current = null;
-              setIsRunning(false);
-              return;
-            }
-            simulator.current!.step();
+      <div className="flex gap-2 justify-center py-2">
+        <Button
+          onClick={() => {
+            setNeedsReset(true);
+            const clonedMap = JSON.parse(JSON.stringify(map));
+            simulator.current = new ZombieSurvival(clonedMap);
             setMapState(simulator.current!.getState());
-          }, REPLAY_SPEED);
-        }}
-        disabled={isRunning}
-      >
-        Play
-      </Button>
+            setIsRunning(true);
+            interval.current = setInterval(() => {
+              if (simulator.current!.finished()) {
+                clearInterval(interval.current!);
+                interval.current = null;
+                setIsRunning(false);
+                return;
+              }
+              simulator.current!.step();
+              setMapState(simulator.current!.getState());
+            }, REPLAY_SPEED);
+          }}
+          disabled={isRunning}
+        >
+          Play
+        </Button>
+        <Button
+          disabled={isRunning}
+          onClick={() => {
+            simulator.current = new ZombieSurvival(map);
+            setMapState(simulator.current!.getState());
+            setIsRunning(false);
+            setNeedsReset(false);
+          }}
+        >
+          Reset
+        </Button>
+      </div>
     </div>
   );
 }
