@@ -361,7 +361,7 @@ test("player gets killed behind walls", () => {
   expect(game.finished()).toBeTruthy();
 });
 
-test("zombie dies after player killing it", () => {
+test("player kills zombie and it doesn't hit afterwards", () => {
   const game = new ZombieSurvival([
     ["P", " "],
     [" ", "Z"],
@@ -373,6 +373,58 @@ test("zombie dies after player killing it", () => {
   expect(game.getState()).toStrictEqual([
     ["P", " "],
     [" ", " "],
+  ]);
+
+  expect(game.finished()).toBeTruthy();
+});
+
+test.only("player kills closest zombie", () => {
+  const game = new ZombieSurvival([
+    [" ", " ", "R", " ", "Z"],
+    [" ", " ", " ", " ", "B"],
+    [" ", "P", " ", "R", " "],
+    ["Z", " ", " ", " ", " "],
+    [" ", " ", "B", " ", " "],
+  ]);
+
+  game.step();
+
+  expect(game.getState()).toStrictEqual([
+    [" ", " ", "R", "Z", " "],
+    [" ", " ", " ", " ", "B"],
+    [" ", "P", " ", "R", " "],
+    [" ", "Z", " ", " ", " "],
+    [" ", " ", "B", " ", " "],
+  ]);
+
+  game.step();
+
+  expect(game.getState()).toStrictEqual([
+    [" ", " ", "R", " ", " "],
+    [" ", " ", " ", "Z", "B"],
+    [" ", "P", " ", "R", " "],
+    [" ", " ", " ", " ", " "],
+    [" ", " ", "B", " ", " "],
+  ]);
+
+  game.step();
+
+  expect(game.getState()).toStrictEqual([
+    [" ", " ", "R", " ", " "],
+    [" ", " ", "Z", " ", "B"],
+    [" ", "P", " ", "R", " "],
+    [" ", " ", " ", " ", " "],
+    [" ", " ", "B", " ", " "],
+  ]);
+
+  game.step();
+
+  expect(game.getState()).toStrictEqual([
+    [" ", " ", "R", " ", " "],
+    [" ", " ", " ", " ", "B"],
+    [" ", "P", " ", "R", " "],
+    [" ", " ", " ", " ", " "],
+    [" ", " ", "B", " ", " "],
   ]);
 
   expect(game.finished()).toBeTruthy();
