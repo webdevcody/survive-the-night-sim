@@ -19,15 +19,13 @@ export default defineSchema({
   }).index("by_level", ["level"]),
   scores: defineTable({
     modelId: v.string(),
-    gameId: v.id("games"),
     score: v.number(),
-    level: v.number(),
-  }).index("by_game_and_level", ["gameId", "level"]),
+  }).index("by_modelId", ["modelId"]),
   results: defineTable({
     gameId: v.id("games"),
-    roundId: v.string(),
     level: v.number(),
     isWin: v.boolean(),
     reasoning: v.string(),
-  }),
+    status: v.union(v.literal("inProgress"), v.literal("completed")),
+  }).index("by_gameId_level", ["gameId", "level"]),
 });

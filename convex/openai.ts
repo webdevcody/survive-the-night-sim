@@ -1,8 +1,10 @@
 import OpenAI from "openai";
-import { action } from "./_generated/server";
+import { action, internalAction } from "./_generated/server";
 import { v } from "convex/values";
 import { z } from "zod";
 import { zodResponseFormat } from "openai/helpers/zod";
+import { api, internal } from "./_generated/api";
+import { Doc } from "./_generated/dataModel";
 
 const ResponseSchema = z.object({
   map: z.array(z.array(z.string())),
@@ -11,15 +13,34 @@ const ResponseSchema = z.object({
   boxCoordinates: z.array(z.array(z.number())),
 });
 
-export const playMapAction = action({
+export const playMapAction = internalAction({
   args: {
-    map: v.array(v.array(v.string())),
-    mapId: v.string(),
     level: v.number(),
+    gameId: v.id("games"),
+    modelId: v.string(),
   },
-  handler: async (_, args) => {
-    if (process.env.MOCK_OPEN_AI) {
-      const existingMap = [...args.map.map((row) => [...row])];
+  handler: async (ctx, args) => {
+    const resultId = await ctx.runMutation(
+      internal.results.createInitialResult,
+      {
+        gameId: args.gameId,
+        level: args.level,
+      },
+    );
+
+    const map: Doc<"maps"> | null = (await ctx.runQuery(
+      api.maps.getMapByLevel,
+      {
+        level: args.level,
+      },
+    )) as any;
+
+    if (!map) {
+      throw new Error("Map not found");
+    }
+
+    if (process.env.MOCK_OPEN_AI === "true") {
+      const existingMap = [...map.grid.map((row) => [...row])];
       existingMap[0][0] = "P";
       existingMap[0][1] = "B";
       existingMap[0][2] = "B";
@@ -51,17 +72,23 @@ export const playMapAction = action({
           },
           {
             role: "user",
-            content: JSON.stringify(args.map),
+            content: JSON.stringify(map.grid),
           },
         ],
         response_format: zodResponseFormat(ResponseSchema, "game_map"),
       });
 
-      const map_response = completion.choices[0].message;
-      if (map_response.parsed) {
-        return map_response.parsed;
-      } else if (map_response.refusal) {
-        const refusal_res = map_response.refusal;
+      const response = completion.choices[0].message;
+      if (response.parsed) {
+        // TODO: run simulation here to determine if win is true or false
+
+        await ctx.runMutation(internal.results.updateResult, {
+          resultId,
+          isWin: true,
+          reasoning: response.parsed.reasoning,
+        });
+      } else if (response.refusal) {
+        const refusal_res = response.refusal;
         throw new Error(`Refusal: ${refusal_res}`);
       }
     } catch (error) {

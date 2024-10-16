@@ -1,30 +1,15 @@
 import { v } from "convex/values";
-import { internalAction, internalMutation } from "./_generated/server";
-import { internal } from "./_generated/api";
+import { internalMutation, mutation, query } from "./_generated/server";
+import { api, internal } from "./_generated/api";
+import { AI_MODEL_IDS } from "./constants";
 
-export const playMapAction = internalAction({
-  args: {
-    mapId: v.id("maps"),
-    gameId: v.id("games"),
-    modelId: v.string(),
-    level: v.number(),
-  },
-  handler: async (ctx, args) => {
-    await ctx.runMutation(internal.games.insertScore, {
-      modelId: args.modelId,
-      gameId: args.gameId,
-      level: args.level,
-    });
-
-    console.log(
-      `Playing map ${args.mapId} for game ${args.gameId} at level ${args.level}`,
-    );
-  },
-});
-
-export const createNewGame = internalMutation({
+export const startNewGame = mutation({
   args: { modelId: v.string() },
   handler: async (ctx, args) => {
+    if (!AI_MODEL_IDS.includes(args.modelId)) {
+      throw new Error("Invalid model ID");
+    }
+
     const gameId = await ctx.db.insert("games", {
       modelId: args.modelId,
       currentLevel: 1,
@@ -40,9 +25,7 @@ export const createNewGame = internalMutation({
       throw new Error("No map found for level 1");
     }
 
-    // not sure if this is the way to do this
-    await ctx.scheduler.runAfter(0, internal.games.playMapAction, {
-      mapId: firstMap._id,
+    await ctx.scheduler.runAfter(0, internal.openai.playMapAction, {
       gameId,
       modelId: args.modelId,
       level: 1,
@@ -52,18 +35,9 @@ export const createNewGame = internalMutation({
   },
 });
 
-export const insertScore = internalMutation({
-  args: {
-    modelId: v.string(),
-    gameId: v.id("games"),
-    level: v.number(),
-  },
+export const getGame = query({
+  args: { gameId: v.id("games") },
   handler: async ({ db }, args) => {
-    await db.insert("scores", {
-      modelId: args.modelId,
-      gameId: args.gameId,
-      score: 0,
-      level: args.level,
-    });
+    return db.get(args.gameId);
   },
 });
