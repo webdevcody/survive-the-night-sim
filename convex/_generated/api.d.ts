@@ -19,6 +19,7 @@ import type * as auth from "../auth.js";
 import type * as constants from "../constants.js";
 import type * as games from "../games.js";
 import type * as http from "../http.js";
+import type * as init from "../init.js";
 import type * as maps from "../maps.js";
 import type * as openai from "../openai.js";
 import type * as results from "../results.js";
@@ -38,6 +39,7 @@ declare const fullApi: ApiFromModules<{
   constants: typeof constants;
   games: typeof games;
   http: typeof http;
+  init: typeof init;
   maps: typeof maps;
   openai: typeof openai;
   results: typeof results;
