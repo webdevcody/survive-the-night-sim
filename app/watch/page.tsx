@@ -12,10 +12,13 @@ export default function GamePage() {
   }
 
   return (
-    <div className="container mx-auto min-h-screen flex flex-wrap justify-between pt-12 pb-24 gap-x-2 gap-y-8">
-      {results.map((result) => (
-        <Result key={result._id} result={result} />
-      ))}
+    <div className="container mx-auto pt-12 pb-24 space-y-8">
+      <h1 className="text-2xl font-bold">Recent Games</h1>
+      <div className="flex flex-wrap justify-betweengap-x-2 gap-12">
+        {results.map((result) => (
+          <Result key={result._id} result={result} />
+        ))}
+      </div>
     </div>
   );
 }
