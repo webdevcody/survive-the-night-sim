@@ -21,7 +21,6 @@ import type * as games from "../games.js";
 import type * as http from "../http.js";
 import type * as init from "../init.js";
 import type * as maps from "../maps.js";
-import type * as openai from "../openai.js";
 import type * as results from "../results.js";
 import type * as scores from "../scores.js";
 import type * as users from "../users.js";
@@ -41,7 +40,6 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   init: typeof init;
   maps: typeof maps;
-  openai: typeof openai;
   results: typeof results;
   scores: typeof scores;
   users: typeof users;

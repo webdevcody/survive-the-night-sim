@@ -25,7 +25,7 @@ export const startNewGame = mutation({
       throw new Error("No map found for level 1");
     }
 
-    await ctx.scheduler.runAfter(0, internal.openai.playMapAction, {
+    await ctx.scheduler.runAfter(0, internal.maps.playMapAction, {
       gameId,
       modelId: args.modelId,
       level: 1,
