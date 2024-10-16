@@ -25,7 +25,9 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
             <p className="ml-4">Game starting...</p>
           </div>
         ) : (
-          results.map((result) => <Result result={result} key={result._id} />)
+          results.map((result) => (
+            <Result autoPlay={true} result={result} key={result._id} />
+          ))
         )}
       </div>
     </div>
