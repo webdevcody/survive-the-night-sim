@@ -29,7 +29,7 @@ export default function RootLayout({
         <body className={inter.className}>
           <Providers>
             <Header />
-            {children}
+            <main className="bg-background">{children}</main>
           </Providers>
         </body>
       </html>
