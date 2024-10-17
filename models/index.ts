@@ -57,6 +57,7 @@ The 2d Grid is made up of characters, where each character has a meaning.
 - often it's good to wall off between the zombies and players if possible, this will slow the zombies down.
 - You should never put a player directly next to a zombie.
 - You should try to put blocks directly next to players
+- If the player is behind a choke point, blocking the path to the player is the best option.
 
 # Output Format
 

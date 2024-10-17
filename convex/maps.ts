@@ -22,23 +22,34 @@ const LEVELS = [
       ["Z", " "],
     ],
   },
+  {
+    grid: [
+      [" ", " "],
+      ["R", " "],
+      ["Z", "Z"],
+      ["Z", "Z"],
+    ],
+  },
 ];
 
 export const seedMaps = internalMutation({
   handler: async (ctx) => {
-    const firstMap = await ctx.db.query("maps").first();
-
-    if (firstMap) {
-      return;
-    }
+    const maps = await ctx.db.query("maps").collect();
 
     await Promise.all(
-      LEVELS.map((map, idx) =>
-        ctx.db.insert("maps", {
-          level: idx + 1,
-          grid: map.grid,
-        }),
-      ),
+      LEVELS.map((map, idx) => {
+        const existingMap = maps.find((it) => it.level === idx + 1);
+        if (existingMap) {
+          ctx.db.patch(existingMap._id, {
+            grid: map.grid,
+          });
+        } else {
+          ctx.db.insert("maps", {
+            level: idx + 1,
+            grid: map.grid,
+          });
+        }
+      }),
     );
   },
 });
