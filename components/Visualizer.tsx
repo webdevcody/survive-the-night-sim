@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { EntityType, ZombieSurvival } from "@/simulators/zombie-survival";
 import { useEffect, useRef, useState } from "react";
-import { getCellImage } from "./map";
+import { getCellImage } from "@/components/Map";
 
 const AUTO_REPLAY_SPEED = 1_500;
 const REPLAY_SPEED = 600;

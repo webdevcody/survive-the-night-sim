@@ -32,7 +32,7 @@ export default function AddMapPage() {
     var flag = false;
     map.forEach((row, y) => {
       row.forEach((cell, x) => {
-        if (map[y][x] == " ") {
+        if (map[y][x] === " ") {
           flag = true;
         }
       });
@@ -46,14 +46,14 @@ export default function AddMapPage() {
   };
   const setCell = (y: number, x: number, z: boolean) => {
     var cell = " ";
-    if (z == true) {
-      if (map[y][x] == "Z") {
+    if (z === true) {
+      if (map[y][x] === "Z") {
         cell = " ";
       } else {
         cell = "Z";
       }
     } else {
-      if (map[y][x] == "B") {
+      if (map[y][x] === "B") {
         cell = " ";
       } else {
         cell = "R";

@@ -3,8 +3,8 @@
 import { Doc } from "@/convex/_generated/dataModel";
 import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
-import { ResultStatus } from "@/app/result-status";
-import { Visualizer } from "../../visualizer";
+import { ResultStatus } from "@/components/ResultStatus";
+import { Visualizer } from "@/components/Visualizer";
 import Link from "next/link";
 
 export const Result = ({ result }: { result: Doc<"results"> }) => {

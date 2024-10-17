@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
-import { Visualizer } from "../../visualizer";
-import { Map } from "@/app/map";
+import { Visualizer } from "@/components/Visualizer";
+import { Map } from "@/components/Map";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import {
   Select,

@@ -1,8 +1,8 @@
 "use client";
 
-import { ResultStatus } from "./result-status";
+import { ResultStatus } from "@/components/ResultStatus";
 import { type ResultWithGame } from "@/convex/results";
-import { Visualizer } from "./visualizer";
+import { Visualizer } from "@/components/Visualizer";
 import { format } from "date-fns";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";

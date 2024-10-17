@@ -14,9 +14,9 @@ export function ThemeToggle() {
       size="sm"
       value={theme}
       onValueChange={(e) => setTheme(e)}
-      className={`${"flex px-1 py-1 rounded-md"} ${theme == "light" || (theme == "system" && darkMode == "light") ? "bg-blue-200" : "bg-slate-700"}`}
+      className={`${"flex px-1 py-1 rounded-md"} ${theme === "light" || (theme === "system" && darkMode === "light") ? "bg-blue-200" : "bg-slate-700"}`}
     >
-      {theme == "light" || (theme == "system" && darkMode == "light") ? (
+      {theme === "light" || (theme === "system" && darkMode === "light") ? (
         <ToggleGroupItem value="dark" aria-label="Dark">
           <MoonIcon />
         </ToggleGroupItem>

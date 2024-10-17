@@ -29,7 +29,7 @@ export class ZombieSurvival {
   }
 
   public constructor(config: string[][]) {
-    if (config.length === 0 || config[0].length == 0) {
+    if (config.length === 0 || config[0].length === 0) {
       throw new Error("Config is empty");
     }
 
