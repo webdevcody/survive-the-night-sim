@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation, useQuery, useAction } from "convex/react";
+import { useMutation, useQuery, useAction, Authenticated } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Visualizer } from "../../visualizer";
@@ -42,6 +42,10 @@ export default function PlayLevelPage({
 
   const userResultMutation = useMutation(api.playerresults.updateUserResult);
   const user = useQuery(api.users.getUserOrNull);
+
+  const tries = useQuery(api.playerresults.getPlayerRecordsForAMap, {
+    mapId: map?._id,
+  });
 
   if (!map) {
     return <div>Loading...</div>;
@@ -106,7 +110,6 @@ export default function PlayLevelPage({
     setGameResult(isWin ? "WON" : "LOST");
     if (user && user._id) {
       await userResultMutation({
-        userId: user?._id,
         mapId: map._id,
         hasWon: isWin,
         placedGrid: playerMap,
@@ -252,6 +255,31 @@ export default function PlayLevelPage({
               <Button onClick={handleRetryClicked}>Retry</Button>
             )}
           </div>
+
+          <Authenticated>
+            {tries && tries.attempts && tries.attempts.length > 0 && (
+              <>
+                <div className="font-semibold text-2xl mt-4">Tries</div>
+                <div className="flex flex-wrap items-center justify-around w-full">
+                  {tries.attempts.map((attempt) => (
+                    <div
+                      key={attempt?._id}
+                      className="flex flex-col gap-y-2 items-center"
+                    >
+                      {attempt?.grid && <Map map={attempt.grid} />}
+                      <div
+                        className={`mt-4 text-xl font-semibold ${
+                          attempt?.didWin ? "text-green-500" : "text-red-500"
+                        }`}
+                      >
+                        {attempt?.didWin ? "You Survived!" : "You Died!"}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </Authenticated>
         </>
       ) : (
         <div className="flex flex-col items-center gap-4 w-full">
