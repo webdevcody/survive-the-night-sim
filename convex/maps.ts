@@ -1,6 +1,7 @@
 import {
   internalAction,
   internalMutation,
+  mutation,
   query,
   action,
 } from "./_generated/server";
@@ -8,6 +9,8 @@ import { v } from "convex/values";
 import { ZombieSurvival } from "../simulators/zombie-survival";
 import { api, internal } from "./_generated/api";
 import { runModel } from "../models";
+import { auth } from "./auth";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
 const LEVELS = [
   {
@@ -35,7 +38,44 @@ const LEVELS = [
       ["Z", "Z"],
     ],
   },
+  {
+    grid: [
+      ["R", " ", "R"],
+      ["Z", " ", " "],
+      [" ", " ", "Z"],
+    ],
+  },
+  {
+    grid: [
+      [" ", " ", "R", " ", "Z"],
+      [" ", " ", " ", " ", "B"],
+      [" ", " ", " ", "R", " "],
+      ["Z", " ", " ", " ", " "],
+      [" ", " ", "B", " ", " "],
+    ],
+  },
 ];
+
+export const addMap = mutation({
+  args: {
+    grid: v.array(v.array(v.string())),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+
+    if (!userId) {
+      throw new Error("User not authenticated");
+    }
+
+    const maps = await ctx.db.query("maps").collect();
+
+    await ctx.db.insert("maps", {
+      level: maps.length + 1,
+      grid: args.grid,
+      submittedBy: userId,
+    });
+  },
+});
 
 export const seedMaps = internalMutation({
   handler: async (ctx) => {
@@ -116,30 +156,18 @@ export const playMapAction = internalAction({
       return;
     }
 
-    try {
-      const { solution, reasoning } = await runModel(args.modelId, map.grid);
+    const { solution, reasoning, error } = await runModel(
+      args.modelId,
+      map.grid,
+    );
 
-      await ctx.runMutation(internal.results.updateResult, {
-        resultId,
-        isWin: ZombieSurvival.isWin(solution),
-        reasoning,
-        map: solution,
-      });
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : typeof error === "string"
-            ? error
-            : "Unexpected error happened";
-
-      await ctx.runMutation(internal.results.updateResult, {
-        resultId,
-        isWin: false,
-        reasoning: errorMessage,
-        error: errorMessage,
-      });
-    }
+    await ctx.runMutation(internal.results.updateResult, {
+      resultId,
+      isWin: error ? false : ZombieSurvival.isWin(solution!),
+      reasoning,
+      error,
+      map: solution,
+    });
   },
 });
 
@@ -162,11 +190,16 @@ export const testAIModel = action({
       throw new Error("Map not found");
     }
 
-    const { solution, reasoning } = await runModel(args.modelId, map.grid);
+    const { solution, reasoning, error } = await runModel(
+      args.modelId,
+      map.grid,
+    );
+
     return {
       map: solution,
-      isWin: ZombieSurvival.isWin(solution),
+      isWin: error ? false : ZombieSurvival.isWin(solution!),
       reasoning,
+      error,
     };
   },
 });

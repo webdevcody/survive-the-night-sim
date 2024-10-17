@@ -44,6 +44,11 @@ export default function Header() {
         <Link href="/leaderboard">
           <Button variant="ghost">Leaderboard</Button>
         </Link>
+        {isAuthenticated && (
+          <Link href="/maps">
+            <Button variant="ghost">Submit Map</Button>
+          </Link>
+        )}
         {flags?.showTestPage && (
           <Link href="/test">
             <Button variant="ghost">Test</Button>
@@ -61,7 +66,7 @@ export default function Header() {
           <Image src="/convex.svg" alt="Convex" width={24} height={24} />
         </Link>
 
-        <div className="flex hover:bg-slate-500 rounded-md px-1">
+        <div className="">
           <ThemeToggle />
         </div>
         {!isAuthenticated ? (

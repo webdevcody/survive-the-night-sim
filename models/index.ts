@@ -1,5 +1,7 @@
 import { gemini15pro } from "./gemini-1.5-pro";
 import { gpt4o } from "./gpt-4o";
+import { claude35sonnet } from "./claude-3-5-sonnet";
+import { perplexityModel } from "./perplexity-llama";
 
 export type ModelHandler = (
   prompt: string,
@@ -68,14 +70,20 @@ The 2d Grid is made up of characters, where each character has a meaning.
   "boxCoordinates": [[ROW, COL], [ROW, COL]],
   "playerCoordinates": [ROW, COL]
 }
+
+## MOST IMPORTANT RULE
+
+- DO NOT TRY TO PUT A BLOCK OR PLAYER IN A LOCATION THAT IS ALREADY OCCUPIED
+
 `;
 
 export async function runModel(
   modelId: string,
   map: string[][],
 ): Promise<{
-  solution: string[][];
+  solution?: string[][];
   reasoning: string;
+  error?: string;
 }> {
   let result;
 
@@ -88,6 +96,14 @@ export async function runModel(
       result = await gpt4o(prompt, map);
       break;
     }
+    case "claude-3.5-sonnet": {
+      result = await claude35sonnet(prompt, map);
+      break;
+    }
+    case "perplexity-llama-3.1": {
+      result = await perplexityModel(prompt, map);
+      break;
+    }
     default: {
       throw new Error(`Tried running unknown model '${modelId}'`);
     }
@@ -97,7 +113,10 @@ export async function runModel(
 
   const [playerRow, playerCol] = result.playerCoordinates;
   if (originalMap[playerRow][playerCol] !== " ") {
-    throw new Error("Tried to place player in a non-empty space");
+    return {
+      reasoning: result.reasoning,
+      error: "Tried to place player in a non-empty space",
+    };
   }
 
   originalMap[playerRow][playerCol] = "P";
@@ -106,7 +125,10 @@ export async function runModel(
     const [blockRow, blockCol] = block;
 
     if (originalMap[blockRow][blockCol] !== " ") {
-      throw new Error("Tried to place a block in a non-empty space");
+      return {
+        reasoning: result.reasoning,
+        error: "Tried to place block in a non-empty space",
+      };
     }
 
     originalMap[blockRow][blockCol] = "B";

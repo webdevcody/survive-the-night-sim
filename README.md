@@ -29,6 +29,8 @@ Add optional environment variable/s for simulating real AI models without mockup
 
 - `npx convex env set GEMINI_API_KEY YOUR_API_KEY`
 - `npx convex env set OPENAI_API_KEY YOUR_API_KEY`
+- `npx convex env set ANTHROPIC_API_KEY YOUR_API_KEY`
+- `npx convex env set PERPLEXITY_API_KEY YOUR_API_KEY`
 
 also, you may need to run, but I think the initial setup does that.
 

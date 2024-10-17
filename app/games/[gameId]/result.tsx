@@ -20,10 +20,6 @@ export const Result = ({ result }: { result: Doc<"results"> }) => {
     return <div>Game in progress...</div>;
   }
 
-  if (result.status === "failed") {
-    return <div className="text-red-500">{result.error}</div>;
-  }
-
   return (
     <div className="flex items-center gap-8">
       <Link
@@ -32,7 +28,15 @@ export const Result = ({ result }: { result: Doc<"results"> }) => {
       >
         Level {map.level}
       </Link>
-      <Visualizer map={result.map} autoStart={true} />
+
+      {result.status === "failed" ? (
+        <div className="text-red-500 w-[200px] flex-shrink-0">
+          {result.error}
+        </div>
+      ) : (
+        <Visualizer map={result.map} autoStart={true} />
+      )}
+
       <div className="flex flex-col">
         <ResultStatus result={result} />
         {result.reasoning !== "" && <p>{result.reasoning}</p>}

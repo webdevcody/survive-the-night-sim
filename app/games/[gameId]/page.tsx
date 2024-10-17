@@ -14,7 +14,7 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
   });
 
   return (
-    <div className="container mx-auto min-h-screen flex flex-col items-center py-12 pb-24 gap-8">
+    <div className="container mx-auto max-w-5xl min-h-screen flex flex-col items-center py-12 pb-24 gap-8">
       <h1>Game {params.gameId}</h1>
       <h2>Model: {game?.modelId}</h2>
 
