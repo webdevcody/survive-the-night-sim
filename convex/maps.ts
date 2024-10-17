@@ -9,6 +9,8 @@ import { v } from "convex/values";
 import { ZombieSurvival } from "../simulators/zombie-survival";
 import { api, internal } from "./_generated/api";
 import { runModel } from "../models";
+import { auth } from "./auth";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
 const LEVELS = [
   {
@@ -58,13 +60,21 @@ export const addMap = mutation({
   args: {
     grid: v.array(v.array(v.string())),
   },
-  handler: async(ctx, args)=>{
-    const arr = ctx.db.query("maps").collect();
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+
+    if (!userId) {
+      throw new Error("User not authenticated");
+    }
+
+    const maps = await ctx.db.query("maps").collect();
+
     await ctx.db.insert("maps", {
-      level: (await arr).length+1,
+      level: maps.length + 1,
       grid: args.grid,
+      submittedBy: userId,
     });
-  }
+  },
 });
 
 export const seedMaps = internalMutation({
