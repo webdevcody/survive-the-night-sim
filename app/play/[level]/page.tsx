@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Visualizer } from "../../visualizer";
@@ -23,6 +23,9 @@ export default function PlayLevelPage({
     "player",
   );
   const [blockCount, setBlockCount] = useState(0);
+
+  const userResultMutation = useMutation(api.playerresults.updateUserResult);
+  const user = useQuery(api.users.getUserOrNull);
 
   if (!map) {
     return <div>Loading...</div>;
@@ -68,7 +71,7 @@ export default function PlayLevelPage({
     setPlayerMap(newMap);
   };
 
-  const handlePlacementModeChange = (mode: "player" | "block") => {
+  const handlePlacementModeChange = async (mode: "player" | "block") => {
     setPlacementMode(mode);
   };
 
@@ -83,8 +86,16 @@ export default function PlayLevelPage({
     setGameResult(null);
   };
 
-  const handleSimulationEnd = (isWin: boolean) => {
+  const handleSimulationEnd = async (isWin: boolean) => {
     setGameResult(isWin ? "WON" : "LOST");
+    if (user && user._id) {
+      await userResultMutation({
+        userId: user?._id,
+        mapId: map._id,
+        hasWon: isWin,
+        placedGrid: playerMap,
+      });
+    }
   };
 
   const mapWidth =
