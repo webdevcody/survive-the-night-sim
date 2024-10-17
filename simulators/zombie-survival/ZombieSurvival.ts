@@ -28,6 +28,10 @@ export class ZombieSurvival {
     return !game.getPlayer().dead();
   }
 
+  public static mapHasZombies(map: string[][]): boolean {
+    return map.some((row) => row.includes("Z"));
+  }
+
   public constructor(config: string[][]) {
     if (config.length === 0 || config[0].length === 0) {
       throw new Error("Config is empty");

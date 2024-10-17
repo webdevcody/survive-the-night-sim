@@ -87,31 +87,43 @@ export async function runModel(
 }> {
   let result;
 
-  switch (modelId) {
-    case "gemini-1.5-pro": {
-      result = await gemini15pro(prompt, map);
-      break;
+  try {
+    switch (modelId) {
+      case "gemini-1.5-pro": {
+        result = await gemini15pro(prompt, map);
+        break;
+      }
+      case "gpt-4o": {
+        result = await gpt4o(prompt, map);
+        break;
+      }
+      case "claude-3.5-sonnet": {
+        result = await claude35sonnet(prompt, map);
+        break;
+      }
+      case "perplexity-llama-3.1": {
+        result = await perplexityModel(prompt, map);
+        break;
+      }
+      default: {
+        throw new Error(`Tried running unknown model '${modelId}'`);
+      }
     }
-    case "gpt-4o": {
-      result = await gpt4o(prompt, map);
-      break;
-    }
-    case "claude-3.5-sonnet": {
-      result = await claude35sonnet(prompt, map);
-      break;
-    }
-    case "perplexity-llama-3.1": {
-      result = await perplexityModel(prompt, map);
-      break;
-    }
-    default: {
-      throw new Error(`Tried running unknown model '${modelId}'`);
-    }
+  } catch (error) {
+    return {
+      reasoning: "Internal error",
+      error:
+        error instanceof Error
+          ? error.message
+          : typeof error === "string"
+            ? error
+            : "Unknown error",
+    };
   }
 
   const originalMap = JSON.parse(JSON.stringify(map));
-
   const [playerRow, playerCol] = result.playerCoordinates;
+
   if (originalMap[playerRow][playerCol] !== " ") {
     return {
       reasoning: result.reasoning,
