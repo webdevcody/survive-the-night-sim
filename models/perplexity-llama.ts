@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { z } from 'zod';
 import { ModelHandler } from './index';
 
@@ -18,7 +17,7 @@ const PerplexityResponseSchema = z.object({
       delta: z.object({
         role: z.string(),
         content: z.string(),
-      }),
+      }).optional(),
     })
   ),
   usage: z.object({
@@ -42,8 +41,7 @@ export const perplexityModel: ModelHandler = async (prompt: string, map: string[
 
   const messages = [
     { role: 'system', content: 'Be precise and concise.' },
-    { role: 'user', content: prompt },
-    { role: 'user', content: JSON.stringify(map) },
+    { role: 'user', content: `${prompt}\n\nMap:\n${JSON.stringify(map)}` },
   ];
 
   const data = {
@@ -63,14 +61,23 @@ export const perplexityModel: ModelHandler = async (prompt: string, map: string[
   };
 
   try {
-    const response = await axios.post('https://api.perplexity.ai/chat/completions', data, {
+    const response = await fetch('https://api.perplexity.ai/chat/completions', {
+      method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
+      body: JSON.stringify(data),
     });
 
-    const validatedResponse = PerplexityResponseSchema.parse(response.data);
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('API Error:', errorData);
+      throw new Error(`HTTP error! status: ${response.status}, message: ${JSON.stringify(errorData)}`);
+    }
+
+    const responseData = await response.json();
+    const validatedResponse = PerplexityResponseSchema.parse(responseData);
     const content = validatedResponse.choices[0].message.content;
     const parsedContent = JSON.parse(content);
     const gameResponse = GameResponseSchema.parse(parsedContent);
@@ -82,6 +89,6 @@ export const perplexityModel: ModelHandler = async (prompt: string, map: string[
     };
   } catch (error) {
     console.error('Failed to run Perplexity model Error:', error);
-    throw new Error('Failed to run Perplexity model');
+    throw error;
   }
 };
