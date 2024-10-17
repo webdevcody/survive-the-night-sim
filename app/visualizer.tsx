@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { EntityType, ZombieSurvival } from "@/simulators/zombie-survival";
 import { useEffect, useRef, useState } from "react";
+import { getCellImage } from "./map";
 
 const AUTO_REPLAY_SPEED = 1_500;
 const REPLAY_SPEED = 600;
@@ -80,55 +81,66 @@ export function Visualizer({
   }, []);
 
   return (
-    <div>
-      {mapState.map((row, y) => (
-        <div key={y} className="flex">
-          {row.map((cell, x) => (
-            <div
-              key={x}
-              style={{
-                width: `${cellSize}px`,
-                height: `${cellSize}px`,
-                fontSize: `${parseInt(cellSize) / 2}px`,
-                opacity: (() => {
-                  const entity = simulator.current?.getEntityAt({
-                    x,
-                    y,
-                  });
-                  if (
-                    entity?.getType() === EntityType.Zombie &&
-                    entity.getHealth() === 1
-                  ) {
-                    return 0.5;
-                  }
-                  return 1;
-                })(),
-              }}
-              className={`border flex items-center justify-center dark:bg-black bg-slate-50`}
-            >
-              {cell}
+    <>
+      <div className="relative">
+        <img
+          src="/map.png"
+          alt="Background Map"
+          className="absolute inset-0 w-full h-full object-cover opacity-50"
+        />
+        <div className="relative z-10">
+          {mapState.map((row, y) => (
+            <div key={y} className="flex">
+              {row.map((cell, x) => (
+                <div
+                  key={x}
+                  style={{
+                    width: `${cellSize}px`,
+                    height: `${cellSize}px`,
+                    fontSize: `${parseInt(cellSize) / 2}px`,
+                    opacity: (() => {
+                      const entity = simulator.current?.getEntityAt({
+                        x,
+                        y,
+                      });
+                      if (
+                        entity?.getType() === EntityType.Zombie &&
+                        entity.getHealth() === 1
+                      ) {
+                        return 0.5;
+                      }
+                      return 1;
+                    })(),
+                  }}
+                  className={`border flex items-center justify-center`}
+                >
+                  {getCellImage(cell)}
+                </div>
+              ))}
             </div>
           ))}
         </div>
-      ))}
-      {controls && (
-        <div className="flex gap-2 justify-center py-2">
-          <Button onClick={startSimulation} disabled={isRunning}>
-            Replay
-          </Button>
-          <Button
-            disabled={isRunning}
-            onClick={() => {
-              simulator.current = new ZombieSurvival(map);
-              setMapState(simulator.current!.getState());
-              setIsRunning(false);
-              setNeedsReset(false);
-            }}
-          >
-            Reset
-          </Button>
-        </div>
-      )}
-    </div>
+      </div>
+      <div>
+        {controls && (
+          <div className="flex gap-2 justify-center py-2">
+            <Button onClick={startSimulation} disabled={isRunning}>
+              Replay
+            </Button>
+            <Button
+              disabled={isRunning}
+              onClick={() => {
+                simulator.current = new ZombieSurvival(map);
+                setMapState(simulator.current!.getState());
+                setIsRunning(false);
+                setNeedsReset(false);
+              }}
+            >
+              Reset
+            </Button>
+          </div>
+        )}
+      </div>
+    </>
   );
 }

@@ -68,6 +68,7 @@ export default function PlayLevelPage({
     setGameResult(null);
     setBlockCount(0);
     setPlayerMap(map.grid.map((row) => [...row]));
+    setPlacementMode("player");
   };
 
   const handleCellClick = (x: number, y: number) => {
@@ -198,7 +199,7 @@ export default function PlayLevelPage({
                       <div
                         key={`${x}-${y}`}
                         className={`
-                          ${cell === " " ? "cursor-pointer hover:border-2 hover:border-dashed hover:border-slate-500" : ""}
+                          ${cell === " " ? "cursor-pointer hover:border-2 z-10 hover:border-dashed hover:border-slate-300" : ""}
                           border border-transparent
                         `}
                         onClick={() => cell === " " && handleCellClick(x, y)}
