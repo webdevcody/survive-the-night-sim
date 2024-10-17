@@ -1,5 +1,7 @@
 import { gemini15pro } from "./gemini-1.5-pro";
 import { gpt4o } from "./gpt-4o";
+import { claude35sonnet } from "./claude-3-5-sonnet";
+import { perplexityModel } from "./perplexity-llama";
 
 export type ModelHandler = (
   prompt: string,
@@ -92,6 +94,14 @@ export async function runModel(
     }
     case "gpt-4o": {
       result = await gpt4o(prompt, map);
+      break;
+    }
+    case "claude-3.5-sonnet": {
+      result = await claude35sonnet(prompt, map);
+      break;
+    }
+    case "perplexity-llama-3.1": {
+      result = await perplexityModel(prompt, map);
       break;
     }
     default: {
