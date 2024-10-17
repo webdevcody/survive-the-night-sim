@@ -43,8 +43,8 @@ export default function AddMapPage() {
       console.log("All set");
       console.log(map);
       alert("No place left to place the player!");
-    }else{
-      createMap({grid: map});
+    } else {
+      createMap({ grid: map });
       alert("Map saved");
     }
   };
@@ -60,7 +60,7 @@ export default function AddMapPage() {
       if (map[y][x] == "B") {
         cell = " ";
       } else {
-        cell = "B";
+        cell = "R";
       }
     }
     const newMap = map.map((row) => [...row]);
@@ -68,7 +68,9 @@ export default function AddMapPage() {
     setMap(newMap);
   };
   return (
-    <div className="flex-col container mx-auto">
+    <div className="container mx-auto min-h-screen py-12 pb-24 gap-8">
+      <h1 className="text-center text-3xl font-semibold mb-6">Submit Map</h1>
+
       {isSubmitted ? (
         <div>
           <div className="flex justify-center m-5">
@@ -84,7 +86,7 @@ export default function AddMapPage() {
               variant={isZombie ? "outline" : "default"}
               onClick={() => setIsZombie(false)}
             >
-              Place Block
+              Place Rock
             </Button>
           </div>
           <div className="justify-center m-5">

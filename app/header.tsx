@@ -46,7 +46,7 @@ export default function Header() {
         </Link>
         {isAuthenticated && (
           <Link href="/maps">
-            <Button variant="ghost">Add custom Maps</Button>
+            <Button variant="ghost">Submit Map</Button>
           </Link>
         )}
         {flags?.showTestPage && (
