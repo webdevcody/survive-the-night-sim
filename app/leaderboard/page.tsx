@@ -65,8 +65,8 @@ const LeaderBoard = () => {
   );
 
   return (
-    <div className="py-12">
-      <div className="text-center text-3xl font-semibold mb-6">Leaderboard</div>
+    <div className="container mx-auto min-h-screen py-12 pb-24 gap-8">
+      <h1 className="text-center text-3xl font-semibold mb-6">Leaderboard</h1>
 
       <Tabs defaultValue="global" className="">
         <TabsList>

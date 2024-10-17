@@ -2,8 +2,28 @@ import { v } from "convex/values";
 import { internalMutation, mutation, query } from "./_generated/server";
 import { api, internal } from "./_generated/api";
 import { AI_MODEL_IDS } from "./constants";
+import { Id } from "./_generated/dataModel";
 
-export const startNewGame = mutation({
+export const testModel = mutation({
+  args: {
+    modelId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const flags = await ctx.runQuery(api.flags.getFlags);
+
+    if (!flags?.showTestPage) {
+      throw new Error("Test page is not enabled");
+    }
+
+    const gameId = (await ctx.runMutation(internal.games.startNewGame, {
+      modelId: args.modelId,
+    })) as Id<"games">;
+
+    return gameId;
+  },
+});
+
+export const startNewGame = internalMutation({
   args: { modelId: v.string() },
   handler: async (ctx, args) => {
     if (!AI_MODEL_IDS.includes(args.modelId)) {

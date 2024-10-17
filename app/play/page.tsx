@@ -5,6 +5,13 @@ import { api } from "@/convex/_generated/api";
 import { Map } from "@/app/map";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export default function PlayPage() {
   const maps = useQuery(api.maps.getMaps);
@@ -14,22 +21,26 @@ export default function PlayPage() {
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6 text-center">Choose a Level</h1>
+    <div className="container mx-auto min-h-screen py-12 pb-24 gap-8">
+      <h1 className="text-3xl font-bold mb-6 text-center">Choose a Night</h1>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {maps.map((map) => (
-          <div
-            key={map._id}
-            className="border rounded-lg p-4 flex flex-col items-center justify-between h-full"
-          >
-            <div className="text-center">
-              <h2 className="text-xl font-semibold mb-4">Level {map.level}</h2>
+          <Card key={map._id} className="flex flex-col h-full">
+            <CardHeader>
+              <CardTitle className="text-xl font-semibold text-center">
+                Night #{map.level}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex-grow flex items-center justify-center">
               <Map map={map.grid} />
-            </div>
-            <Link href={`/play/${map.level}`} passHref className="mt-auto pt-4">
-              <Button>Play</Button>
-            </Link>
-          </div>
+            </CardContent>
+            <CardFooter className="flex justify-center">
+              <Link href={`/play/${map.level}`} passHref>
+                <Button>Play</Button>
+              </Link>
+            </CardFooter>
+          </Card>
         ))}
       </div>
     </div>

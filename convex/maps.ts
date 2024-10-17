@@ -1,6 +1,10 @@
-import { internalAction, internalMutation, query } from "./_generated/server";
+import {
+  internalAction,
+  internalMutation,
+  query,
+  action,
+} from "./_generated/server";
 import { v } from "convex/values";
-import { Doc } from "./_generated/dataModel";
 import { ZombieSurvival } from "../simulators/zombie-survival";
 import { api, internal } from "./_generated/api";
 import { runModel } from "../models";
@@ -23,87 +27,35 @@ const LEVELS = [
       ["Z", " "],
     ],
   },
-  // {
-  //   grid: [
-  //     ["Z", " ", " ", "R", " "],
-  //     [" ", "R", " ", " ", " "],
-  //     [" ", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", "Z"],
-  //     [" ", " ", " ", " ", " "],
-  //   ],
-  // },
-  // {
-  //   grid: [
-  //     ["Z", " ", " ", "R", " "],
-  //     [" ", "R", " ", " ", " "],
-  //     [" ", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", "Z"],
-  //     [" ", " ", " ", " ", " "],
-  //   ],
-  // },
-  // {
-  //   grid: [
-  //     [" ", " ", "R", " ", "Z"],
-  //     [" ", " ", " ", " ", " "],
-  //     [" ", " ", " ", "R", " "],
-  //     ["Z", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", " "],
-  //   ],
-  // },
-  // {
-  //   grid: [
-  //     ["Z", " ", " ", "R", " ", " ", " "],
-  //     [" ", " ", " ", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", " ", "Z", " "],
-  //     [" ", " ", " ", " ", " ", " ", " "],
-  //     [" ", "R", " ", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", "R", " ", " "],
-  //   ],
-  // },
-  // {
-  //   grid: [
-  //     [" ", "Z", " ", " ", "R", " ", " "],
-  //     [" ", " ", " ", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", " ", " ", "Z"],
-  //     [" ", " ", "R", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", " ", " ", " "],
-  //   ],
-  // },
-  // {
-  //   grid: [
-  //     [" ", " ", " ", " ", "R", "Z", " ", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
-  //     ["Z", " ", " ", " ", " ", "R", " ", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", "R", " ", " ", " ", " ", "Z", " "],
-  //     [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
-  //     [" ", " ", "R", " ", " ", " ", " ", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", " ", " ", "Z", " ", " ", " ", " "],
-  //     ["B", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
-  //     [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
-  //     ["Z", " ", " ", " ", "Z", " ", " ", " ", " ", " ", "Z"],
-  //   ],
-  // },
+  {
+    grid: [
+      [" ", " "],
+      ["R", " "],
+      ["Z", "Z"],
+      ["Z", "Z"],
+    ],
+  },
 ];
 
 export const seedMaps = internalMutation({
   handler: async (ctx) => {
-    // delete all existing maps
     const maps = await ctx.db.query("maps").collect();
 
-    for (const map of maps) {
-      await ctx.db.delete(map._id);
-    }
-
-    LEVELS.forEach((map, idx) => {
-      ctx.db.insert("maps", {
-        level: idx + 1,
-        grid: map.grid,
-      });
-    });
+    await Promise.all(
+      LEVELS.map((map, idx) => {
+        const existingMap = maps.find((it) => it.level === idx + 1);
+        if (existingMap) {
+          ctx.db.patch(existingMap._id, {
+            grid: map.grid,
+          });
+        } else {
+          ctx.db.insert("maps", {
+            level: idx + 1,
+            grid: map.grid,
+          });
+        }
+      }),
+    );
   },
 });
 
@@ -126,9 +78,9 @@ export const getMapByLevel = query({
 
 export const playMapAction = internalAction({
   args: {
-    level: v.number(),
     gameId: v.id("games"),
     modelId: v.string(),
+    level: v.number(),
   },
   handler: async (ctx, args) => {
     const resultId = await ctx.runMutation(
@@ -139,19 +91,16 @@ export const playMapAction = internalAction({
       },
     );
 
-    const map: Doc<"maps"> | null = (await ctx.runQuery(
-      api.maps.getMapByLevel,
-      {
-        level: args.level,
-      },
-    )) as any;
+    const map = await ctx.runQuery(api.maps.getMapByLevel, {
+      level: args.level,
+    });
 
     if (!map) {
       throw new Error("Map not found");
     }
 
     if (process.env.MOCK_MODELS === "true") {
-      const existingMap = [...map.grid.map((row) => [...row])];
+      const existingMap = [...map.grid.map((row: string[]) => [...row])];
 
       existingMap[0][0] = "P";
       existingMap[0][1] = "B";
@@ -184,16 +133,40 @@ export const playMapAction = internalAction({
             ? error
             : "Unexpected error happened";
 
-      await ctx.runMutation(internal.results.failResult, {
+      await ctx.runMutation(internal.results.updateResult, {
         resultId,
+        isWin: false,
+        reasoning: errorMessage,
         error: errorMessage,
       });
-
-      await ctx.runMutation(internal.leaderboard.updateRankings, {
-        modelId: args.modelId,
-        level: args.level,
-        isWin: false,
-      });
     }
+  },
+});
+
+export const testAIModel = action({
+  args: {
+    level: v.number(),
+    modelId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const flags = await ctx.runQuery(api.flags.getFlags);
+    if (!flags.showTestPage) {
+      throw new Error("Test page is not enabled");
+    }
+
+    const map = await ctx.runQuery(api.maps.getMapByLevel, {
+      level: args.level,
+    });
+
+    if (!map) {
+      throw new Error("Map not found");
+    }
+
+    const { solution, reasoning } = await runModel(args.modelId, map.grid);
+    return {
+      map: solution,
+      isWin: ZombieSurvival.isWin(solution),
+      reasoning,
+    };
   },
 });

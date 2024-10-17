@@ -5,7 +5,7 @@ export function ResultStatus({ result }: { result: Doc<"results"> }) {
     <div
       className={`font-bold ${result.isWin ? "text-green-500" : "text-red-500"}`}
     >
-      {result.isWin ? "Won" : "Lost"}
+      {result.isWin ? "WON" : "LOST"}
     </div>
   );
 }
