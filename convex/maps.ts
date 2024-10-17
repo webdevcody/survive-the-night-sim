@@ -1,6 +1,7 @@
 import {
   internalAction,
   internalMutation,
+  mutation,
   query,
   action,
 } from "./_generated/server";
@@ -36,6 +37,19 @@ const LEVELS = [
     ],
   },
 ];
+
+export const addMap = mutation({
+  args: {
+    grid: v.array(v.array(v.string())),
+  },
+  handler: async(ctx, args)=>{
+    const arr = ctx.db.query("maps").collect();
+    await ctx.db.insert("maps", {
+      level: (await arr).length+1,
+      grid: args.grid,
+    });
+  }
+});
 
 export const seedMaps = internalMutation({
   handler: async (ctx) => {
