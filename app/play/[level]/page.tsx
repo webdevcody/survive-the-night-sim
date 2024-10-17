@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useQuery } from "convex/react";
+import { useEffect, useState } from "react";
+import { useMutation, useQuery, useAction, Authenticated } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Visualizer } from "../../visualizer";
@@ -34,6 +34,13 @@ export default function PlayLevelPage({
       setPlayerMap(map.grid.map((row) => [...row]));
     }
   }, [map]);
+
+  const userResultMutation = useMutation(api.playerresults.updateUserResult);
+  const user = useQuery(api.users.getUserOrNull);
+
+  const tries = useQuery(api.playerresults.getPlayerRecordsForAMap, {
+    mapId: map?._id,
+  });
 
   if (!map) {
     return (
@@ -98,7 +105,7 @@ export default function PlayLevelPage({
     setPlayerMap(newMap);
   };
 
-  const handlePlacementModeChange = (mode: "player" | "block") => {
+  const handlePlacementModeChange = async (mode: "player" | "block") => {
     setPlacementMode(mode);
   };
 
@@ -113,8 +120,15 @@ export default function PlayLevelPage({
     setGameResult(null);
   };
 
-  const handleSimulationEnd = (isWin: boolean) => {
+  const handleSimulationEnd = async (isWin: boolean) => {
     setGameResult(isWin ? "WON" : "LOST");
+    if (user && user._id) {
+      await userResultMutation({
+        mapId: map._id,
+        hasWon: isWin,
+        placedGrid: playerMap,
+      });
+    }
   };
 
   const handleClearMap = () => {
@@ -230,6 +244,31 @@ export default function PlayLevelPage({
               </Button>
             )}
           </div>
+
+          <Authenticated>
+            {tries && tries.attempts && tries.attempts.length > 0 && (
+              <>
+                <div className="font-semibold text-2xl mt-4">Tries</div>
+                <div className="flex flex-wrap items-center justify-around w-full">
+                  {tries.attempts.map((attempt) => (
+                    <div
+                      key={attempt?._id}
+                      className="flex flex-col gap-y-2 items-center"
+                    >
+                      {attempt?.grid && <Map map={attempt.grid} />}
+                      <div
+                        className={`mt-4 text-xl font-semibold ${
+                          attempt?.didWin ? "text-green-500" : "text-red-500"
+                        }`}
+                      >
+                        {attempt?.didWin ? "You Survived!" : "You Died!"}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </Authenticated>
         </>
       ) : (
         <TestMode level={level} map={map.grid} />

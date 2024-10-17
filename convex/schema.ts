@@ -51,4 +51,14 @@ export default defineSchema({
     wins: v.number(),
     losses: v.number(),
   }).index("by_modelId_level", ["modelId", "level"]),
+  attempts: defineTable({
+    grid: v.array(v.array(v.string())),
+    didWin: v.boolean(),
+  }),
+  userResults: defineTable({
+    userId: v.id("users"),
+    mapId: v.id("maps"),
+    attempts: v.array(v.id("attempts")),
+    hasWon: v.boolean(),
+  }).index("by_mapId_userId", ["mapId", "userId"]),
 });

@@ -1,8 +1,8 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { Authenticated, Unauthenticated, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Map } from "@/app/map";
+import { Map as GameMap } from "@/app/map";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {
@@ -12,10 +12,40 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function PlayPage() {
   const maps = useQuery(api.maps.getMaps);
+  const userMapResults = useQuery(api.playerresults.getUserMapStatus);
+  const mapCountResults = useQuery(api.playerresults.getMapsWins);
+
+  const [resMap, setResMap] = useState(new Map());
+  const [countMap, setCountMap] = useState(new Map());
+
+  useEffect(() => {
+    if (userMapResults && mapCountResults) {
+      const res = new Map<string, boolean>();
+      const ctr = new Map<string, number>();
+
+      for (const result of userMapResults as {
+        mapId: string;
+        hasWon: boolean;
+      }[]) {
+        res.set(result.mapId, result.hasWon);
+      }
+
+      for (const result of mapCountResults as {
+        mapId: string;
+        count: number;
+      }[]) {
+        ctr.set(result.mapId, result.count);
+      }
+
+      setResMap(res);
+      setCountMap(ctr);
+    }
+  }, [userMapResults, mapCountResults]);
 
   if (!maps) {
     return (
@@ -44,12 +74,35 @@ export default function PlayPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-grow flex items-center justify-center">
-              <Map map={map.grid} />
+              <GameMap map={map.grid} />
             </CardContent>
-            <CardFooter className="flex justify-center">
+            <CardFooter className="flex justify-around px-3">
               <Link href={`/play/${map.level}`} passHref>
                 <Button>Play</Button>
               </Link>
+
+              <Authenticated>
+                <div className="flex flex-col items-center gap-y-2">
+                  {resMap.has(map._id) ? (
+                    <div className="ml-4">
+                      {resMap.get(map._id) ? "Beaten" : "Unbeaten"}
+                    </div>
+                  ) : (
+                    <div className="ml-4">Unplayed</div>
+                  )}
+                  <div>
+                    Won by {countMap.has(map._id) ? countMap.get(map._id) : 0}{" "}
+                    Players
+                  </div>
+                </div>
+              </Authenticated>
+
+              <Unauthenticated>
+                <div>
+                  Won by {countMap.has(map._id) ? countMap.get(map._id) : 0}{" "}
+                  Players
+                </div>
+              </Unauthenticated>
             </CardFooter>
           </Card>
         ))}

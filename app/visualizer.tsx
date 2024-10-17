@@ -19,7 +19,7 @@ export function Visualizer({
   controls?: boolean;
   cellSize?: string;
   map: string[][];
-  onSimulationEnd?: (isWin: boolean) => void;
+  onSimulationEnd?: (isWin: boolean) => Promise<void>;
 }) {
   const simulator = useRef<ZombieSurvival | null>(null);
   const interval = useRef<NodeJS.Timeout | null>(null);
@@ -35,7 +35,7 @@ export function Visualizer({
     setMapState(simulator.current!.getState());
     setIsRunning(true);
 
-    interval.current = setInterval(() => {
+    interval.current = setInterval(async () => {
       if (simulator.current!.finished()) {
         clearInterval(interval.current!);
         interval.current = null;
@@ -52,7 +52,7 @@ export function Visualizer({
         setIsRunning(false);
 
         if (onSimulationEnd) {
-          onSimulationEnd(!simulator.current!.getPlayer().dead());
+          await onSimulationEnd(!simulator.current!.getPlayer().dead());
         }
 
         return;
