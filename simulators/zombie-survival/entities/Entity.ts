@@ -49,6 +49,10 @@ export class Entity {
     this.health--;
   }
 
+  public getHealth(): number {
+    return this.health;
+  }
+
   public isDestructible(): boolean {
     return this.destructible;
   }

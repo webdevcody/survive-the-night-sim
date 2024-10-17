@@ -1,85 +1,60 @@
 import {
+  allDirections,
   Direction,
   directionFromString,
   directionToString,
+  move,
 } from "../Direction";
+import { EntityType } from "../entities/Entity";
 import { Zombie } from "../entities/Zombie";
 import { ZombieSurvival } from "../ZombieSurvival";
+import { entityAt } from "./entityAt";
 
 export function pathfinder(
   initialGame: ZombieSurvival,
   initialZombie: Zombie,
 ): Direction[] {
-  const initialSnapshot = ZombieSurvival.fromSnapshot(initialGame.getSnapshot())
-    .setZombies([initialZombie])
-    .getSnapshot();
+  const player = initialGame.getPlayer();
 
-  const graph = new Map<string, Record<string, string>>();
-  const queue = [initialSnapshot];
-  const wins = new Set<string>();
+  const initialPosition = initialZombie.getPosition();
+  const queue: Array<{ x: number; y: number; path: Direction[] }> = [
+    { x: initialPosition.x, y: initialPosition.y, path: [] },
+  ];
+  const visited = new Set<string>();
 
   while (queue.length > 0) {
-    const snapshot = queue.shift();
+    const { x, y, path } = queue.shift()!;
+    const positionKey = `${x},${y}`;
 
-    if (snapshot === undefined) {
+    if (visited.has(positionKey)) {
       continue;
     }
+    visited.add(positionKey);
 
-    graph.set(snapshot, {});
-    const game = ZombieSurvival.fromSnapshot(snapshot);
-    const moves = game.getZombie().listMoves();
-
-    moves.forEach((move) => {
-      const game = ZombieSurvival.fromSnapshot(snapshot);
-      game.getZombie().walk(move);
-      const newSnapshot = game.getSnapshot();
-
-      if (graph.has(newSnapshot) || queue.includes(newSnapshot)) {
-        return;
-      }
-
-      const graphItem = graph.get(snapshot);
-
-      if (graphItem !== undefined) {
-        graphItem[directionToString(move)] = newSnapshot;
-      }
-
-      if (game.finished()) {
-        wins.add(newSnapshot);
-      } else {
-        queue.push(newSnapshot);
-      }
-    });
-  }
-
-  const bfsQueue: Array<{
-    snapshot: string;
-    moves: Direction[];
-  }> = [{ snapshot: initialSnapshot, moves: [] }];
-
-  while (bfsQueue.length > 0) {
-    const vertex = bfsQueue.shift();
-
-    if (vertex === undefined) {
-      continue;
+    if (player?.getPosition().x === x && player?.getPosition().y === y) {
+      return path;
     }
 
-    if (wins.has(vertex.snapshot)) {
-      return vertex.moves;
+    for (const direction of allDirections) {
+      const position = move({ x, y }, direction);
+
+      if (
+        position.x < 0 ||
+        position.y < 0 ||
+        position.x >= initialGame.boardWidth ||
+        position.y >= initialGame.boardHeight
+      ) {
+        continue;
+      }
+
+      const entity = entityAt(initialGame.getEntities(), position);
+
+      if (entity !== null && !entity.isDestructible()) {
+        continue;
+      }
+
+      queue.push({ x: position.x, y: position.y, path: [...path, direction] });
     }
-
-    const newVertex = graph.get(vertex.snapshot);
-
-    if (newVertex === undefined) {
-      throw new Error("Tried getting undefined graph item");
-    }
-
-    Object.entries(newVertex).forEach(([move, snapshot]) => {
-      bfsQueue.push({
-        snapshot,
-        moves: [...vertex.moves, directionFromString(move)],
-      });
-    });
   }
 
   throw new Error("Unable to solve game");

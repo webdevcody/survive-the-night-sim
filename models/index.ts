@@ -68,14 +68,20 @@ The 2d Grid is made up of characters, where each character has a meaning.
   "boxCoordinates": [[ROW, COL], [ROW, COL]],
   "playerCoordinates": [ROW, COL]
 }
+
+## MOST IMPORTANT RULE
+
+- DO NOT TRY TO PUT A BLOCK OR PLAYER IN A LOCATION THAT IS ALREADY OCCUPIED
+
 `;
 
 export async function runModel(
   modelId: string,
   map: string[][],
 ): Promise<{
-  solution: string[][];
+  solution?: string[][];
   reasoning: string;
+  error?: string;
 }> {
   let result;
 
@@ -97,7 +103,10 @@ export async function runModel(
 
   const [playerRow, playerCol] = result.playerCoordinates;
   if (originalMap[playerRow][playerCol] !== " ") {
-    throw new Error("Tried to place player in a non-empty space");
+    return {
+      reasoning: result.reasoning,
+      error: "Tried to place player in a non-empty space",
+    };
   }
 
   originalMap[playerRow][playerCol] = "P";
@@ -106,7 +115,10 @@ export async function runModel(
     const [blockRow, blockCol] = block;
 
     if (originalMap[blockRow][blockCol] !== " ") {
-      throw new Error("Tried to place a block in a non-empty space");
+      return {
+        reasoning: result.reasoning,
+        error: "Tried to place block in a non-empty space",
+      };
     }
 
     originalMap[blockRow][blockCol] = "B";

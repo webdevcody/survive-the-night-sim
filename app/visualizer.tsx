@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ZombieSurvival } from "@/simulators/zombie-survival";
+import { EntityType, ZombieSurvival } from "@/simulators/zombie-survival";
 import { useEffect, useRef, useState } from "react";
 
 const AUTO_REPLAY_SPEED = 1_500;
@@ -90,6 +90,19 @@ export function Visualizer({
                 width: `${cellSize}px`,
                 height: `${cellSize}px`,
                 fontSize: `${parseInt(cellSize) / 2}px`,
+                opacity: (() => {
+                  const entity = simulator.current?.getEntityAt({
+                    x,
+                    y,
+                  });
+                  if (
+                    entity?.getType() === EntityType.Zombie &&
+                    entity.getHealth() === 1
+                  ) {
+                    return 0.5;
+                  }
+                  return 1;
+                })(),
               }}
               className={`border flex items-center justify-center dark:bg-black bg-slate-50`}
             >

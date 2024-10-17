@@ -4,6 +4,7 @@ import { Player } from "./entities/Player";
 import { Rock } from "./entities/Rock";
 import { Zombie } from "./entities/Zombie";
 import { entityAt } from "./lib/entityAt";
+import { Position } from "./Position";
 
 export class ZombieSurvival {
   public readonly boardHeight: number;
@@ -117,6 +118,10 @@ export class ZombieSurvival {
     }
 
     return config;
+  }
+
+  public getEntityAt(position: Position): Entity | null {
+    return entityAt(this.getAllEntities(), position);
   }
 
   public getZombie(): Zombie {
