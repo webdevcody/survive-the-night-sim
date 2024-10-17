@@ -1,6 +1,6 @@
 "use client";
 
-import { Map } from "@/app/map";
+import { Map } from "@/components/Map";
 import { Button } from "@/components/ui/button";
 import {
   Card,
