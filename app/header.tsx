@@ -66,7 +66,7 @@ export default function Header() {
           <Image src="/convex.svg" alt="Convex" width={24} height={24} />
         </Link>
 
-        <div className="flex hover:bg-slate-500 rounded-md px-1">
+        <div className="">
           <ThemeToggle />
         </div>
         {!isAuthenticated ? (
