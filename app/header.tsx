@@ -26,6 +26,7 @@ export default function Header() {
   const { signOut } = useAuthActions();
   const { isAuthenticated } = useConvexAuth();
   const flags = useQuery(api.flags.getFlags);
+  const isAdminQuery = useQuery(api.users.isAdmin);
 
   return (
     <header className="flex justify-between items-center py-4 px-6 shadow-sm border-b">
@@ -47,6 +48,11 @@ export default function Header() {
         {isAuthenticated && (
           <Link href="/maps">
             <Button variant="ghost">Submit Map</Button>
+          </Link>
+        )}
+        {isAdminQuery && (
+          <Link href="/maps/review">
+            <Button variant="ghost">Review Maps</Button>
           </Link>
         )}
         {flags?.showTestPage && (

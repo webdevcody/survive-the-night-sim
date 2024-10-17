@@ -26,3 +26,16 @@ export const getUserOrNull = query({
     return await ctx.db.get(userId);
   },
 });
+
+export const isAdmin = query({
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return false;
+    }
+
+    const admins = await ctx.db.query("admins").collect();
+
+    return admins.some((admin) => admin.userId === userId);
+  },
+});
