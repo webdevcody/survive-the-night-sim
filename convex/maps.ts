@@ -1,4 +1,9 @@
-import { internalAction, internalMutation, query } from "./_generated/server";
+import {
+  internalAction,
+  internalMutation,
+  query,
+  action,
+} from "./_generated/server";
 import { v } from "convex/values";
 import { ZombieSurvival } from "../simulators/zombie-survival";
 import { api, internal } from "./_generated/api";
@@ -73,9 +78,9 @@ export const getMapByLevel = query({
 
 export const playMapAction = internalAction({
   args: {
-    level: v.number(),
     gameId: v.id("games"),
     modelId: v.string(),
+    level: v.number(),
   },
   handler: async (ctx, args) => {
     const resultId = await ctx.runMutation(
@@ -95,7 +100,7 @@ export const playMapAction = internalAction({
     }
 
     if (process.env.MOCK_MODELS === "true") {
-      const existingMap = [...map.grid.map((row) => [...row])];
+      const existingMap = [...map.grid.map((row: string[]) => [...row])];
 
       existingMap[0][0] = "P";
       existingMap[0][1] = "B";
@@ -128,22 +133,40 @@ export const playMapAction = internalAction({
             ? error
             : "Unexpected error happened";
 
-      // await ctx.runMutation(internal.results.failResult, {
-      //   resultId,
-      //   error: errorMessage,
-      // });
       await ctx.runMutation(internal.results.updateResult, {
         resultId,
         isWin: false,
         reasoning: errorMessage,
         error: errorMessage,
       });
-
-      // await ctx.runMutation(internal.leaderboard.updateRankings, {
-      //   modelId: args.modelId,
-      //   level: args.level,
-      //   isWin: false,
-      // });
     }
+  },
+});
+
+export const testAIModel = action({
+  args: {
+    level: v.number(),
+    modelId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const flags = await ctx.runQuery(api.flags.getFlags);
+    if (!flags.showTestPage) {
+      throw new Error("Test page is not enabled");
+    }
+
+    const map = await ctx.runQuery(api.maps.getMapByLevel, {
+      level: args.level,
+    });
+
+    if (!map) {
+      throw new Error("Map not found");
+    }
+
+    const { solution, reasoning } = await runModel(args.modelId, map.grid);
+    return {
+      map: solution,
+      isWin: ZombieSurvival.isWin(solution),
+      reasoning,
+    };
   },
 });
