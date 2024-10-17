@@ -41,7 +41,31 @@ export default function PlayLevelPage({
   const [showOriginalMap, setShowOriginalMap] = useState(true);
 
   if (!map) {
-    return <div>Loading...</div>;
+    return (
+      <div className="container mx-auto min-h-screen flex flex-col items-center py-12 pb-24 gap-8">
+        <div className="w-full flex justify-between items-center">
+          <Button variant="outline" asChild className="flex gap-2 items-center">
+            <Link href="/play" passHref>
+              <ChevronLeftIcon /> Play Different Night
+            </Link>
+          </Button>
+          {flags?.showTestPage && (
+            <Tabs
+              value={mode}
+              onValueChange={(value) => setMode(value as "play" | "test")}
+            >
+              <TabsList>
+                <TabsTrigger value="play">Play</TabsTrigger>
+                <TabsTrigger value="test">Test AI</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          )}
+        </div>
+        <h1 className="text-3xl font-bold text-center">Night #{level}</h1>
+
+        <p>Loading...</p>
+      </div>
+    );
   }
 
   function handleRetryClicked() {

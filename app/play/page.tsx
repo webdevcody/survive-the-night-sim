@@ -12,12 +12,23 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function PlayPage() {
   const maps = useQuery(api.maps.getMaps);
 
   if (!maps) {
-    return <div>Loading...</div>;
+    return (
+      <div className="container mx-auto min-h-screen py-12 pb-24 gap-8">
+        <h1 className="text-3xl font-bold mb-6 text-center">Choose a Night</h1>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <Skeleton key={index} className="h-96" />
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (
