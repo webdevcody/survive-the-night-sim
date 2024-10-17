@@ -44,9 +44,11 @@ export default function Header() {
         <Link href="/leaderboard">
           <Button variant="ghost">Leaderboard</Button>
         </Link>
-        <Link href="/maps">
-          <Button variant="ghost">Add custom Maps</Button>
-        </Link>
+        {isAuthenticated && (
+          <Link href="/maps">
+            <Button variant="ghost">Add custom Maps</Button>
+          </Link>
+        )}
         {flags?.showTestPage && (
           <Link href="/test">
             <Button variant="ghost">Test</Button>
