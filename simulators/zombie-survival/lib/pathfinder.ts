@@ -1,11 +1,4 @@
-import {
-  allDirections,
-  Direction,
-  directionFromString,
-  directionToString,
-  move,
-} from "../Direction";
-import { EntityType } from "../entities/Entity";
+import { allDirections, Direction, move } from "../Direction";
 import { Zombie } from "../entities/Zombie";
 import { ZombieSurvival } from "../ZombieSurvival";
 import { entityAt } from "./entityAt";

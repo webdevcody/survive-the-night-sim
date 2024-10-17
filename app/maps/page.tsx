@@ -33,15 +33,11 @@ export default function AddMapPage() {
     map.forEach((row, y) => {
       row.forEach((cell, x) => {
         if (map[y][x] == " ") {
-          console.log("All well!");
           flag = true;
         }
       });
     });
-    console.log(map);
     if (!flag) {
-      console.log("All set");
-      console.log(map);
       alert("No place left to place the player!");
     } else {
       createMap({ grid: map });

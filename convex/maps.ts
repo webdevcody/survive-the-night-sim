@@ -9,7 +9,6 @@ import { v } from "convex/values";
 import { ZombieSurvival } from "../simulators/zombie-survival";
 import { api, internal } from "./_generated/api";
 import { runModel } from "../models";
-import { auth } from "./auth";
 import { getAuthUserId } from "@convex-dev/auth/server";
 
 const LEVELS = [

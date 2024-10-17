@@ -9,12 +9,12 @@ export const AI_MODELS = [
   },
   {
     model: "claude-3.5-sonnet",
-    name: "Claude 3.5 Sonnnet"
+    name: "Claude 3.5 Sonnnet",
   },
   {
     model: "perplexity-llama-3.1",
-    name: "Perplextity AI"
-  }
+    name: "Perplextity AI",
+  },
 ];
 
 export const AI_MODEL_IDS = AI_MODELS.map((model) => model.model);

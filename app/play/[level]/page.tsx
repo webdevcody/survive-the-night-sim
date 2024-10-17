@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useMutation, useQuery, useAction, Authenticated } from "convex/react";
+import { useMutation, useQuery, Authenticated } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Visualizer } from "../../visualizer";
