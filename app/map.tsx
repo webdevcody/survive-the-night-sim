@@ -1,9 +1,9 @@
 export const CELL_SIZE = 32;
 
-export function Map({ map }: { map: string[][] }) {
+export function Map({ map }: { map: string[][] | undefined }) {
   return (
     <div>
-      {map.map((row, y) => (
+      {map?.map((row, y) => (
         <div key={y} className="flex">
           {row.map((cell, x) => (
             <div
