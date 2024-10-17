@@ -2,7 +2,7 @@
 
 import { Authenticated, Unauthenticated, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Map as GameMap } from "@/app/map";
+import { Map as GameMap } from "@/components/Map";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {

@@ -100,7 +100,7 @@ export const updateUserResult = mutation({
   handler: async (ctx, { mapId, hasWon, placedGrid }) => {
     const userId = await getAuthUserId(ctx);
 
-    if (userId == null) {
+    if (userId === null) {
       throw new Error("Not signed in");
     }
 

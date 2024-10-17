@@ -24,7 +24,7 @@ export function pathfinder(
     }
     visited.add(positionKey);
 
-    if (player?.getPosition().x === x && player?.getPosition().y === y) {
+    if (player.getPosition().x === x && player.getPosition().y === y) {
       return path;
     }
 
