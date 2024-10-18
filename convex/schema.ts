@@ -64,5 +64,5 @@ export default defineSchema({
   }).index("by_mapId_userId", ["mapId", "userId"]),
   admins: defineTable({
     userId: v.id("users"),
-  }),
+  }).index("by_userId", ["userId"]),
 });
