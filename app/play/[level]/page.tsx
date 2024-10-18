@@ -176,7 +176,6 @@ export default function PlayLevelPage({
             </Button>
             <Button
               onClick={() => handlePlacementModeChange("block")}
-              disabled={blockCount >= 2}
               variant={placementMode === "block" ? "default" : "outline"}
               className="h-10"
             >

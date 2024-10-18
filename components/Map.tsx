@@ -32,7 +32,7 @@ export function getCellImage(cell: string) {
   return null;
 }
 
-export function Map({ map }: { map: string[][] }) {
+export function Map({ map, size = 64 }: { map: string[][]; size?: number }) {
   return (
     <div className="relative">
       <img
@@ -46,7 +46,11 @@ export function Map({ map }: { map: string[][] }) {
             {row.map((cell, x) => (
               <div
                 key={x}
-                className={`size-16 border dark:border-gray-300 border-gray-700 flex items-center justify-center text-2xl bg-transparent`}
+                style={{
+                  width: `${size}px`,
+                  height: `${size}px`,
+                }}
+                className={`border dark:border-gray-300 border-gray-700 flex items-center justify-center text-2xl bg-transparent`}
               >
                 {getCellImage(cell)}
               </div>

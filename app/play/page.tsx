@@ -74,7 +74,7 @@ export default function PlayPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-grow flex items-center justify-center">
-              <GameMap map={map.grid} />
+              <GameMap map={map.grid} size={52} />
             </CardContent>
             <CardFooter className="flex justify-around px-3">
               <Link href={`/play/${map.level}`} passHref>
