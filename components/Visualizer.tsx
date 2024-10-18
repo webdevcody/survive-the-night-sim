@@ -82,12 +82,14 @@ export function Visualizer({
 
   return (
     <>
-      <div className="relative">
-        <img
-          src="/map.png"
-          alt="Background Map"
-          className="absolute inset-0 w-full h-full object-cover opacity-50"
-        />
+      <div
+        className="relative"
+        style={{
+          backgroundImage: "url(/map_tiles.svg)",
+          backgroundSize: "128px",
+          backgroundPosition: "bottom left",
+        }}
+      >
         <div className="relative z-10">
           {mapState.map((row, y) => (
             <div key={y} className="flex">
