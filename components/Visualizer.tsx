@@ -123,7 +123,7 @@ export function Visualizer({
         >
           {entities.map((entity, idx) => (
             <div
-              className="flex items-center justify-center absolute transition-all"
+              className="flex items-center justify-center absolute"
               key={`${startedAt}.${entity.toConfig()}.${idx}`}
               style={{
                 fontSize: `${parseInt(cellSize) / 2}px`,
