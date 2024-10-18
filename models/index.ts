@@ -109,6 +109,35 @@ export async function runModel(
         throw new Error(`Tried running unknown model '${modelId}'`);
       }
     }
+    const originalMap = JSON.parse(JSON.stringify(map));
+    const [playerRow, playerCol] = result.playerCoordinates;
+
+    if (originalMap[playerRow][playerCol] !== " ") {
+      return {
+        reasoning: result.reasoning,
+        error: "Tried to place player in a non-empty space",
+      };
+    }
+
+    originalMap[playerRow][playerCol] = "P";
+
+    for (const block of result.boxCoordinates) {
+      const [blockRow, blockCol] = block;
+
+      if (originalMap[blockRow][blockCol] !== " ") {
+        return {
+          reasoning: result.reasoning,
+          error: "Tried to place block in a non-empty space",
+        };
+      }
+
+      originalMap[blockRow][blockCol] = "B";
+    }
+
+    return {
+      solution: originalMap,
+      reasoning: result.reasoning,
+    };
   } catch (error) {
     return {
       reasoning: "Internal error",
@@ -120,34 +149,4 @@ export async function runModel(
             : "Unknown error",
     };
   }
-
-  const originalMap = JSON.parse(JSON.stringify(map));
-  const [playerRow, playerCol] = result.playerCoordinates;
-
-  if (originalMap[playerRow][playerCol] !== " ") {
-    return {
-      reasoning: result.reasoning,
-      error: "Tried to place player in a non-empty space",
-    };
-  }
-
-  originalMap[playerRow][playerCol] = "P";
-
-  for (const block of result.boxCoordinates) {
-    const [blockRow, blockCol] = block;
-
-    if (originalMap[blockRow][blockCol] !== " ") {
-      return {
-        reasoning: result.reasoning,
-        error: "Tried to place block in a non-empty space",
-      };
-    }
-
-    originalMap[blockRow][blockCol] = "B";
-  }
-
-  return {
-    solution: originalMap,
-    reasoning: result.reasoning,
-  };
 }
