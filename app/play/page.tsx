@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 export default function PlayPage() {
   const maps = useQuery(api.maps.getMaps, {});
@@ -22,6 +23,7 @@ export default function PlayPage() {
 
   const [resMap, setResMap] = useState(new Map());
   const [countMap, setCountMap] = useState(new Map());
+  const [filter, setFilter] = useState("all");
 
   useEffect(() => {
     if (userMapResults && mapCountResults) {
@@ -47,10 +49,31 @@ export default function PlayPage() {
     }
   }, [userMapResults, mapCountResults]);
 
-  if (!maps) {
+  const filteredMaps = maps?.filter((map) => {
+    if (filter === "all") return true;
+    if (filter === "beaten") return resMap.get(map._id);
+    if (filter === "unbeaten") return !resMap.get(map._id);
+    return true;
+  });
+
+  if (!filteredMaps) {
     return (
       <div className="container mx-auto min-h-screen py-12 pb-24 gap-8">
         <h1 className="text-3xl font-bold mb-6 text-center">Choose a Night</h1>
+
+        <Authenticated>
+          <ToggleGroup
+            defaultValue="all"
+            type="single"
+            variant="outline"
+            className="w-max pb-4"
+            onValueChange={(value) => setFilter(value)}
+          >
+            <ToggleGroupItem value="all">All</ToggleGroupItem>
+            <ToggleGroupItem value="beaten">Beaten</ToggleGroupItem>
+            <ToggleGroupItem value="unbeaten">Unbeaten</ToggleGroupItem>
+          </ToggleGroup>
+        </Authenticated>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {Array.from({ length: 6 }).map((_, index) => (
@@ -65,8 +88,22 @@ export default function PlayPage() {
     <div className="container mx-auto min-h-screen py-12 pb-24 gap-8">
       <h1 className="text-3xl font-bold mb-6 text-center">Choose a Night</h1>
 
+      <Authenticated>
+        <ToggleGroup
+          defaultValue="all"
+          type="single"
+          variant="outline"
+          className="w-max pb-4"
+          onValueChange={(value) => setFilter(value)}
+        >
+          <ToggleGroupItem value="all">All</ToggleGroupItem>
+          <ToggleGroupItem value="beaten">Beaten</ToggleGroupItem>
+          <ToggleGroupItem value="unbeaten">Unbeaten</ToggleGroupItem>
+        </ToggleGroup>
+      </Authenticated>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {maps.map((map) => (
+        {filteredMaps.map((map) => (
           <Card key={map._id} className="flex flex-col h-full">
             <CardHeader>
               <CardTitle className="text-xl font-semibold text-center">
@@ -92,7 +129,7 @@ export default function PlayPage() {
                   )}
                   <div>
                     Won by {countMap.has(map._id) ? countMap.get(map._id) : 0}{" "}
-                    Players
+                    Player{countMap.get(map._id) !== 1 ? "s" : ""}
                   </div>
                 </div>
               </Authenticated>
@@ -100,7 +137,7 @@ export default function PlayPage() {
               <Unauthenticated>
                 <div>
                   Won by {countMap.has(map._id) ? countMap.get(map._id) : 0}{" "}
-                  Players
+                  Player{countMap.get(map._id) !== 1 ? "s" : ""}
                 </div>
               </Unauthenticated>
             </CardFooter>
