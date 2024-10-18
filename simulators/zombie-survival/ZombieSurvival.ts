@@ -19,6 +19,10 @@ export class ZombieSurvival {
   }
 
   public static isWin(config: string[][]): boolean {
+    if (ZombieSurvival.mapIsEmpty(config)) {
+      return false;
+    }
+
     const game = new ZombieSurvival(config);
 
     while (!game.finished()) {
@@ -26,6 +30,12 @@ export class ZombieSurvival {
     }
 
     return !game.getPlayer().dead();
+  }
+
+  public static mapHasMultiplePlayers(map: string[][]): boolean {
+    return (
+      map.map((row) => row.filter((cell) => cell === "P")).flat().length > 1
+    );
   }
 
   public static mapHasPlayer(map: string[][]): boolean {
@@ -36,14 +46,12 @@ export class ZombieSurvival {
     return map.some((row) => row.includes("Z"));
   }
 
-  public static mapMultiplePlayers(map: string[][]): boolean {
-    return (
-      map.map((row) => row.filter((cell) => cell === "P")).flat().length > 1
-    );
+  public static mapIsEmpty(map: string[][]): boolean {
+    return map.length === 0 || map[0].length === 0;
   }
 
   public constructor(config: string[][]) {
-    if (config.length === 0 || config[0].length === 0) {
+    if (ZombieSurvival.mapIsEmpty(config)) {
       throw new Error("Config is empty");
     }
 

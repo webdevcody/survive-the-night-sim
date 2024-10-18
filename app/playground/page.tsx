@@ -84,7 +84,7 @@ export default function PlaygroundPage() {
       return;
     }
 
-    if (ZombieSurvival.mapMultiplePlayers(userSolution)) {
+    if (ZombieSurvival.mapHasMultiplePlayers(userSolution)) {
       alert("Map has multiple players");
       return;
     }

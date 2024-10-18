@@ -5,6 +5,7 @@ import {
   ChevronRightIcon,
   ChevronUpIcon,
 } from "lucide-react";
+import { ZombieSurvival } from "@/simulators/zombie-survival";
 import { cn } from "@/lib/utils";
 
 export function MapBuilder({
@@ -18,10 +19,10 @@ export function MapBuilder({
   play?: boolean;
   value: string[][];
 }) {
-  const map = value.length === 0 || value[0].length === 0 ? [[" "]] : value;
+  const map = ZombieSurvival.mapIsEmpty(value) ? [[" "]] : value;
 
   React.useEffect(() => {
-    if (value.length === 0 || value[0].length === 0) {
+    if (ZombieSurvival.mapIsEmpty(value)) {
       onChange([[" "]]);
     }
   }, [value]);
