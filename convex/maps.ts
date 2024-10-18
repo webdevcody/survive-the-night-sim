@@ -284,7 +284,7 @@ export const playMapAction = internalAction({
     }
 
     if (process.env.MOCK_MODELS === "true") {
-      const existingMap = [...map.grid.map((row: string[]) => [...row])];
+      const existingMap = ZombieSurvival.cloneMap(map.grid);
 
       existingMap[0][0] = "P";
       existingMap[0][1] = "B";

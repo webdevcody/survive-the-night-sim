@@ -42,7 +42,7 @@ export function MapBuilder({
       newValue = initialValue === " " ? "Z" : initialValue === "Z" ? "R" : " ";
     }
 
-    const newMap = [...map.map((row) => [...row])];
+    const newMap = ZombieSurvival.cloneMap(map);
     newMap[row][cell] = newValue;
     onChange(newMap);
   }

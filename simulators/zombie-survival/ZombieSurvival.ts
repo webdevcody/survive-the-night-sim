@@ -13,6 +13,10 @@ export class ZombieSurvival {
   private player: Player;
   private zombies: Zombie[];
 
+  public static cloneMap(map: string[][]): string[][] {
+    return [...map.map((row) => [...row])];
+  }
+
   public static fromSnapshot(snapshot: string): ZombieSurvival {
     const config = snapshot.split(".").map((it) => it.split(""));
     return new ZombieSurvival(config);
