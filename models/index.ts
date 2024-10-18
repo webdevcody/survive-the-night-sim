@@ -1,3 +1,4 @@
+import { ZombieSurvival } from "../simulators/zombie-survival";
 import { gemini15pro } from "./gemini-1.5-pro";
 import { gpt4o } from "./gpt-4o";
 import { claude35sonnet } from "./claude-3-5-sonnet";
@@ -110,7 +111,8 @@ export async function runModel(
         throw new Error(`Tried running unknown model '${modelId}'`);
       }
     }
-    const originalMap = JSON.parse(JSON.stringify(map));
+
+    const originalMap = ZombieSurvival.cloneMap(map);
     const [playerRow, playerCol] = result.playerCoordinates;
 
     if (originalMap[playerRow][playerCol] !== " ") {

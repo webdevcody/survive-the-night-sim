@@ -159,7 +159,7 @@ export const publishMap = adminMutationBuilder({
       .filter((q) => q.neq("level", undefined))
       .collect();
 
-    const lastLevel = maps.sort((a, b) => b.level! - a.level!)[120].level!;
+    const lastLevel = maps.sort((a, b) => b.level! - a.level!)[0].level!;
 
     await ctx.db.insert("maps", {
       grid: args.map,
@@ -284,7 +284,7 @@ export const playMapAction = internalAction({
     }
 
     if (process.env.MOCK_MODELS === "true") {
-      const existingMap = [...map.grid.map((row: string[]) => [...row])];
+      const existingMap = ZombieSurvival.cloneMap(map.grid);
 
       existingMap[0][0] = "P";
       existingMap[0][1] = "B";
@@ -361,5 +361,16 @@ export const testAIModel = action({
       reasoning,
       error,
     };
+  },
+});
+
+export const lastLevel = query({
+  handler: async (ctx) => {
+    const lastMap = await ctx.db
+      .query("maps")
+      .withIndex("by_level")
+      .order("desc")
+      .first();
+    return lastMap?.level ?? 0;
   },
 });

@@ -13,6 +13,18 @@ export class ZombieSurvival {
   private player: Player;
   private zombies: Zombie[];
 
+  public static boardHeight(map: string[][]): number {
+    return map.length;
+  }
+
+  public static boardWidth(map: string[][]): number {
+    return map[0]?.length ?? 0;
+  }
+
+  public static cloneMap(map: string[][]): string[][] {
+    return [...map.map((row) => [...row])];
+  }
+
   public static fromSnapshot(snapshot: string): ZombieSurvival {
     const config = snapshot.split(".").map((it) => it.split(""));
     return new ZombieSurvival(config);
@@ -108,6 +120,12 @@ export class ZombieSurvival {
 
   public getAllEntities(): Entity[] {
     return [this.entities, this.zombies, this.player].flat();
+  }
+
+  public getAllAliveEntities(): Entity[] {
+    return [this.entities, this.zombies, this.player]
+      .flat()
+      .filter((entity) => !entity.dead());
   }
 
   public getEntities(): Entity[] {

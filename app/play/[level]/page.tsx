@@ -10,6 +10,7 @@ import Link from "next/link";
 import { ChevronLeftIcon } from "@radix-ui/react-icons";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TestMode from "./test-mode";
+import { useRouter } from "next/navigation";
 
 export default function PlayLevelPage({
   params,
@@ -41,6 +42,9 @@ export default function PlayLevelPage({
   const tries = useQuery(api.playerresults.getPlayerRecordsForAMap, {
     mapId: map?._id,
   });
+
+  const lastLevel = useQuery(api.maps.lastLevel);
+  const router = useRouter();
 
   if (!map) {
     return (
@@ -242,9 +246,27 @@ export default function PlayLevelPage({
                 </Button>
               </>
             ) : (
-              <Button onClick={handleRetryClicked} className="h-10">
-                Retry
-              </Button>
+              <div className="flex items-center gap-x-3">
+                <Button onClick={handleRetryClicked} className="h-10">
+                  Retry
+                </Button>
+                {gameResult && gameResult === "WON" ? (
+                  <Button
+                    onClick={() => {
+                      if (lastLevel && level + 1 <= lastLevel) {
+                        router.push(`/play/${level + 1}`);
+                      } else {
+                        router.push("/play");
+                      }
+                    }}
+                    className="h-10"
+                  >
+                    {lastLevel && level + 1 <= lastLevel
+                      ? "Next Night"
+                      : "Back to Night Selection"}
+                  </Button>
+                ) : null}
+              </div>
             )}
           </div>
 
