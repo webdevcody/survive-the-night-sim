@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useAction } from "convex/react";
+import { useAction, useQuery } from "convex/react";
 import { Button } from "@/components/ui/button";
 import { CopyMapButton } from "@/components/CopyMapButton";
 import { MapBuilder } from "@/components/MapBuilder";
@@ -13,6 +13,7 @@ import { api } from "@/convex/_generated/api";
 
 export default function PlaygroundPage() {
   const testMap = useAction(api.maps.testMap);
+  const isAdmin = useQuery(api.users.isAdmin);
   const [map, setMap] = React.useState<string[][]>([]);
   const [model, setModel] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
@@ -136,27 +137,31 @@ export default function PlaygroundPage() {
         </div>
         <div className="flex flex-col gap-4 shrink-0 w-[400px]">
           <div className="flex flex-col gap-2 w-fit">
-            <p>Model (~$0.002)</p>
-            <ModelSelector onChange={handleChangeModel} value={model} />
-            {!userPlaying && solution === null && (
-              <Button
-                className="w-full"
-                disabled={model === "" || simulating}
-                onClick={handleSimulate}
-                type="button"
-              >
-                {simulating ? "Simulating..." : "Play With AI"}
-              </Button>
-            )}
-            {(solution !== null || userPlaying) && (
-              <Button
-                className="w-full"
-                disabled={model === "" || simulating}
-                onClick={handleEdit}
-                type="button"
-              >
-                {simulating ? "Simulating..." : "Edit"}
-              </Button>
+            {isAdmin && (
+              <>
+                <p>Model (~$0.002)</p>
+                <ModelSelector onChange={handleChangeModel} value={model} />
+                {!userPlaying && solution === null && (
+                  <Button
+                    className="w-full"
+                    disabled={model === "" || simulating}
+                    onClick={handleSimulate}
+                    type="button"
+                  >
+                    {simulating ? "Simulating..." : "Play With AI"}
+                  </Button>
+                )}
+                {(solution !== null || userPlaying) && (
+                  <Button
+                    className="w-full"
+                    disabled={model === "" || simulating}
+                    onClick={handleEdit}
+                    type="button"
+                  >
+                    {simulating ? "Simulating..." : "Edit"}
+                  </Button>
+                )}
+              </>
             )}
             {solution === null && !simulating && !userPlaying && (
               <Button className="w-full" onClick={handleUserPlay} type="button">

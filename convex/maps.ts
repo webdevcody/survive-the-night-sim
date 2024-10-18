@@ -311,10 +311,10 @@ export const testMap = action({
     map: v.array(v.array(v.string())),
   },
   handler: async (ctx, args) => {
-    const flags = await ctx.runQuery(api.flags.getFlags);
+    const isAdmin = await ctx.runQuery(api.users.isAdmin);
 
-    if (!flags.showTestPage) {
-      throw new Error("Test page is not enabled");
+    if (!isAdmin) {
+      throw new Error("Test map is available only for admin");
     }
 
     return await runModel(args.modelId, args.map);
