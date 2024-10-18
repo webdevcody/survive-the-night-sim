@@ -2,6 +2,7 @@ import { gemini15pro } from "./gemini-1.5-pro";
 import { gpt4o } from "./gpt-4o";
 import { claude35sonnet } from "./claude-3-5-sonnet";
 import { perplexityModel } from "./perplexity-llama";
+import { errorMessage } from "@/lib/utils";
 
 export type ModelHandler = (
   prompt: string,
@@ -141,12 +142,7 @@ export async function runModel(
   } catch (error) {
     return {
       reasoning: "Internal error",
-      error:
-        error instanceof Error
-          ? error.message
-          : typeof error === "string"
-            ? error
-            : "Unknown error",
+      error: errorMessage(error),
     };
   }
 }
