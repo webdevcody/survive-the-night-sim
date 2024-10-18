@@ -1,6 +1,6 @@
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { EntityType, ZombieSurvival } from "@/simulators/zombie-survival";
-import { useEffect, useRef, useState } from "react";
 import { getCellImage } from "@/components/Map";
 
 const AUTO_REPLAY_SPEED = 1_500;
@@ -19,57 +19,60 @@ export function Visualizer({
   controls?: boolean;
   cellSize?: string;
   map: string[][];
-  onSimulationEnd?: (isWin: boolean) => Promise<void>;
+  onSimulationEnd?: (isWin: boolean) => unknown;
 }) {
-  const simulator = useRef<ZombieSurvival | null>(null);
-  const interval = useRef<NodeJS.Timeout | null>(null);
-  const timeout = useRef<NodeJS.Timeout | null>(null);
-  const [isRunning, setIsRunning] = useState(false);
-  const [mapState, setMapState] = useState(map);
-  const [needsReset, setNeedsReset] = useState(false);
+  const simulator = React.useRef<ZombieSurvival>(new ZombieSurvival(map));
+  const interval = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const ref = React.useRef<HTMLDivElement | null>(null);
+  const [running, setRunning] = React.useState(false);
+  const [startedAt, setStartedAt] = React.useState(Date.now());
+  const [, setRenderedAt] = React.useState(Date.now());
 
-  const startSimulation = () => {
-    setNeedsReset(true);
-    const clonedMap = JSON.parse(JSON.stringify(map));
-    simulator.current = new ZombieSurvival(clonedMap);
-    setMapState(simulator.current!.getState());
-    setIsRunning(true);
+  function stepSimulation() {
+    if (simulator.current === null) {
+      return;
+    }
 
-    interval.current = setInterval(async () => {
-      if (simulator.current!.finished()) {
-        clearInterval(interval.current!);
-        interval.current = null;
+    if (!simulator.current.finished()) {
+      simulator.current.step();
+      setRenderedAt(Date.now());
+      return;
+    }
 
-        if (autoReplay) {
-          timeout.current = setTimeout(() => {
-            timeout.current = null;
-            startSimulation();
-          }, AUTO_REPLAY_SPEED);
+    clearInterval(interval.current!);
+    interval.current = null;
 
-          return;
-        }
+    if (autoReplay) {
+      timeout.current = setTimeout(() => {
+        timeout.current = null;
+        startSimulation();
+      }, AUTO_REPLAY_SPEED);
 
-        setIsRunning(false);
+      return;
+    }
 
-        if (onSimulationEnd) {
-          await onSimulationEnd(!simulator.current!.getPlayer().dead());
-        }
+    setRunning(false);
 
-        return;
-      }
+    if (onSimulationEnd) {
+      onSimulationEnd(!simulator.current.getPlayer().dead());
+    }
+  }
 
-      simulator.current!.step();
-      setMapState(simulator.current!.getState());
-    }, REPLAY_SPEED);
-  };
+  function startSimulation() {
+    simulator.current = new ZombieSurvival(map);
+    setStartedAt(Date.now());
+    setRunning(true);
+    interval.current = setInterval(stepSimulation, REPLAY_SPEED);
+  }
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (autoStart) {
       startSimulation();
     }
   }, [autoStart]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     return () => {
       if (interval.current) {
         clearInterval(interval.current);
@@ -80,43 +83,44 @@ export function Visualizer({
     };
   }, []);
 
+  const entities = simulator.current.getAllEntities() ?? [];
+  const cellSizeNum = Number.parseInt(cellSize, 10);
+
   return (
     <>
-      <div className="relative">
+      <div className="relative" ref={ref}>
         <img
           src="/map.png"
           alt="Background Map"
           className="absolute inset-0 w-full h-full object-cover opacity-50"
         />
-        <div className="relative z-10">
-          {mapState.map((row, y) => (
-            <div key={y} className="flex">
-              {row.map((cell, x) => (
-                <div
-                  key={x}
-                  style={{
-                    width: `${cellSize}px`,
-                    height: `${cellSize}px`,
-                    fontSize: `${parseInt(cellSize) / 2}px`,
-                    opacity: (() => {
-                      const entity = simulator.current?.getEntityAt({
-                        x,
-                        y,
-                      });
-                      if (
-                        entity?.getType() === EntityType.Zombie &&
-                        entity.getHealth() === 1
-                      ) {
-                        return 0.5;
-                      }
-                      return 1;
-                    })(),
-                  }}
-                  className={`border flex items-center justify-center`}
-                >
-                  {getCellImage(cell)}
-                </div>
-              ))}
+        <div
+          className="relative z-10"
+          style={{
+            height: `${ZombieSurvival.boardHeight(map) * cellSizeNum}px`,
+            width: `${ZombieSurvival.boardWidth(map) * cellSizeNum}px`,
+          }}
+        >
+          {entities.map((entity, idx) => (
+            <div
+              className="flex items-center justify-center absolute transition-all"
+              key={`${startedAt}.${entity.toConfig()}.${idx}`}
+              style={{
+                fontSize: `${parseInt(cellSize) / 2}px`,
+                height: `${cellSize}px`,
+                left: `${entity.getPosition().x * cellSizeNum}px`,
+                opacity:
+                  entity.getType() === EntityType.Zombie &&
+                  entity.getHealth() === 1
+                    ? 0.5
+                    : entity.getHealth() === 0
+                      ? 0
+                      : 1,
+                top: `${entity.getPosition().y * cellSizeNum}px`,
+                width: `${cellSize}px`,
+              }}
+            >
+              {getCellImage(entity.toConfig())}
             </div>
           ))}
         </div>
@@ -124,16 +128,14 @@ export function Visualizer({
       <div>
         {controls && (
           <div className="flex gap-2 justify-center py-2">
-            <Button onClick={startSimulation} disabled={isRunning}>
+            <Button onClick={startSimulation} disabled={running}>
               Replay
             </Button>
             <Button
-              disabled={isRunning}
+              disabled={running}
               onClick={() => {
                 simulator.current = new ZombieSurvival(map);
-                setMapState(simulator.current!.getState());
-                setIsRunning(false);
-                setNeedsReset(false);
+                setRunning(false);
               }}
             >
               Reset

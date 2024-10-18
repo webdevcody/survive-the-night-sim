@@ -17,8 +17,6 @@ export function ThemeToggle() {
         // This check is needed because if the user clicks on a button twice the button gets unselected and the newTheme is undefined
         if (newTheme) {
           setTheme(newTheme);
-        } else {
-          console.log("No theme selected, keeping current theme:", theme);
         }
       }}
       className="flex px-1 py-1 rounded-md bg-blue-200 dark:bg-slate-700"
