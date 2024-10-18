@@ -2,6 +2,11 @@
 
 This is a community project for letting ai models play a puzzle game to find out which one is the best.
 
+## Live Links
+
+- [Plausible Analytics](https://plausible.survive-the-night-sim-production.up.railway.app)
+- [Survive the Night Sim](https://survive-the-night-sim-production.up.railway.app)
+
 ## How to Run
 
 Before you can run the project, you'll need to setup a
