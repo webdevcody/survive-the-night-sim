@@ -218,10 +218,12 @@ export const getMaps = query({
         return null;
       }
 
-      const admins = await ctx.db.query("admins").collect();
-      const isAdmin = admins.some((admin) => admin.userId === userId);
+      const admin = await ctx.db
+        .query("admins")
+        .withIndex("by_userId", (q) => q.eq("userId", userId))
+        .first();
 
-      if (isAdmin) {
+      if (admin) {
         return await ctx.db
           .query("maps")
           .filter((q) => q.eq(q.field("isReviewed"), args.isReviewed))
@@ -250,10 +252,12 @@ export const approveMap = mutation({
       throw new Error("Unauthorized");
     }
 
-    const admins = await ctx.db.query("admins").collect();
-    const isAdmin = admins.some((admin) => admin.userId === userId);
+    const admin = await ctx.db
+      .query("admins")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .first();
 
-    if (!isAdmin) {
+    if (!admin) {
       throw new Error("Unauthorized");
     } else {
       const maps = await ctx.db.query("maps").collect();

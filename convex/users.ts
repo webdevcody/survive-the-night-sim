@@ -34,8 +34,11 @@ export const isAdmin = query({
       return false;
     }
 
-    const admins = await ctx.db.query("admins").collect();
+    const admin = await ctx.db
+      .query("admins")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .first();
 
-    return admins.some((admin) => admin.userId === userId);
+    return !!admin;
   },
 });
