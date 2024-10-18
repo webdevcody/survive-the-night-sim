@@ -199,17 +199,17 @@ export default function PlaygroundPage() {
                     {simulating ? "Simulating..." : "Play With AI"}
                   </Button>
                 )}
-                {(solution !== null || userPlaying) && (
-                  <Button
-                    className="w-full"
-                    disabled={model === "" || simulating}
-                    onClick={handleEdit}
-                    type="button"
-                  >
-                    {simulating ? "Simulating..." : "Edit"}
-                  </Button>
-                )}
               </>
+            )}
+            {(solution !== null || userPlaying) && (
+              <Button
+                className="w-full"
+                disabled={model === "" || simulating}
+                onClick={handleEdit}
+                type="button"
+              >
+                {simulating ? "Simulating..." : "Edit"}
+              </Button>
             )}
             {solution === null && !simulating && !userPlaying && (
               <Button className="w-full" onClick={handleUserPlay} type="button">
