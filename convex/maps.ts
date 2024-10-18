@@ -10,6 +10,7 @@ import { ZombieSurvival } from "../simulators/zombie-survival";
 import { api, internal } from "./_generated/api";
 import { runModel } from "../models";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { adminMutationBuilder } from "./users";
 
 const LEVELS = [
   {
@@ -148,23 +149,11 @@ export const addMap = mutation({
   },
 });
 
-export const publishMap = mutation({
+export const publishMap = adminMutationBuilder({
   args: {
     map: v.array(v.array(v.string())),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-
-    if (!userId) {
-      throw new Error("User not authenticated");
-    }
-
-    const isAdmin = await ctx.runQuery(api.users.isAdmin);
-
-    if (!isAdmin) {
-      throw new Error("Publishing maps is available only for admins");
-    }
-
     const maps = await ctx.db
       .query("maps")
       .filter((q) => q.neq("level", undefined))
@@ -175,7 +164,7 @@ export const publishMap = mutation({
     await ctx.db.insert("maps", {
       grid: args.map,
       level: lastLevel + 1,
-      submittedBy: userId,
+      submittedBy: ctx.admin.id,
       isReviewed: true,
     });
   },
@@ -240,40 +229,24 @@ export const getMaps = query({
   },
 });
 
-export const approveMap = mutation({
+export const approveMap = adminMutationBuilder({
   args: {
     mapId: v.id("maps"),
   },
   handler: async (ctx, args) => {
-    // todo: take this out into a helper function
+    const maps = await ctx.db.query("maps").collect();
 
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) {
-      throw new Error("Unauthorized");
-    }
+    const lastLevel = maps.reduce((acc, map) => {
+      if (map.level) {
+        return Math.max(acc, map.level);
+      }
+      return acc;
+    }, 0);
 
-    const admin = await ctx.db
-      .query("admins")
-      .withIndex("by_userId", (q) => q.eq("userId", userId))
-      .first();
-
-    if (!admin) {
-      throw new Error("Unauthorized");
-    } else {
-      const maps = await ctx.db.query("maps").collect();
-
-      const lastLevel = maps.reduce((acc, map) => {
-        if (map.level) {
-          return Math.max(acc, map.level);
-        }
-        return acc;
-      }, 0);
-
-      await ctx.db.patch(args.mapId, {
-        isReviewed: true,
-        level: lastLevel + 1,
-      });
-    }
+    await ctx.db.patch(args.mapId, {
+      isReviewed: true,
+      level: lastLevel + 1,
+    });
   },
 });
 
