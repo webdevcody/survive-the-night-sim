@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
+import { StarFilledIcon } from "@radix-ui/react-icons";
 
 export default function PlayPage() {
   const maps = useQuery(api.maps.getMaps, {});
@@ -67,7 +69,20 @@ export default function PlayPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {maps.map((map) => (
-          <Card key={map._id} className="flex flex-col h-full">
+          <Card
+            key={map._id}
+            className={cn(
+              "flex flex-col h-full relative",
+              resMap.get(map._id)
+                ? "bg-green-500"
+                : resMap.has(map._id)
+                  ? "bg-red-500"
+                  : "",
+            )}
+          >
+            {resMap.get(map._id) && (
+              <StarFilledIcon className="absolute top-3 right-3 w-9 h-9 -rotate-45 text-yellow-500" />
+            )}
             <CardHeader>
               <CardTitle className="text-xl font-semibold text-center">
                 Night #{map.level}
