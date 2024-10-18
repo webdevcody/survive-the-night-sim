@@ -363,3 +363,14 @@ export const testAIModel = action({
     };
   },
 });
+
+export const lastLevel = query({
+  handler: async (ctx) => {
+    const lastMap = await ctx.db
+      .query("maps")
+      .withIndex("by_level")
+      .order("desc")
+      .first();
+    return lastMap?.level ?? 0;
+  },
+});
