@@ -28,8 +28,18 @@ export class ZombieSurvival {
     return !game.getPlayer().dead();
   }
 
+  public static mapHasPlayer(map: string[][]): boolean {
+    return map.some((row) => row.includes("P"));
+  }
+
   public static mapHasZombies(map: string[][]): boolean {
     return map.some((row) => row.includes("Z"));
+  }
+
+  public static mapMultiplePlayers(map: string[][]): boolean {
+    return (
+      map.map((row) => row.filter((cell) => cell === "P")).flat().length > 1
+    );
   }
 
   public constructor(config: string[][]) {
