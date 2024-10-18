@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { AI_MODELS } from "@/convex/constants";
+import { errorMessage } from "@/lib/utils";
 
 interface TestModeProps {
   level: number;
@@ -51,9 +52,7 @@ export default function TestMode({ level, map }: TestModeProps) {
       setAiReasoning(result.reasoning);
     } catch (error) {
       console.error("Error testing AI model:", error);
-      setAiError(
-        error instanceof Error ? error.message : "An unexpected error occurred",
-      );
+      setAiError(errorMessage(error));
     } finally {
       setIsSimulating(false);
     }

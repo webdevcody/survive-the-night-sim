@@ -45,6 +45,9 @@ export default function Header() {
         <Link href="/leaderboard">
           <Button variant="ghost">Leaderboard</Button>
         </Link>
+        <Link href="/playground">
+          <Button variant="ghost">Playground</Button>
+        </Link>
         {isAuthenticated && (
           <Link href="/maps">
             <Button variant="ghost">Submit Map</Button>
@@ -56,14 +59,9 @@ export default function Header() {
           </Link>
         )}
         {flags?.showTestPage && (
-          <>
-            <Link href="/playground">
-              <Button variant="ghost">Playground</Button>
-            </Link>
-            <Link href="/test">
-              <Button variant="ghost">Test</Button>
-            </Link>
-          </>
+          <Link href="/test">
+            <Button variant="ghost">Test</Button>
+          </Link>
         )}
       </nav>
 

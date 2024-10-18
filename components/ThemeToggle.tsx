@@ -13,8 +13,15 @@ export function ThemeToggle() {
       type="single"
       size="sm"
       value={theme}
-      onValueChange={(e) => setTheme(e)}
-      className={`${"flex px-1 py-1 rounded-md"} ${theme === "light" || (theme === "system" && darkMode === "light") ? "bg-blue-200" : "bg-slate-700"}`}
+      onValueChange={(newTheme) => {
+        // This check is needed because if the user clicks on a button twice the button gets unselected and the newTheme is undefined
+        if (newTheme) {
+          setTheme(newTheme);
+        } else {
+          console.log("No theme selected, keeping current theme:", theme);
+        }
+      }}
+      className="flex px-1 py-1 rounded-md bg-blue-200 dark:bg-slate-700"
     >
       {theme === "light" || (theme === "system" && darkMode === "light") ? (
         <ToggleGroupItem value="dark" aria-label="Dark">

@@ -1,6 +1,6 @@
 "use client";
 
-import { ResultStatus } from "@/components/ResultStatus";
+import { MapStatus } from "@/components/MapStatus";
 import { type ResultWithGame } from "@/convex/results";
 import { Visualizer } from "@/components/Visualizer";
 import { format } from "date-fns";
@@ -51,7 +51,7 @@ export default function Result({ result }: { result: ResultWithGame }) {
               {result.status === "inProgress" ? (
                 "Started"
               ) : (
-                <ResultStatus result={result} />
+                <MapStatus map={result.map} />
               )}{" "}
               at {format(new Date(result._creationTime), "h:mma")}
             </div>
