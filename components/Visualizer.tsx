@@ -25,12 +25,13 @@ export function Visualizer({
   const interval = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const timeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const ref = React.useRef<HTMLDivElement | null>(null);
+  const paused = React.useRef(false);
   const [running, setRunning] = React.useState(false);
   const [startedAt, setStartedAt] = React.useState(Date.now());
   const [, setRenderedAt] = React.useState(Date.now());
 
   function stepSimulation() {
-    if (simulator.current === null) {
+    if (simulator.current === null && !paused.current) {
       return;
     }
 
@@ -65,6 +66,25 @@ export function Visualizer({
     setRunning(true);
     interval.current = setInterval(stepSimulation, REPLAY_SPEED);
   }
+
+  function handleObserving([entry]: IntersectionObserverEntry[]) {
+    paused.current = !entry.isIntersecting;
+  }
+
+  React.useEffect(() => {
+    if (ref.current === null) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(handleObserving);
+    observer.observe(ref.current);
+
+    return () => {
+      if (ref.current) {
+        observer.unobserve(ref.current);
+      }
+    };
+  }, [ref]);
 
   React.useEffect(() => {
     if (autoStart) {
