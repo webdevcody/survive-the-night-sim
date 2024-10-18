@@ -97,7 +97,7 @@ export function Visualizer({
         <div
           className="relative z-10"
           style={{
-            height: `${ZombieSurvival.boardWidth(map) * cellSizeNum}px`,
+            height: `${ZombieSurvival.boardHeight(map) * cellSizeNum}px`,
             width: `${ZombieSurvival.boardWidth(map) * cellSizeNum}px`,
           }}
         >
