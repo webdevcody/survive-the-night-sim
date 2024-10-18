@@ -159,7 +159,7 @@ export const publishMap = adminMutationBuilder({
       .filter((q) => q.neq("level", undefined))
       .collect();
 
-    const lastLevel = maps.sort((a, b) => b.level! - a.level!)[120].level!;
+    const lastLevel = maps.sort((a, b) => b.level! - a.level!)[0].level!;
 
     await ctx.db.insert("maps", {
       grid: args.map,
