@@ -66,12 +66,13 @@ export default function Header() {
       </nav>
 
       <div className="flex items-center space-x-4">
-        <span className="mr-2 text-sm">Synced using Convex</span>
         <Link
           href="https://www.convex.dev"
           target="_blank"
           rel="noopener noreferrer"
+          className="flex items-center gap-2 text-sm"
         >
+          Synced using Convex
           <Image src="/convex.svg" alt="Convex" width={24} height={24} />
         </Link>
 
