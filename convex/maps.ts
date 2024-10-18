@@ -88,6 +88,22 @@ export const seedMaps = internalMutation({
   },
 });
 
+export const testMap = action({
+  args: {
+    modelId: v.string(),
+    map: v.array(v.array(v.string())),
+  },
+  handler: async (ctx, args) => {
+    const flags = await ctx.runQuery(api.flags.getFlags);
+
+    if (!flags.showTestPage) {
+      throw new Error("Test page is not enabled");
+    }
+
+    return await runModel(args.modelId, args.map);
+  },
+});
+
 export const getMaps = query({
   args: {
     isReviewed: v.optional(v.boolean()),

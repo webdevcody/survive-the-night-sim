@@ -56,9 +56,14 @@ export default function Header() {
           </Link>
         )}
         {flags?.showTestPage && (
-          <Link href="/test">
-            <Button variant="ghost">Test</Button>
-          </Link>
+          <>
+            <Link href="/playground">
+              <Button variant="ghost">Playground</Button>
+            </Link>
+            <Link href="/test">
+              <Button variant="ghost">Test</Button>
+            </Link>
+          </>
         )}
       </nav>
 
