@@ -149,16 +149,18 @@ export default function PlaygroundPage() {
               </div>
               <p className="text-xs">* Click on a cell to place entity</p>
             </div>
-            <Button
-              className="gap-1"
-              disabled={publishing}
-              onClick={handlePublish}
-              type="button"
-              variant="destructive"
-            >
-              <CircleAlertIcon size={16} />
-              <span>{publishing ? "Publishing..." : "Publish Map"}</span>
-            </Button>
+            {isAdmin && (
+              <Button
+                className="gap-1"
+                disabled={publishing}
+                onClick={handlePublish}
+                type="button"
+                variant="destructive"
+              >
+                <CircleAlertIcon size={16} />
+                <span>{publishing ? "Publishing..." : "Publish Map"}</span>
+              </Button>
+            )}
           </div>
           <div
             className={`flex justify-center ${visualizing ? "pt-[28px]" : ""}`}
