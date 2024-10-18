@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function PlayPage() {
-  const maps = useQuery(api.maps.getMaps);
+  const maps = useQuery(api.maps.getMaps, {});
   const userMapResults = useQuery(api.playerresults.getUserMapStatus);
   const mapCountResults = useQuery(api.playerresults.getMapsWins);
 

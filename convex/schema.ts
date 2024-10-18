@@ -12,9 +12,10 @@ export default defineSchema({
     status: v.union(v.literal("in_progress"), v.literal("completed")),
   }),
   maps: defineTable({
-    level: v.number(),
+    level: v.optional(v.number()),
     grid: v.array(v.array(v.string())),
     submittedBy: v.optional(v.id("users")),
+    isReviewed: v.boolean(),
   }).index("by_level", ["level"]),
   scores: defineTable({
     modelId: v.string(),
@@ -61,4 +62,7 @@ export default defineSchema({
     attempts: v.array(v.id("attempts")),
     hasWon: v.boolean(),
   }).index("by_mapId_userId", ["mapId", "userId"]),
+  admins: defineTable({
+    userId: v.id("users"),
+  }),
 });

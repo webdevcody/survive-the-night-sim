@@ -57,12 +57,10 @@ export const addMap = mutation({
       throw new Error("User not authenticated");
     }
 
-    const maps = await ctx.db.query("maps").collect();
-
     await ctx.db.insert("maps", {
-      level: maps.length + 1,
       grid: args.grid,
       submittedBy: userId,
+      isReviewed: false,
     });
   },
 });
@@ -82,6 +80,7 @@ export const seedMaps = internalMutation({
           ctx.db.insert("maps", {
             level: idx + 1,
             grid: map.grid,
+            isReviewed: true,
           });
         }
       }),
@@ -90,9 +89,71 @@ export const seedMaps = internalMutation({
 });
 
 export const getMaps = query({
-  args: {},
-  handler: async (ctx) => {
-    return await ctx.db.query("maps").withIndex("by_level").collect();
+  args: {
+    isReviewed: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    if (args.isReviewed !== undefined) {
+      // todo: take this out into a helper function
+      // if a manual query is made, check if the user is an admin
+
+      const userId = await getAuthUserId(ctx);
+      if (userId === null) {
+        return null;
+      }
+
+      const admins = await ctx.db.query("admins").collect();
+      const isAdmin = admins.some((admin) => admin.userId === userId);
+
+      if (isAdmin) {
+        return await ctx.db
+          .query("maps")
+          .filter((q) => q.eq(q.field("isReviewed"), args.isReviewed))
+          .collect();
+      } else {
+        return null;
+      }
+    }
+
+    return await ctx.db
+      .query("maps")
+      .filter((q) => q.eq(q.field("isReviewed"), true))
+      .collect();
+  },
+});
+
+export const approveMap = mutation({
+  args: {
+    mapId: v.id("maps"),
+  },
+  handler: async (ctx, args) => {
+    // todo: take this out into a helper function
+
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      throw new Error("Unauthorized");
+    }
+
+    const admins = await ctx.db.query("admins").collect();
+    const isAdmin = admins.some((admin) => admin.userId === userId);
+
+    if (!isAdmin) {
+      throw new Error("Unauthorized");
+    } else {
+      const maps = await ctx.db.query("maps").collect();
+
+      const lastLevel = maps.reduce((acc, map) => {
+        if (map.level) {
+          return Math.max(acc, map.level);
+        }
+        return acc;
+      }, 0);
+
+      await ctx.db.patch(args.mapId, {
+        isReviewed: true,
+        level: lastLevel + 1,
+      });
+    }
   },
 });
 
