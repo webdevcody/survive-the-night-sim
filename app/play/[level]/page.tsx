@@ -95,11 +95,16 @@ export default function PlayLevelPage({
       if (newMap[y][x] === " ") {
         newMap[y][x] = "P";
       }
-    } else if (placementMode === "block" && blockCount < 2) {
+    } else if (placementMode === "block") {
       // Place new block
-      if (newMap[y][x] === " ") {
-        newMap[y][x] = "B";
-        setBlockCount(blockCount + 1);
+      if (newMap[y][x] === "B") {
+        newMap[y][x] = " ";
+        setBlockCount(blockCount - 1);
+      } else if (blockCount < 2) {
+        if (newMap[y][x] === " ") {
+          newMap[y][x] = "B";
+          setBlockCount(blockCount + 1);
+        }
       }
     }
     setPlayerMap(newMap);
@@ -164,7 +169,6 @@ export default function PlayLevelPage({
           <div className="mb-4 flex justify-center gap-4">
             <Button
               onClick={() => handlePlacementModeChange("player")}
-              disabled={playerMap.some((row) => row.includes("P"))}
               variant={placementMode === "player" ? "default" : "outline"}
               className="h-10"
             >
@@ -213,10 +217,10 @@ export default function PlayLevelPage({
                       <div
                         key={`${x}-${y}`}
                         className={`
-                          ${cell === " " ? "cursor-pointer hover:border-2 z-10 hover:border-dashed hover:border-slate-300" : ""}
+                          ${cell === " " || cell === "B" ? "cursor-pointer hover:border-2 z-10 hover:border-dashed hover:border-slate-300" : ""}
                           border border-transparent
                         `}
-                        onClick={() => cell === " " && handleCellClick(x, y)}
+                        onClick={() => handleCellClick(x, y)}
                       />
                     )),
                   )}
