@@ -83,7 +83,7 @@ export function MapBuilder({
   const moreThanOneCell = map[0].length > 1;
 
   const buttonClassName = cn(
-    "border border-white w-[64px] h-[64px] disabled:opacity-50",
+    "border border-white w-[64px] h-[64px] disabled:opacity-50 select-none",
   );
 
   const controlClassName = cn(
