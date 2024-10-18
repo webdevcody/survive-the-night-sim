@@ -148,6 +148,39 @@ export const addMap = mutation({
   },
 });
 
+export const publishMap = mutation({
+  args: {
+    map: v.array(v.array(v.string())),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+
+    if (!userId) {
+      throw new Error("User not authenticated");
+    }
+
+    const isAdmin = await ctx.runQuery(api.users.isAdmin);
+
+    if (!isAdmin) {
+      throw new Error("Publishing maps is available only for admins");
+    }
+
+    const maps = await ctx.db
+      .query("maps")
+      .filter((q) => q.neq("level", undefined))
+      .collect();
+
+    const lastLevel = maps.sort((a, b) => b.level! - a.level!)[120].level!;
+
+    await ctx.db.insert("maps", {
+      grid: args.map,
+      level: lastLevel + 1,
+      submittedBy: userId,
+      isReviewed: true,
+    });
+  },
+});
+
 export const seedMaps = internalMutation({
   handler: async (ctx) => {
     const maps = await ctx.db.query("maps").collect();
