@@ -3,7 +3,7 @@
 import { Doc } from "@/convex/_generated/dataModel";
 import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
-import { ResultStatus } from "@/components/ResultStatus";
+import { MapStatus } from "@/components/MapStatus";
 import { Visualizer } from "@/components/Visualizer";
 import Link from "next/link";
 
@@ -38,7 +38,7 @@ export const Result = ({ result }: { result: Doc<"results"> }) => {
       )}
 
       <div className="flex flex-col">
-        <ResultStatus result={result} />
+        <MapStatus map={result.map} />
         {result.reasoning !== "" && <p>{result.reasoning}</p>}
       </div>
     </div>
