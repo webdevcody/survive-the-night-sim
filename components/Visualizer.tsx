@@ -1,10 +1,37 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { EntityType, ZombieSurvival } from "@/simulators/zombie-survival";
-import { getCellImage } from "@/components/Map";
+import {
+  type Entity,
+  EntityType,
+  ZombieSurvival,
+} from "@/simulators/zombie-survival";
+import {
+  type VisualizerContextImages,
+  useVisualizer,
+} from "./VisualizerProvider";
 
 const AUTO_REPLAY_SPEED = 1_500;
 const REPLAY_SPEED = 600;
+
+function getEntityImage(
+  entity: Entity,
+  images: VisualizerContextImages,
+): HTMLImageElement {
+  switch (entity.getType()) {
+    case EntityType.Box: {
+      return images.box;
+    }
+    case EntityType.Player: {
+      return images.player;
+    }
+    case EntityType.Rock: {
+      return images.rock;
+    }
+    case EntityType.Zombie: {
+      return images.zombie;
+    }
+  }
+}
 
 export function Visualizer({
   autoReplay = false,
@@ -21,23 +48,59 @@ export function Visualizer({
   map: string[][];
   onSimulationEnd?: (isWin: boolean) => unknown;
 }) {
+  const visualizer = useVisualizer();
   const simulator = React.useRef<ZombieSurvival>(new ZombieSurvival(map));
   const interval = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const timeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-  const ref = React.useRef<HTMLDivElement | null>(null);
-  const paused = React.useRef(false);
-  const [running, setRunning] = React.useState(false);
-  const [startedAt, setStartedAt] = React.useState(Date.now());
-  const [, setRenderedAt] = React.useState(Date.now());
+  const canvas = React.useRef<HTMLCanvasElement | null>(null);
+  const running = React.useRef(false);
+  const cellSizeNum = Number.parseInt(cellSize, 10);
+  const h = ZombieSurvival.boardHeight(map) * cellSizeNum;
+  const w = ZombieSurvival.boardWidth(map) * cellSizeNum;
+
+  React.useEffect(() => {
+    if (canvas.current !== null && visualizer.ready) {
+      setupCanvas(canvas.current);
+    }
+  }, [visualizer.ready]);
+
+  function setupCanvas(canvas: HTMLCanvasElement) {
+    canvas.setAttribute("height", `${h * window.devicePixelRatio}`);
+    canvas.setAttribute("width", `${w * window.devicePixelRatio}`);
+    canvas.style.height = `${h}px`;
+    canvas.style.width = `${w}px`;
+
+    const ctx = canvas.getContext("2d");
+
+    if (ctx !== null) {
+      setupContext(ctx);
+    }
+  }
+
+  function setupContext(ctx: CanvasRenderingContext2D) {
+    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  }
+
+  React.useEffect(() => {
+    if (autoStart) {
+      startSimulation();
+    }
+  }, [autoStart]);
+
+  function startSimulation() {
+    simulator.current = new ZombieSurvival(map);
+    running.current = true;
+    interval.current = setInterval(stepSimulation, REPLAY_SPEED);
+  }
 
   function stepSimulation() {
-    if (simulator.current === null && !paused.current) {
+    if (simulator.current === null && running) {
       return;
     }
 
     if (!simulator.current.finished()) {
       simulator.current.step();
-      setRenderedAt(Date.now());
+      render();
       return;
     }
 
@@ -53,44 +116,94 @@ export function Visualizer({
       return;
     }
 
-    setRunning(false);
+    running.current = false;
 
     if (onSimulationEnd) {
       onSimulationEnd(!simulator.current.getPlayer().dead());
     }
   }
 
-  function startSimulation() {
-    simulator.current = new ZombieSurvival(map);
-    setStartedAt(Date.now());
-    setRunning(true);
-    interval.current = setInterval(stepSimulation, REPLAY_SPEED);
+  function render() {
+    if (canvas.current !== null) {
+      const ctx = canvas.current.getContext("2d");
+
+      if (ctx !== null) {
+        renderCtx(ctx);
+      }
+    }
   }
 
-  function handleObserving([entry]: IntersectionObserverEntry[]) {
-    paused.current = !entry.isIntersecting;
+  function renderCtx(ctx: CanvasRenderingContext2D) {
+    renderCtxBg(ctx);
+
+    const entities = simulator.current.getAllAliveEntities();
+    const images = visualizer.getImages();
+
+    for (const entity of entities) {
+      const entityImage = getEntityImage(entity, images);
+      const entityPosition = entity.getPosition();
+
+      ctx.globalAlpha =
+        entity.getType() === EntityType.Zombie && entity.getHealth() === 1
+          ? 0.5
+          : 1;
+
+      ctx.drawImage(
+        entityImage,
+        entityPosition.x * cellSizeNum,
+        entityPosition.y * cellSizeNum,
+        cellSizeNum,
+        cellSizeNum,
+      );
+    }
+
+    ctx.globalAlpha = 1.0;
+  }
+
+  function renderCtxBg(ctx: CanvasRenderingContext2D) {
+    ctx.clearRect(0, 0, w, h);
+
+    const canvasRatio = w / h;
+    const images = visualizer.getImages();
+    const bgRatio = images.bg.width / images.bg.height;
+
+    let drawWidth, drawHeight, offsetX, offsetY;
+
+    if (bgRatio > canvasRatio) {
+      drawWidth = h * bgRatio;
+      drawHeight = h;
+      offsetX = (w - drawWidth) / 2;
+      offsetY = 0;
+    } else {
+      drawWidth = w;
+      drawHeight = w / bgRatio;
+      offsetX = 0;
+      offsetY = (h - drawHeight) / 2;
+    }
+
+    ctx.globalAlpha = 0.5;
+    ctx.drawImage(images.bg, offsetX, offsetY, drawWidth, drawHeight);
+    ctx.globalAlpha = 1.0;
   }
 
   React.useEffect(() => {
-    if (ref.current === null) {
+    if (canvas.current === null) {
       return;
     }
 
     const observer = new IntersectionObserver(handleObserving);
-    observer.observe(ref.current);
+    observer.observe(canvas.current);
 
     return () => {
-      if (ref.current) {
-        observer.unobserve(ref.current);
+      if (canvas.current) {
+        observer.unobserve(canvas.current);
       }
     };
-  }, [ref]);
+  }, [canvas]);
 
-  React.useEffect(() => {
-    if (autoStart) {
-      startSimulation();
-    }
-  }, [autoStart]);
+  function handleObserving([entry]: IntersectionObserverEntry[]) {
+    running.current = !entry.isIntersecting;
+  }
 
   React.useEffect(() => {
     return () => {
@@ -103,62 +216,20 @@ export function Visualizer({
     };
   }, []);
 
-  const entities = simulator.current.getAllEntities() ?? [];
-  const cellSizeNum = Number.parseInt(cellSize, 10);
-
   return (
     <>
-      <div
-        className="relative"
-        ref={ref}
-        style={{
-          backgroundImage: "url(/map_tiles.svg)",
-          backgroundSize: "128px",
-          backgroundPosition: "bottom left",
-        }}
-      >
-        <div
-          className="relative z-10"
-          style={{
-            height: `${ZombieSurvival.boardHeight(map) * cellSizeNum}px`,
-            width: `${ZombieSurvival.boardWidth(map) * cellSizeNum}px`,
-          }}
-        >
-          {entities.map((entity, idx) => (
-            <div
-              className="flex items-center justify-center absolute"
-              key={`${startedAt}.${entity.toConfig()}.${idx}`}
-              style={{
-                fontSize: `${parseInt(cellSize) / 2}px`,
-                height: `${cellSize}px`,
-                left: `${entity.getPosition().x * cellSizeNum}px`,
-                opacity:
-                  entity.getType() === EntityType.Zombie &&
-                  entity.getHealth() === 1
-                    ? 0.5
-                    : entity.getHealth() === 0
-                      ? 0
-                      : 1,
-                top: `${entity.getPosition().y * cellSizeNum}px`,
-                width: `${cellSize}px`,
-              }}
-            >
-              {getCellImage(entity.toConfig())}
-            </div>
-          ))}
-        </div>
-      </div>
+      <canvas ref={canvas} />
       <div>
         {controls && (
           <div className="flex gap-2 justify-center py-2">
-            <Button onClick={startSimulation} disabled={running}>
+            <Button onClick={startSimulation} disabled={running.current}>
               Replay
             </Button>
             <Button
-              disabled={running}
+              disabled={running.current}
               onClick={() => {
                 simulator.current = new ZombieSurvival(map);
-                setRunning(false);
+                running.current = false;
               }}
             >
               Reset
