@@ -17,7 +17,7 @@ function SignInWithGitHub() {
       type="button"
       onClick={() => void signIn("github", { redirectTo: "/" })}
     >
-      <GitHubLogoIcon className="mr-2 h-4 w-4" /> GitHub
+      Sign In
     </Button>
   );
 }
@@ -79,6 +79,9 @@ export default function Header() {
         <div className="">
           <ThemeToggle />
         </div>
+        <Button variant="outline" type="button">
+          <GitHubLogoIcon className="mr-2 h-4 w-4" /> Repo
+        </Button>
         {!isAuthenticated ? (
           <SignInWithGitHub />
         ) : (
