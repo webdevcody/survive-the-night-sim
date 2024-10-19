@@ -1,13 +1,20 @@
 "use client";
 
-import Link from "next/link";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { useAuthActions } from "@convex-dev/auth/react";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
+import Image from "next/image";
+import Link from "next/link";
+import dynamic from "next/dynamic";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { useConvexAuth, useQuery } from "convex/react";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
+
+const ThemeToggle = dynamic(
+  async () => (await import("@/components/ThemeToggle")).ThemeToggle,
+  {
+    ssr: false,
+  },
+);
 
 function SignInWithGitHub() {
   const { signIn } = useAuthActions();
