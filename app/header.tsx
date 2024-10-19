@@ -35,7 +35,7 @@ export default function Header() {
         <span className="ml-2 text-xl font-bold">SurviveTheNight</span>
       </Link>
 
-      <nav className="flex items-center space-x-4">
+      <nav className="flex items-center space-x-4 overflow-x-scroll">
         <Link href="/">
           <Button variant="ghost">Watch</Button>
         </Link>
@@ -54,9 +54,14 @@ export default function Header() {
           </Link>
         )}
         {isAdminQuery && (
-          <Link href="/maps/review">
-            <Button variant="ghost">Review Maps</Button>
+          <>
+           <Link href="/prompts">
+            <Button variant="ghost">Review Prompts</Button>
           </Link>
+           <Link href="/maps/review">
+            <Button variant="ghost">Review Maps</Button>
+          </Link></>
+         
         )}
         {flags?.showTestPage && (
           <Link href="/test">
