@@ -1,5 +1,10 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { query } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
+import {
+  customQuery,
+  customCtx,
+  customMutation,
+} from "convex-helpers/server/customFunctions";
 
 export const viewer = query({
   args: {},
@@ -34,8 +39,63 @@ export const isAdmin = query({
       return false;
     }
 
-    const admins = await ctx.db.query("admins").collect();
+    const admin = await ctx.db
+      .query("admins")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .first();
 
-    return admins.some((admin) => admin.userId === userId);
+    return !!admin;
   },
 });
+
+export const adminQueryBuilder = customQuery(
+  query,
+  customCtx(async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+
+    if (userId === null) {
+      throw new Error("Unauthorized");
+    }
+
+    const admin = await ctx.db
+      .query("admins")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .first();
+
+    if (!admin) {
+      throw new Error("Admin only invocation called from non-admin user");
+    }
+
+    return {
+      admin: {
+        id: admin.userId,
+      },
+    };
+  }),
+);
+
+export const adminMutationBuilder = customMutation(
+  mutation,
+  customCtx(async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+
+    if (userId === null) {
+      throw new Error("Unauthorized");
+    }
+
+    const admin = await ctx.db
+      .query("admins")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .first();
+
+    if (!admin) {
+      throw new Error("Admin only invocation called from non-admin user");
+    }
+
+    return {
+      admin: {
+        id: admin.userId,
+      },
+    };
+  }),
+);

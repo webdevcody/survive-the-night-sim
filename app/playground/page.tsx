@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { CircleAlertIcon } from "lucide-react";
+import { CircleAlertIcon, EraserIcon } from "lucide-react";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { Button } from "@/components/ui/button";
 import { CopyMapButton } from "@/components/CopyMapButton";
@@ -14,12 +14,14 @@ import { api } from "@/convex/_generated/api";
 import { errorMessage } from "@/lib/utils";
 import { useToast } from "@/components/ui/use-toast";
 
+const STORAGE_MAP_KEY = "playground-map";
+
 export default function PlaygroundPage() {
   const isAdmin = useQuery(api.users.isAdmin);
   const publishMap = useMutation(api.maps.publishMap);
   const testMap = useAction(api.maps.testMap);
   const { toast } = useToast();
-  const [map, setMap] = React.useState<string[][]>([]);
+  const [map, setMap] = React.useState<string[][]>([[" "]]);
   const [model, setModel] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
   const [solution, setSolution] = React.useState<string[][] | null>(null);
@@ -89,6 +91,7 @@ export default function PlaygroundPage() {
   function handleChangeMap(value: string[][]) {
     setMap(value);
     setError(null);
+    window.localStorage.setItem(STORAGE_MAP_KEY, JSON.stringify(value));
   }
 
   function handleChangeModel(value: string) {
@@ -100,6 +103,18 @@ export default function PlaygroundPage() {
     setSolution(null);
     setReasoning(null);
     setUserPlaying(false);
+    setVisualizingUserSolution(false);
+  }
+
+  function handleReset() {
+    handleChangeMap([]);
+
+    setSolution(null);
+    setReasoning(null);
+    setPublishing(false);
+    setSimulating(false);
+    setUserPlaying(false);
+    setUserSolution([]);
     setVisualizingUserSolution(false);
   }
 
@@ -131,6 +146,14 @@ export default function PlaygroundPage() {
     setVisualizingUserSolution(false);
   }
 
+  React.useEffect(() => {
+    const maybeMap = window.localStorage.getItem(STORAGE_MAP_KEY);
+
+    if (maybeMap !== null) {
+      setMap(JSON.parse(maybeMap));
+    }
+  }, []);
+
   const visualizing = solution !== null || visualizingUserSolution;
 
   return (
@@ -143,9 +166,16 @@ export default function PlaygroundPage() {
             <div className="flex flex-col gap-0">
               <div className="flex gap-2">
                 <p>
-                  Map ({map.length}x{map[0]?.length ?? 0})
+                  Map ({ZombieSurvival.boardWidth(map)}x
+                  {ZombieSurvival.boardHeight(map)})
                 </p>
                 <CopyMapButton map={map} />
+                <button
+                  className="hover:scale-125 transition"
+                  onClick={handleReset}
+                >
+                  <EraserIcon size={16} />
+                </button>
               </div>
               <p className="text-xs">* Click on a cell to place entity</p>
             </div>
@@ -199,17 +229,17 @@ export default function PlaygroundPage() {
                     {simulating ? "Simulating..." : "Play With AI"}
                   </Button>
                 )}
-                {(solution !== null || userPlaying) && (
-                  <Button
-                    className="w-full"
-                    disabled={model === "" || simulating}
-                    onClick={handleEdit}
-                    type="button"
-                  >
-                    {simulating ? "Simulating..." : "Edit"}
-                  </Button>
-                )}
               </>
+            )}
+            {(solution !== null || userPlaying) && (
+              <Button
+                className="w-full"
+                disabled={model === "" || simulating}
+                onClick={handleEdit}
+                type="button"
+              >
+                {simulating ? "Simulating..." : "Edit"}
+              </Button>
             )}
             {solution === null && !simulating && !userPlaying && (
               <Button className="w-full" onClick={handleUserPlay} type="button">

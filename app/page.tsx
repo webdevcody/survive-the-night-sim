@@ -37,10 +37,10 @@ export default function GamePage() {
   }
 
   return (
-    <div className="min-h-screen container mx-auto pt-12 pb-24 flex gap-12">
+    <div className="container mx-auto pt-12 flex gap-12">
       <div className="space-y-8 flex-grow">
         <h1 className="text-2xl font-bold">Recent Games</h1>
-        <div className="h-[80vh] overflow-y-auto flex flex-col gap-4">
+        <div className="h-[calc(100vh_-_185px)] overflow-y-auto flex flex-col gap-4">
           {results.map((result) => (
             <Result key={result._id} result={result} />
           ))}

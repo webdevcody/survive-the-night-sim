@@ -25,7 +25,16 @@ export default function PlayPage() {
 
   const [resMap, setResMap] = useState(new Map());
   const [countMap, setCountMap] = useState(new Map());
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("mapFilter") || "all";
+    }
+    return "all";
+  });
+
+  useEffect(() => {
+    localStorage.setItem("mapFilter", filter);
+  }, [filter]);
 
   useEffect(() => {
     if (userMapResults && mapCountResults) {
@@ -69,6 +78,7 @@ export default function PlayPage() {
             type="single"
             variant="outline"
             className="w-max pb-4"
+            value={filter}
             onValueChange={(value) => setFilter(value)}
           >
             <ToggleGroupItem value="all">All</ToggleGroupItem>
@@ -96,6 +106,7 @@ export default function PlayPage() {
           type="single"
           variant="outline"
           className="w-max pb-4"
+          value={filter}
           onValueChange={(value) => setFilter(value)}
         >
           <ToggleGroupItem value="all">All</ToggleGroupItem>
@@ -106,21 +117,17 @@ export default function PlayPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {filteredMaps.map((map) => (
-          <Card key={map._id} className="flex flex-col h-full">
           <Card
             key={map._id}
             className={cn(
               "flex flex-col h-full relative",
               resMap.get(map._id)
-                ? "bg-green-500"
+                ? "border-green-500"
                 : resMap.has(map._id)
-                  ? "bg-red-500"
+                  ? "border-red-500"
                   : "",
             )}
           >
-            {resMap.get(map._id) && (
-              <StarFilledIcon className="absolute top-3 right-3 w-9 h-9 -rotate-45 text-yellow-500" />
-            )}
             <CardHeader>
               <CardTitle className="text-xl font-semibold text-center">
                 Night #{map.level}

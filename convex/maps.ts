@@ -10,6 +10,7 @@ import { ZombieSurvival } from "../simulators/zombie-survival";
 import { api, internal } from "./_generated/api";
 import { runModel } from "../models";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { adminMutationBuilder } from "./users";
 import { Prompt } from "./prompts";
 
 const LEVELS = [
@@ -149,34 +150,22 @@ export const addMap = mutation({
   },
 });
 
-export const publishMap = mutation({
+export const publishMap = adminMutationBuilder({
   args: {
     map: v.array(v.array(v.string())),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-
-    if (!userId) {
-      throw new Error("User not authenticated");
-    }
-
-    const isAdmin = await ctx.runQuery(api.users.isAdmin);
-
-    if (!isAdmin) {
-      throw new Error("Publishing maps is available only for admins");
-    }
-
     const maps = await ctx.db
       .query("maps")
       .filter((q) => q.neq("level", undefined))
       .collect();
 
-    const lastLevel = maps.sort((a, b) => b.level! - a.level!)[120].level!;
+    const lastLevel = maps.sort((a, b) => b.level! - a.level!)[0].level!;
 
     await ctx.db.insert("maps", {
       grid: args.map,
       level: lastLevel + 1,
-      submittedBy: userId,
+      submittedBy: ctx.admin.id,
       isReviewed: true,
     });
   },
@@ -219,10 +208,12 @@ export const getMaps = query({
         return null;
       }
 
-      const admins = await ctx.db.query("admins").collect();
-      const isAdmin = admins.some((admin) => admin.userId === userId);
+      const admin = await ctx.db
+        .query("admins")
+        .withIndex("by_userId", (q) => q.eq("userId", userId))
+        .first();
 
-      if (isAdmin) {
+      if (admin) {
         return await ctx.db
           .query("maps")
           .filter((q) => q.eq(q.field("isReviewed"), args.isReviewed))
@@ -239,38 +230,24 @@ export const getMaps = query({
   },
 });
 
-export const approveMap = mutation({
+export const approveMap = adminMutationBuilder({
   args: {
     mapId: v.id("maps"),
   },
   handler: async (ctx, args) => {
-    // todo: take this out into a helper function
+    const maps = await ctx.db.query("maps").collect();
 
-    const userId = await getAuthUserId(ctx);
-    if (userId === null) {
-      throw new Error("Unauthorized");
-    }
+    const lastLevel = maps.reduce((acc, map) => {
+      if (map.level) {
+        return Math.max(acc, map.level);
+      }
+      return acc;
+    }, 0);
 
-    const admins = await ctx.db.query("admins").collect();
-    const isAdmin = admins.some((admin) => admin.userId === userId);
-
-    if (!isAdmin) {
-      throw new Error("Unauthorized");
-    } else {
-      const maps = await ctx.db.query("maps").collect();
-
-      const lastLevel = maps.reduce((acc, map) => {
-        if (map.level) {
-          return Math.max(acc, map.level);
-        }
-        return acc;
-      }, 0);
-
-      await ctx.db.patch(args.mapId, {
-        isReviewed: true,
-        level: lastLevel + 1,
-      });
-    }
+    await ctx.db.patch(args.mapId, {
+      isReviewed: true,
+      level: lastLevel + 1,
+    });
   },
 });
 
@@ -308,7 +285,7 @@ export const playMapAction = internalAction({
     }
 
     if (process.env.MOCK_MODELS === "true") {
-      const existingMap = [...map.grid.map((row: string[]) => [...row])];
+      const existingMap = ZombieSurvival.cloneMap(map.grid);
 
       existingMap[0][0] = "P";
       existingMap[0][1] = "B";
@@ -410,5 +387,16 @@ export const testAIModel = action({
       reasoning,
       error,
     };
+  },
+});
+
+export const lastLevel = query({
+  handler: async (ctx) => {
+    const lastMap = await ctx.db
+      .query("maps")
+      .withIndex("by_level")
+      .order("desc")
+      .first();
+    return lastMap?.level ?? 0;
   },
 });
