@@ -12,7 +12,7 @@ export function getCellImage(cell: string) {
           height: "100%",
           position: "relative",
           top: "-20px",
-          left: "4px",
+          left: "16px",
         }}
       />
     );

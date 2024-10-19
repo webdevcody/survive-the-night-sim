@@ -19,7 +19,7 @@ export default defineSchema({
   }).index("by_level", ["level"]),
   scores: defineTable({
     modelId: v.string(),
-    promptId: v.id("prompts"),
+    promptId: v.optional(v.id("prompts")),
     score: v.number(),
   }).index("by_modelId", ["modelId"]),
   models: defineTable({
@@ -46,13 +46,15 @@ export default defineSchema({
     modelId: v.string(),
     wins: v.number(),
     losses: v.number(),
-  }).index("by_modelId", ["modelId"]),
+    promptId: v.optional(v.id("prompts")),
+  }).index("by_modelId_promptId", ["modelId", "promptId"]),
   levelrankings: defineTable({
     modelId: v.string(),
     level: v.number(),
     wins: v.number(),
+    promptId: v.optional(v.id("prompts")),
     losses: v.number(),
-  }).index("by_modelId_level", ["modelId", "level"]),
+  }).index("by_modelId_level_promptId", ["modelId", "level", "promptId"]),
   attempts: defineTable({
     grid: v.array(v.array(v.string())),
     didWin: v.boolean(),

@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { internalMutation, query } from "./_generated/server";
+import { api } from "./_generated/api";
 
 export const getGlobalRankings = query({
   handler: async ({ db }) => {
@@ -45,41 +46,55 @@ export const updateRankings = internalMutation({
     isWin: v.boolean(),
   },
   handler: async (ctx, args) => {
+    const activePrompt = await ctx.runQuery(api.prompts.getActivePrompt);
+
+    if (!activePrompt) {
+      throw new Error("Active prompt not found");
+    }
+
     const globalRanking = await ctx.db
       .query("globalrankings")
-      .withIndex("by_modelId", (q) => q.eq("modelId", args.modelId))
-      .collect();
+      .withIndex("by_modelId_promptId", (q) =>
+        q.eq("modelId", args.modelId).eq("promptId", activePrompt._id),
+      )
+      .first();
+
     const levelRanking = await ctx.db
       .query("levelrankings")
-      .withIndex("by_modelId_level", (q) =>
-        q.eq("modelId", args.modelId).eq("level", args.level),
+      .withIndex("by_modelId_level_promptId", (q) =>
+        q
+          .eq("modelId", args.modelId)
+          .eq("level", args.level)
+          .eq("promptId", activePrompt._id),
       )
-      .collect();
+      .first();
 
-    if (globalRanking.length === 0) {
+    if (!globalRanking) {
       await ctx.db.insert("globalrankings", {
         modelId: args.modelId,
         wins: args.isWin ? 1 : 0,
         losses: args.isWin ? 0 : 1,
+        promptId: activePrompt._id,
       });
     } else {
-      await ctx.db.patch(globalRanking[0]._id, {
-        wins: globalRanking[0].wins + (args.isWin ? 1 : 0),
-        losses: globalRanking[0].losses + (args.isWin ? 0 : 1),
+      await ctx.db.patch(globalRanking._id, {
+        wins: globalRanking.wins + (args.isWin ? 1 : 0),
+        losses: globalRanking.losses + (args.isWin ? 0 : 1),
       });
     }
 
-    if (levelRanking.length === 0) {
+    if (!levelRanking) {
       await ctx.db.insert("levelrankings", {
         modelId: args.modelId,
         level: args.level,
         wins: args.isWin ? 1 : 0,
         losses: args.isWin ? 0 : 1,
+        promptId: activePrompt._id,
       });
     } else {
-      await ctx.db.patch(levelRanking[0]._id, {
-        wins: levelRanking[0].wins + (args.isWin ? 1 : 0),
-        losses: levelRanking[0].losses + (args.isWin ? 0 : 1),
+      await ctx.db.patch(levelRanking._id, {
+        wins: levelRanking.wins + (args.isWin ? 1 : 0),
+        losses: levelRanking.losses + (args.isWin ? 0 : 1),
       });
     }
   },

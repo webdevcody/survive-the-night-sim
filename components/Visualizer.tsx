@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import {
   type Entity,
   EntityType,
+  Position,
   ZombieSurvival,
 } from "@/simulators/zombie-survival";
 import {
@@ -31,6 +32,17 @@ function getEntityImage(
       return images.zombie;
     }
   }
+}
+
+function getImageOffset(entity: Entity): Position {
+  if (entity.getType() === EntityType.Zombie) {
+    return { x: 16, y: 0 };
+  }
+  return { x: 0, y: 0 };
+}
+
+function cloneMap(map: string[][]): string[][] {
+  return JSON.parse(JSON.stringify(map));
 }
 
 export function Visualizer({
@@ -148,10 +160,12 @@ export function Visualizer({
           ? 0.5
           : 1;
 
+      const offset = getImageOffset(entity);
+
       ctx.drawImage(
         entityImage,
-        entityPosition.x * cellSizeNum,
-        entityPosition.y * cellSizeNum,
+        entityPosition.x * cellSizeNum + offset.x,
+        entityPosition.y * cellSizeNum + offset.y,
         cellSizeNum,
         cellSizeNum,
       );
