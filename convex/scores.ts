@@ -1,5 +1,7 @@
 import { v } from "convex/values";
 import { internalMutation } from "./_generated/server";
+import { useQuery } from "convex/react";
+import { api } from "./_generated/api";
 
 export const incrementScore = internalMutation({
   args: {
@@ -11,12 +13,15 @@ export const incrementScore = internalMutation({
       .filter((q) => q.eq(q.field("modelId"), args.modelId))
       .first();
 
-    if (!score) {
+    const activePrompt = useQuery(api.prompts.getActivePrompt);
+
+    if (!score && activePrompt) {
       await ctx.db.insert("scores", {
         modelId: args.modelId,
+        promptId: activePrompt?._id,
         score: 1,
       });
-    } else {
+    } else if (score) {
       await ctx.db.patch(score._id, {
         score: 1,
       });
