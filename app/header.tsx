@@ -55,13 +55,13 @@ export default function Header() {
         )}
         {isAdminQuery && (
           <>
-           <Link href="/prompts">
-            <Button variant="ghost">Review Prompts</Button>
-          </Link>
-           <Link href="/maps/review">
-            <Button variant="ghost">Review Maps</Button>
-          </Link></>
-         
+            <Link href="/prompts">
+              <Button variant="ghost">Review Prompts</Button>
+            </Link>
+            <Link href="/maps/review">
+              <Button variant="ghost">Review Maps</Button>
+            </Link>
+          </>
         )}
         {flags?.showTestPage && (
           <Link href="/test">
@@ -84,8 +84,13 @@ export default function Header() {
         <div className="">
           <ThemeToggle />
         </div>
-        <Button variant="outline" type="button">
-          <GitHubLogoIcon className="mr-2 h-4 w-4" /> Repo
+        <Button
+          className="shrink-0 w-9"
+          variant="outline"
+          size="icon"
+          type="button"
+        >
+          <GitHubLogoIcon className="w-4 h-4" />
         </Button>
         {!isAuthenticated ? (
           <SignInWithGitHub />
