@@ -30,12 +30,13 @@ export function Visualizer({
   const interval = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const timeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const canvas = React.useRef<HTMLCanvasElement | null>(null);
+  const visible = React.useRef(false);
   const [running, setRunning] = React.useState(false);
 
   React.useEffect(() => {
     if (
-      canvas.current !== null &&
       visualizer.ready &&
+      canvas.current !== null &&
       renderer.current === null
     ) {
       renderer.current = new Renderer(
@@ -60,9 +61,9 @@ export function Visualizer({
     setRunning(true);
 
     interval.current = setInterval(() => {
-      // if (!running) {
-      //   return;
-      // }
+      if (!visible.current) {
+        return;
+      }
 
       if (!simulator.current.finished()) {
         simulator.current.step();
@@ -95,22 +96,16 @@ export function Visualizer({
       return;
     }
 
-    const observer = new IntersectionObserver(handleObserving, {
-      threshold: 0,
+    const observer = new IntersectionObserver(([entry]) => {
+      visible.current = entry.isIntersecting;
     });
 
     observer.observe(canvas.current);
 
     return () => {
-      if (canvas.current) {
-        observer.unobserve(canvas.current);
-      }
+      observer.disconnect();
     };
   }, [canvas]);
-
-  function handleObserving([entry]: IntersectionObserverEntry[]) {
-    // running.current = !entry.isIntersecting;
-  }
 
   React.useEffect(() => {
     return () => {
@@ -124,20 +119,18 @@ export function Visualizer({
   }, []);
 
   return (
-    <>
+    <div className="flex flex-col gap-1">
       <canvas ref={canvas} />
-      <div>
-        {controls && (
-          <div className="flex gap-2 justify-center py-2">
-            <Button onClick={startSimulation} disabled={running}>
-              Replay
-            </Button>
-            <Button disabled={running} onClick={onReset}>
-              Reset
-            </Button>
-          </div>
-        )}
-      </div>
-    </>
+      {controls && (
+        <div className="flex gap-2 justify-center py-2">
+          <Button disabled={running} onClick={startSimulation}>
+            Replay
+          </Button>
+          <Button disabled={running} onClick={onReset}>
+            Reset
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }
