@@ -4,7 +4,7 @@ import { api } from "./_generated/api";
 
 export const getGlobalRankings = query({
   handler: async ({ db }) => {
-    const res = await db.query("globalrankings").collect();
+    const res = await db.query("globalRankings").collect();
     // Sort the results by wins/losses ratio
 
     const sortedResults = res.sort((a, b) => {
@@ -23,7 +23,7 @@ export const getGlobalRankings = query({
 
 export const getLevelRankings = query({
   handler: async ({ db }) => {
-    const res = await db.query("levelrankings").collect();
+    const res = await db.query("levelRankings").collect();
 
     const sortedResults = res.sort((a, b) => {
       if (a.level < b.level) {
@@ -53,14 +53,14 @@ export const updateRankings = internalMutation({
     }
 
     const globalRanking = await ctx.db
-      .query("globalrankings")
+      .query("globalRankings")
       .withIndex("by_modelId_promptId", (q) =>
         q.eq("modelId", args.modelId).eq("promptId", activePrompt._id),
       )
       .first();
 
     const levelRanking = await ctx.db
-      .query("levelrankings")
+      .query("levelRankings")
       .withIndex("by_modelId_level_promptId", (q) =>
         q
           .eq("modelId", args.modelId)
@@ -70,7 +70,7 @@ export const updateRankings = internalMutation({
       .first();
 
     if (!globalRanking) {
-      await ctx.db.insert("globalrankings", {
+      await ctx.db.insert("globalRankings", {
         modelId: args.modelId,
         wins: args.isWin ? 1 : 0,
         losses: args.isWin ? 0 : 1,
@@ -84,7 +84,7 @@ export const updateRankings = internalMutation({
     }
 
     if (!levelRanking) {
-      await ctx.db.insert("levelrankings", {
+      await ctx.db.insert("levelRankings", {
         modelId: args.modelId,
         level: args.level,
         wins: args.isWin ? 1 : 0,
