@@ -18,6 +18,7 @@ export default function editPromtPage({
   });
   console.log(prompt);
   const updatePrompt = useMutation(api.prompts.updatePrompt);
+  const isAdmin = useQuery(api.users.isAdmin);
 
   const [promptName, setPromptName] = useState("");
   const [promptText, setPromptText] = useState("");
@@ -47,6 +48,10 @@ export default function editPromtPage({
     updatePrompt({ promptId: prompt._id, promptName, prompt: promptText });
     router.push("/prompts");
   };
+
+  if (!isAdmin) {
+    redirect("/");
+  }
 
   return (
     <div className="container mx-auto min-h-screen pb-24 py-12 gap-8">

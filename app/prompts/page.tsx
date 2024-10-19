@@ -12,13 +12,15 @@ import {
 import { api } from "@/convex/_generated/api";
 import { useMutation, useQuery } from "convex/react";
 import Link from "next/link";
-import { useRouter,redirect } from "next/navigation";
+import { useRouter, redirect } from "next/navigation";
 
 const Page = () => {
   const prompts = useQuery(api.prompts.getAllPrompts);
   const enablePrompt = useMutation(api.prompts.enablePrompt);
   const deletePrompt = useMutation(api.prompts.deletePrompt);
   const createPrompt = useMutation(api.prompts.createPrompt);
+
+  const isAdmin = useQuery(api.users.isAdmin);
 
   const router = useRouter();
 
@@ -29,6 +31,10 @@ const Page = () => {
     });
     router.push(`/prompts/${newPromptId}`);
   };
+
+  if (!isAdmin) {
+    redirect("/");
+  }
 
   return (
     <div className="container mx-auto min-h-screen py-12 pb-24 gap-8">
