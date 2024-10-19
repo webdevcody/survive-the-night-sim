@@ -42,13 +42,13 @@ export default defineSchema({
   })
     .index("by_gameId_level", ["gameId", "level"])
     .index("by_status", ["status"]),
-  globalrankings: defineTable({
+  globalRankings: defineTable({
     modelId: v.string(),
     wins: v.number(),
     losses: v.number(),
     promptId: v.optional(v.id("prompts")),
   }).index("by_modelId_promptId", ["modelId", "promptId"]),
-  levelrankings: defineTable({
+  levelRankings: defineTable({
     modelId: v.string(),
     level: v.number(),
     wins: v.number(),

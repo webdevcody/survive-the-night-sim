@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { internalMutation, mutation, query } from "./_generated/server";
 import { Id } from "./_generated/dataModel";
+import { adminMutationBuilder } from "./users";
 
 const defaultPrompt = `
 Your task is to play a game.  We will give you a 2d array of characters that represent the game board.  Before the game starts, you have these two tasks:
@@ -106,7 +107,7 @@ export const getAllPrompts = query({
   },
 });
 
-export const createPrompt = mutation({
+export const createPrompt = adminMutationBuilder({
   args: {
     promptName: v.string(),
     prompt: v.string(),
@@ -121,7 +122,7 @@ export const createPrompt = mutation({
   },
 });
 
-export const updatePrompt = mutation({
+export const updatePrompt = adminMutationBuilder({
   args: {
     promptId: v.id("prompts"),
     promptName: v.string(),
@@ -135,7 +136,7 @@ export const updatePrompt = mutation({
   },
 });
 
-export const deletePrompt = mutation({
+export const deletePrompt = adminMutationBuilder({
   args: {
     promptId: v.id("prompts"),
   },
@@ -144,7 +145,7 @@ export const deletePrompt = mutation({
   },
 });
 
-export const enablePrompt = mutation({
+export const enablePrompt = adminMutationBuilder({
   args: {
     promptId: v.id("prompts"),
   },
