@@ -16,7 +16,7 @@ export default function editPromtPage({
   const prompt = useQuery(api.prompts.getPromptById, {
     promptId: params.promptId,
   });
-  console.log(prompt);
+
   const updatePrompt = useMutation(api.prompts.updatePrompt);
   const isAdmin = useQuery(api.users.isAdmin);
 
