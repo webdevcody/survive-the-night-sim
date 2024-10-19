@@ -108,12 +108,15 @@ export function Visualizer({
 
   return (
     <>
-      <div className="relative" ref={ref}>
-        <img
-          src="/map.png"
-          alt="Background Map"
-          className="absolute inset-0 w-full h-full object-cover opacity-50"
-        />
+      <div
+        className="relative"
+        ref={ref}
+        style={{
+          backgroundImage: "url(/map_tiles.svg)",
+          backgroundSize: "128px",
+          backgroundPosition: "bottom left",
+        }}
+      >
         <div
           className="relative z-10"
           style={{
