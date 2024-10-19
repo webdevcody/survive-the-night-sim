@@ -1,11 +1,78 @@
 import { type Entity, EntityType } from "@/simulators/zombie-survival";
 
 export interface RendererAssets {
-  bg: HTMLImageElement;
-  box: HTMLImageElement;
-  player: HTMLImageElement;
-  rock: HTMLImageElement;
-  zombie: HTMLImageElement;
+  loading: boolean;
+  loaded: boolean;
+  bg: HTMLImageElement | null;
+  box: HTMLImageElement | null;
+  player: HTMLImageElement | null;
+  rock: HTMLImageElement | null;
+  zombie: HTMLImageElement | null;
+}
+
+const assets: RendererAssets = {
+  loading: false,
+  loaded: false,
+  bg: null,
+  box: null,
+  player: null,
+  rock: null,
+  zombie: null,
+};
+
+async function loadAssets() {
+  if (assets.loading || assets.loaded) {
+    return;
+  }
+
+  assets.loading = true;
+
+  const [bg, box, player, rock, zombie] = await Promise.all([
+    loadImage("/map.png"),
+    loadImage("/entities/block.svg"),
+    loadImage("/entities/player_alive_1.svg"),
+    loadImage("/entities/rocks.svg"),
+    loadImage("/entities/zombie_alive_1.svg"),
+  ]);
+
+  assets.loaded = true;
+  assets.bg = bg;
+  assets.box = box;
+  assets.player = player;
+  assets.rock = rock;
+  assets.zombie = zombie;
+}
+
+async function loadImage(src: string): Promise<HTMLImageElement> {
+  return await new Promise((resolve) => {
+    const img = new Image();
+    img.addEventListener("load", () => resolve(img));
+    img.src = src;
+  });
+}
+
+function getEntityImage(entity: Entity): HTMLImageElement | null {
+  switch (entity.getType()) {
+    case EntityType.Box: {
+      return assets.box;
+    }
+    case EntityType.Player: {
+      return assets.player;
+    }
+    case EntityType.Rock: {
+      return assets.rock;
+    }
+    case EntityType.Zombie: {
+      return assets.zombie;
+    }
+  }
+}
+
+function getEntityOffset(entity: Entity): { x: number; y: number } {
+  return {
+    x: entity.getType() === EntityType.Zombie ? 16 : 0,
+    y: 0,
+  };
 }
 
 export class Renderer {
@@ -17,7 +84,6 @@ export class Renderer {
   private ctx: CanvasRenderingContext2D;
 
   public constructor(
-    assets: RendererAssets,
     boardHeight: number,
     boardWidth: number,
     canvas: HTMLCanvasElement,
@@ -42,6 +108,7 @@ export class Renderer {
     canvas.style.width = `${this.w}px`;
 
     ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    void loadAssets();
   }
 
   public render(entities: Entity[]) {
@@ -56,8 +123,12 @@ export class Renderer {
   }
 
   private drawBg() {
+    if (assets.bg === null) {
+      return;
+    }
+
     const canvasRatio = this.w / this.h;
-    const bgRatio = this.assets.bg.width / this.assets.bg.height;
+    const bgRatio = assets.bg.width / assets.bg.height;
 
     let drawWidth, drawHeight, offsetX, offsetY;
 
@@ -74,14 +145,19 @@ export class Renderer {
     }
 
     this.ctx.globalAlpha = 0.5;
-    this.ctx.drawImage(this.assets.bg, offsetX, offsetY, drawWidth, drawHeight);
+    this.ctx.drawImage(assets.bg, offsetX, offsetY, drawWidth, drawHeight);
     this.ctx.globalAlpha = 1.0;
   }
 
   private drawEntity(entity: Entity) {
-    const entityImage = this.getEntityImage(entity);
+    const entityImage = getEntityImage(entity);
+
+    if (entityImage === null) {
+      return;
+    }
+
     const entityPosition = entity.getPosition();
-    const entityOffset = this.getEntityOffset(entity);
+    const entityOffset = getEntityOffset(entity);
 
     this.ctx.globalAlpha =
       entity.getType() === EntityType.Zombie && entity.getHealth() === 1
@@ -95,29 +171,5 @@ export class Renderer {
       this.cellSize,
       this.cellSize,
     );
-  }
-
-  private getEntityImage(entity: Entity): HTMLImageElement {
-    switch (entity.getType()) {
-      case EntityType.Box: {
-        return this.assets.box;
-      }
-      case EntityType.Player: {
-        return this.assets.player;
-      }
-      case EntityType.Rock: {
-        return this.assets.rock;
-      }
-      case EntityType.Zombie: {
-        return this.assets.zombie;
-      }
-    }
-  }
-
-  private getEntityOffset(entity: Entity): { x: number; y: number } {
-    return {
-      x: entity.getType() === EntityType.Zombie ? 16 : 0,
-      y: 0,
-    };
   }
 }

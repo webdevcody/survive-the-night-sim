@@ -5,7 +5,6 @@ import { ConvexReactClient } from "convex/react";
 import { ThemeProvider } from "next-themes";
 import PlausibleProvider from "next-plausible";
 import { Toaster } from "@/components/ui/toaster";
-import VisualizerProvider from "@/components/VisualizerProvider";
 
 const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
@@ -18,10 +17,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
     >
       <ThemeProvider attribute="class">
         <ConvexAuthNextjsProvider client={convex}>
-          <VisualizerProvider>
-            {children}
-            <Toaster />
-          </VisualizerProvider>
+          {children}
+          <Toaster />
         </ConvexAuthNextjsProvider>
       </ThemeProvider>
     </PlausibleProvider>

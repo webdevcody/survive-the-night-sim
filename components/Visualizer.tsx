@@ -2,7 +2,6 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Renderer } from "@/renderer";
 import { ZombieSurvival } from "@/simulators/zombie-survival";
-import { useVisualizer } from "@/components/VisualizerProvider";
 
 const AUTO_REPLAY_SPEED = 1_500;
 const REPLAY_SPEED = 600;
@@ -24,7 +23,6 @@ export function Visualizer({
   onReset?: () => unknown;
   onSimulationEnd?: (isWin: boolean) => unknown;
 }) {
-  const visualizer = useVisualizer();
   const simulator = React.useRef<ZombieSurvival>(new ZombieSurvival(map));
   const renderer = React.useRef<Renderer | null>(null);
   const interval = React.useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -34,20 +32,15 @@ export function Visualizer({
   const [running, setRunning] = React.useState(false);
 
   React.useEffect(() => {
-    if (
-      visualizer.ready &&
-      canvas.current !== null &&
-      renderer.current === null
-    ) {
+    if (canvas.current !== null) {
       renderer.current = new Renderer(
-        visualizer.getAssets(),
         ZombieSurvival.boardHeight(map),
         ZombieSurvival.boardWidth(map),
         canvas.current,
         Number.parseInt(cellSize, 10),
       );
     }
-  }, [canvas, visualizer.ready]);
+  }, [canvas]);
 
   React.useEffect(() => {
     if (autoStart) {
