@@ -1,19 +1,16 @@
 "use client";
 
 import React from "react";
+import { type RendererAssets } from "@/renderer";
 
-export interface VisualizerContextImages {
-  bg: HTMLImageElement;
-  box: HTMLImageElement;
-  player: HTMLImageElement;
-  rock: HTMLImageElement;
-  zombie: HTMLImageElement;
-}
-
-export interface VisualizerContextValue {
-  getImages: () => VisualizerContextImages;
-  ready: boolean;
-}
+export type VisualizerContextValue =
+  | {
+      ready: false;
+    }
+  | {
+      getAssets: () => RendererAssets;
+      ready: true;
+    };
 
 const VisualizerContext = React.createContext<VisualizerContextValue | null>(
   null,
@@ -33,7 +30,7 @@ export default function VisualizerProvider({
   children: React.ReactNode;
 }): React.ReactNode {
   const [ready, setReady] = React.useState(false);
-  const images = React.useRef<VisualizerContextImages | null>(null);
+  const assets = React.useRef<RendererAssets | null>(null);
 
   React.useEffect(() => {
     Promise.all([
@@ -45,7 +42,7 @@ export default function VisualizerProvider({
     ]).then((result) => {
       setReady(true);
 
-      images.current = {
+      assets.current = {
         bg: result[0],
         box: result[1],
         player: result[2],
@@ -55,18 +52,18 @@ export default function VisualizerProvider({
     });
   }, []);
 
-  function getImages(): VisualizerContextImages {
-    if (!ready) {
+  function getAssets(): RendererAssets {
+    if (!ready || assets.current === null) {
       throw new Error(
         "Tried accessing visualizer images before they are loaded",
       );
     }
 
-    return images.current!;
+    return assets.current;
   }
 
   return (
-    <VisualizerContext.Provider value={{ getImages, ready }}>
+    <VisualizerContext.Provider value={{ getAssets, ready }}>
       {children}
     </VisualizerContext.Provider>
   );
