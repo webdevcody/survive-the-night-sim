@@ -8,11 +8,11 @@ export function getCellImage(cell: string) {
         alt="Zombie"
         className="w-full h-full"
         style={{
-          width: '100%',
-          height: '100%',
-          position: 'relative',
-          top: '-20px',
-          left: '4px',
+          width: "100%",
+          height: "100%",
+          position: "relative",
+          top: "-20px",
+          left: "4px",
         }}
       />
     );
@@ -24,9 +24,9 @@ export function getCellImage(cell: string) {
         alt="Player"
         className="w-full h-full"
         style={{
-          position: 'relative',
-          top: '-20px',
-          left: '4px',
+          position: "relative",
+          top: "-20px",
+          left: "4px",
         }}
       />
     );
@@ -43,9 +43,9 @@ export function getCellImage(cell: string) {
         alt="Block"
         className="w-full h-full"
         style={{
-          position: 'relative',
-          top: '0px',
-          left: '0px',
+          position: "relative",
+          top: "0px",
+          left: "0px",
         }}
       />
     );
@@ -55,7 +55,12 @@ export function getCellImage(cell: string) {
 
 export function Map({ map, size = 64 }: { map: string[][]; size?: number }) {
   return (
-    <div className="relative" style={{ backgroundImage: 'url(/map_tiles.svg)', backgroundSize: '128px', backgroundPosition: 'bottom left' }}>
+    <div className="relative">
+      <img
+        src="/map.png"
+        alt="Background Map"
+        className="absolute inset-0 w-full h-full object-cover opacity-50"
+      />
       <div className="relative z-10 test">
         {map.map((row, y) => (
           <div key={y} className="flex">
