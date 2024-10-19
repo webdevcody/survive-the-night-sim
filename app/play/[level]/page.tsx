@@ -11,6 +11,7 @@ import { ChevronLeftIcon } from "@radix-ui/react-icons";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TestMode from "./test-mode";
 import { useRouter } from "next/navigation";
+import { ZombieSurvival } from "@/simulators/zombie-survival";
 
 export default function PlayLevelPage({
   params,
@@ -119,7 +120,7 @@ export default function PlayLevelPage({
   };
 
   const runSimulation = () => {
-    if (!playerMap.some((row) => row.includes("P"))) {
+    if (!ZombieSurvival.mapHasPlayer(playerMap)) {
       alert(
         "Please place a player (P) on the map before running the simulation.",
       );
@@ -138,6 +139,11 @@ export default function PlayLevelPage({
         placedGrid: playerMap,
       });
     }
+  };
+
+  const handleReset = () => {
+    setIsSimulating(false);
+    setGameResult(null);
   };
 
   const handleClearMap = () => {
@@ -195,6 +201,7 @@ export default function PlayLevelPage({
                 <Visualizer
                   map={playerMap}
                   autoStart={true}
+                  onReset={handleReset}
                   onSimulationEnd={handleSimulationEnd}
                 />
                 {gameResult && (

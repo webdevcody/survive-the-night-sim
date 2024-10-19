@@ -13,6 +13,7 @@ export function Visualizer({
   controls = true,
   cellSize = "64",
   map,
+  onReset,
   onSimulationEnd,
 }: {
   autoReplay?: boolean;
@@ -20,6 +21,7 @@ export function Visualizer({
   controls?: boolean;
   cellSize?: string;
   map: string[][];
+  onReset?: () => unknown;
   onSimulationEnd?: (isWin: boolean) => unknown;
 }) {
   const visualizer = useVisualizer();
@@ -54,6 +56,7 @@ export function Visualizer({
 
   function startSimulation() {
     simulator.current = new ZombieSurvival(map);
+    renderer.current?.render(simulator.current.getAllAliveEntities());
     setRunning(true);
 
     interval.current = setInterval(() => {
@@ -63,11 +66,7 @@ export function Visualizer({
 
       if (!simulator.current.finished()) {
         simulator.current.step();
-
-        if (renderer.current !== null) {
-          renderer.current.render(simulator.current.getAllAliveEntities());
-        }
-
+        renderer.current?.render(simulator.current.getAllAliveEntities());
         return;
       }
 
@@ -133,13 +132,7 @@ export function Visualizer({
             <Button onClick={startSimulation} disabled={running}>
               Replay
             </Button>
-            <Button
-              disabled={running}
-              onClick={() => {
-                simulator.current = new ZombieSurvival(map);
-                setRunning(false);
-              }}
-            >
+            <Button disabled={running} onClick={onReset}>
               Reset
             </Button>
           </div>
