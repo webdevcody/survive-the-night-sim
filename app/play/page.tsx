@@ -122,15 +122,12 @@ export default function PlayPage() {
             className={cn(
               "flex flex-col h-full relative",
               resMap.get(map._id)
-                ? "bg-green-500"
+                ? "border-green-500"
                 : resMap.has(map._id)
-                  ? "bg-red-500"
+                  ? "border-red-500"
                   : "",
             )}
           >
-            {resMap.get(map._id) && (
-              <StarFilledIcon className="absolute top-3 right-3 w-9 h-9 -rotate-45 text-yellow-500" />
-            )}
             <CardHeader>
               <CardTitle className="text-xl font-semibold text-center">
                 Night #{map.level}
