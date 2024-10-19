@@ -11,6 +11,7 @@ import { api, internal } from "./_generated/api";
 import { runModel } from "../models";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { adminMutationBuilder } from "./users";
+import { Prompt } from "./prompts";
 
 const LEVELS = [
   {
@@ -300,9 +301,17 @@ export const playMapAction = internalAction({
       return;
     }
 
+    const activePromptQuery = await ctx.runQuery(api.prompts.getActivePrompt);
+    const activePrompt = activePromptQuery && activePromptQuery.prompt;
+
+    if (!activePrompt) {
+      throw new Error("Active prompt not found");
+    }
+
     const { solution, reasoning, error } = await runModel(
       args.modelId,
       map.grid,
+      activePrompt,
     );
 
     await ctx.runMutation(internal.results.updateResult, {
@@ -322,12 +331,22 @@ export const testMap = action({
   },
   handler: async (ctx, args) => {
     const isAdmin = await ctx.runQuery(api.users.isAdmin);
+    const activePrompt: Prompt  = await ctx.runQuery(api.prompts.getActivePrompt);
+    
 
     if (!isAdmin) {
       throw new Error("Test map is available only for admin");
     }
 
-    return await runModel(args.modelId, args.map);
+    if (!activePrompt) {
+      throw new Error("Active prompt not found");
+    }
+
+    return await runModel(
+      args.modelId,
+      args.map,
+      activePrompt.prompt,
+    );
   },
 });
 
@@ -350,9 +369,16 @@ export const testAIModel = action({
       throw new Error("Map not found");
     }
 
+    const activePrompt: Prompt  = await ctx.runQuery(api.prompts.getActivePrompt);
+
+    if (!activePrompt) {
+      throw new Error("Active prompt not found");
+    }
+
     const { solution, reasoning, error } = await runModel(
       args.modelId,
       map.grid,
+      activePrompt.prompt,
     );
 
     return {

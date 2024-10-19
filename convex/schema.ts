@@ -19,6 +19,7 @@ export default defineSchema({
   }).index("by_level", ["level"]),
   scores: defineTable({
     modelId: v.string(),
+    promptId: v.id("prompts"),
     score: v.number(),
   }).index("by_modelId", ["modelId"]),
   models: defineTable({
@@ -65,4 +66,9 @@ export default defineSchema({
   admins: defineTable({
     userId: v.id("users"),
   }).index("by_userId", ["userId"]),
+  prompts: defineTable({
+    promptName: v.string(),
+    prompt: v.string(),
+    isActive: v.boolean(),
+  }).index("by_active", ["isActive"]),
 });
