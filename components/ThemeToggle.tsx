@@ -1,8 +1,8 @@
 "use client";
 
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { DesktopIcon, MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { useTheme } from "next-themes";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -19,7 +19,7 @@ export function ThemeToggle() {
           setTheme(newTheme);
         }
       }}
-      className="flex px-1 py-1 rounded-md bg-blue-200 dark:bg-slate-700"
+      className="flex rounded-md bg-blue-200 px-1 py-1 dark:bg-slate-700"
     >
       {theme === "light" || (theme === "system" && darkMode === "light") ? (
         <ToggleGroupItem value="dark" aria-label="Dark">

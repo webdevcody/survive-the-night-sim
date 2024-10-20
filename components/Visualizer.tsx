@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Renderer } from "@/renderer";
 import { ZombieSurvival } from "@/simulators/zombie-survival";
@@ -115,7 +115,7 @@ export function Visualizer({
     <div className="flex flex-col gap-1">
       <canvas ref={canvas} />
       {controls && (
-        <div className="flex gap-2 justify-center py-2">
+        <div className="flex justify-center gap-2 py-2">
           <Button disabled={running} onClick={startSimulation}>
             Replay
           </Button>

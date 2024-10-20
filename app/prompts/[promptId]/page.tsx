@@ -1,12 +1,12 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { api } from "@/convex/_generated/api";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { api } from "@/convex/_generated/api";
 
 export default function editPromtPage({
   params,
@@ -54,10 +54,10 @@ export default function editPromtPage({
   }
 
   return (
-    <div className="container mx-auto min-h-screen pb-24 py-12 gap-8">
-      <form className="py-6 px-6 h-full" onSubmit={handleSubmit}>
-        <div className="flex justify-between mb-4">
-          <h1 className="font-semibold mb-4">Edit your prompt</h1>
+    <div className="container mx-auto min-h-screen gap-8 py-12 pb-24">
+      <form className="h-full px-6 py-6" onSubmit={handleSubmit}>
+        <div className="mb-4 flex justify-between">
+          <h1 className="mb-4 font-semibold">Edit your prompt</h1>
           <div className="flex space-x-4">
             <Button variant="default">Save</Button>
             <Link href="/prompts">
@@ -65,7 +65,7 @@ export default function editPromtPage({
             </Link>
           </div>
         </div>
-        <div className="flex flex-col items-start space-y-4 min-h-screen h-screen">
+        <div className="flex h-screen min-h-screen flex-col items-start space-y-4">
           <Input
             placeholder="Prompt Name"
             value={promptName}
@@ -73,7 +73,7 @@ export default function editPromtPage({
           />
           <textarea
             placeholder="Prompt"
-            className=" h-full w-full rounded-md border border-input bg-transparent px-3 py-1"
+            className="h-full w-full rounded-md border border-input bg-transparent px-3 py-1"
             value={promptText}
             onChange={handlePromptTextChange}
           />

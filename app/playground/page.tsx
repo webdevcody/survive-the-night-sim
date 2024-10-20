@@ -1,18 +1,18 @@
 "use client";
 
-import React from "react";
-import { CircleAlertIcon, EraserIcon } from "lucide-react";
+import * as React from "react";
 import { useAction, useMutation, useQuery } from "convex/react";
-import { Button } from "@/components/ui/button";
+import { CircleAlertIcon, EraserIcon } from "lucide-react";
 import { CopyMapButton } from "@/components/CopyMapButton";
 import { MapBuilder } from "@/components/MapBuilder";
 import { MapStatus } from "@/components/MapStatus";
 import { ModelSelector } from "@/components/ModelSelector";
 import { Visualizer } from "@/components/Visualizer";
-import { ZombieSurvival } from "@/simulators/zombie-survival";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 import { api } from "@/convex/_generated/api";
 import { errorMessage } from "@/lib/utils";
-import { useToast } from "@/components/ui/use-toast";
+import { ZombieSurvival } from "@/simulators/zombie-survival";
 
 const STORAGE_MAP_KEY = "playground-map";
 

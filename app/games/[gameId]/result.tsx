@@ -1,11 +1,11 @@
 "use client";
 
-import { Doc } from "@/convex/_generated/dataModel";
-import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
+import Link from "next/link";
 import { MapStatus } from "@/components/MapStatus";
 import { Visualizer } from "@/components/Visualizer";
-import Link from "next/link";
+import { api } from "@/convex/_generated/api";
+import { Doc } from "@/convex/_generated/dataModel";
 
 export const Result = ({ result }: { result: Doc<"results"> }) => {
   const map = useQuery(api.maps.getMapByLevel, {
@@ -24,13 +24,13 @@ export const Result = ({ result }: { result: Doc<"results"> }) => {
     <div className="flex items-center gap-8">
       <Link
         href={`/play/${map.level}`}
-        className="whitespace-nowrap hover:underline cursor-pointer"
+        className="cursor-pointer whitespace-nowrap hover:underline"
       >
         Level {map.level}
       </Link>
 
       {result.status === "failed" ? (
-        <div className="text-red-500 w-[200px] flex-shrink-0">
+        <div className="w-[200px] flex-shrink-0 text-red-500">
           {result.error}
         </div>
       ) : (

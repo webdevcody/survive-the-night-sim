@@ -1,10 +1,10 @@
+import { Position } from "./Position";
 import { Box } from "./entities/Box";
 import { Entity } from "./entities/Entity";
 import { Player } from "./entities/Player";
 import { Rock } from "./entities/Rock";
 import { Zombie } from "./entities/Zombie";
 import { entityAt } from "./lib/entityAt";
-import { Position } from "./Position";
 
 export class ZombieSurvival {
   public readonly boardHeight: number;

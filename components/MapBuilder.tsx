@@ -1,12 +1,12 @@
-import React from "react";
+import * as React from "react";
 import {
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   ChevronUpIcon,
 } from "lucide-react";
-import { ZombieSurvival } from "@/simulators/zombie-survival";
 import { cn } from "@/lib/utils";
+import { ZombieSurvival } from "@/simulators/zombie-survival";
 
 export function MapBuilder({
   disabled,
@@ -91,13 +91,13 @@ export function MapBuilder({
   );
 
   return (
-    <div className="relative inline-flex flex-col p-7 w-fit">
+    <div className="relative inline-flex w-fit flex-col p-7">
       {!play && (
         <>
           <button
             className={cn(
               controlClassName,
-              "top-0 left-1/2 translate-x-[-100%]",
+              "left-1/2 top-0 translate-x-[-100%]",
             )}
             disabled={disabled}
             type="button"
@@ -107,7 +107,7 @@ export function MapBuilder({
           </button>
           {moreThanOneRow && (
             <button
-              className={cn(controlClassName, "top-0 left-1/2")}
+              className={cn(controlClassName, "left-1/2 top-0")}
               disabled={disabled}
               type="button"
               onClick={handleDecreaseUp}
@@ -118,7 +118,7 @@ export function MapBuilder({
           <button
             className={cn(
               controlClassName,
-              "top-1/2 left-0 translate-y-[-100%]",
+              "left-0 top-1/2 translate-y-[-100%]",
             )}
             disabled={disabled}
             type="button"
@@ -128,7 +128,7 @@ export function MapBuilder({
           </button>
           {moreThanOneCell && (
             <button
-              className={cn(controlClassName, "top-1/2 left-0")}
+              className={cn(controlClassName, "left-0 top-1/2")}
               disabled={disabled}
               type="button"
               onClick={handleDecreaseLeft}
@@ -160,7 +160,7 @@ export function MapBuilder({
           <button
             className={cn(
               controlClassName,
-              "top-1/2 right-0 translate-y-[-100%]",
+              "right-0 top-1/2 translate-y-[-100%]",
             )}
             disabled={disabled}
             type="button"
@@ -170,7 +170,7 @@ export function MapBuilder({
           </button>
           {moreThanOneCell && (
             <button
-              className={cn(controlClassName, "top-1/2 right-0")}
+              className={cn(controlClassName, "right-0 top-1/2")}
               disabled={disabled}
               type="button"
               onClick={handleDecreaseRight}

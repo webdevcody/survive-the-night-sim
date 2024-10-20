@@ -1,6 +1,6 @@
 import { v } from "convex/values";
-import { internalMutation } from "./_generated/server";
 import { api } from "./_generated/api";
+import { internalMutation } from "./_generated/server";
 
 export const incrementScore = internalMutation({
   args: {

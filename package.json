@@ -2,7 +2,6 @@
   "name": "survive-the-night-sim",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
   "scripts": {
     "dev": "npm-run-all dev:init --parallel dev:frontend dev:backend",
     "dev:frontend": "next dev",
@@ -44,6 +43,7 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
@@ -53,7 +53,7 @@
     "eslint-config-next": "14.2.5",
     "npm-run-all": "^4.1.5",
     "postcss": "^8",
-    "prettier": "3.3.2",
+    "prettier": "^3.3.2",
     "prettier-plugin-tailwindcss": "^0.6.8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5",

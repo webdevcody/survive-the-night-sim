@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import * as React from "react";
 import { ClipboardCopyIcon, SmileIcon } from "lucide-react";
 
 export function CopyMapButton({ map }: { map: string[][] }) {
@@ -30,7 +30,7 @@ export function CopyMapButton({ map }: { map: string[][] }) {
       className={
         copied
           ? "cursor-default"
-          : "enabled:hover:scale-125 transition disabled:opacity-50"
+          : "transition enabled:hover:scale-125 disabled:opacity-50"
       }
       onClick={copied ? undefined : handleClick}
       type="button"

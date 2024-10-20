@@ -1,6 +1,6 @@
-import { AI_MODELS } from "./constants";
 import { api, internal } from "./_generated/api";
 import { internalMutation, query } from "./_generated/server";
+import { AI_MODELS } from "./constants";
 
 export const runActiveModelsGames = internalMutation({
   handler: async (ctx) => {

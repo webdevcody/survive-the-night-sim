@@ -1,9 +1,9 @@
 "use client";
 
-import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
 import { useQuery } from "convex/react";
 import { Result } from "./result";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 
 export default function GamePage({ params }: { params: { gameId: string } }) {
   const game = useQuery(api.games.getGame, {
@@ -14,14 +14,14 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
   });
 
   return (
-    <div className="container mx-auto max-w-5xl min-h-screen flex flex-col items-center py-12 pb-24 gap-8">
+    <div className="container mx-auto flex min-h-screen max-w-5xl flex-col items-center gap-8 py-12 pb-24">
       <h1>Game {params.gameId}</h1>
       <h2>Model: {game?.modelId}</h2>
 
       <div className="flex flex-col gap-12">
         {results === undefined || results.length === 0 ? (
-          <div className="flex flex-col justify-center items-center gap-8">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-gray-900"></div>
+          <div className="flex flex-col items-center justify-center gap-8">
+            <div className="h-16 w-16 animate-spin rounded-full border-b-2 border-gray-900"></div>
             <p className="ml-4">Game starting...</p>
           </div>
         ) : (

@@ -12,17 +12,3 @@ export function errorMessage(error: unknown) {
       ? error
       : "An unexpected error occurred";
 }
-
-export function isElementInViewport(el: HTMLElement) {
-  const rect = el.getBoundingClientRect();
-
-  const windowHeight =
-    window.innerHeight || document.documentElement.clientHeight;
-
-  const windowWidth = window.innerWidth || document.documentElement.clientWidth;
-
-  const isVerticallyInView = rect.top < windowHeight && rect.bottom > 0;
-  const isHorizontallyInView = rect.left < windowWidth && rect.right > 0;
-
-  return isVerticallyInView && isHorizontallyInView;
-}

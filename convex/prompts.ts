@@ -1,6 +1,6 @@
 import { v } from "convex/values";
-import { internalMutation, mutation, query } from "./_generated/server";
 import { Id } from "./_generated/dataModel";
+import { internalMutation, mutation, query } from "./_generated/server";
 import { adminMutationBuilder } from "./users";
 
 const defaultPrompt = `
@@ -91,7 +91,10 @@ export const getPromptById = query({
     promptId: v.string(),
   },
   handler: async (ctx, args): Promise<Prompt | null> => {
-    const prompt = await ctx.db.query("prompts").filter(q => q.eq(q.field("_id"), args.promptId)).first();
+    const prompt = await ctx.db
+      .query("prompts")
+      .filter((q) => q.eq(q.field("_id"), args.promptId))
+      .first();
     return prompt;
   },
 });

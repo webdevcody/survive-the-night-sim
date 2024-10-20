@@ -1,5 +1,6 @@
 "use client";
 
+import { useMutation, useQuery } from "convex/react";
 import { Map } from "@/components/Map";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,7 +11,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { api } from "@/convex/_generated/api";
-import { useMutation, useQuery } from "convex/react";
 
 const Page = () => {
   const isAdmin = useQuery(api.users.isAdmin);

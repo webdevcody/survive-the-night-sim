@@ -1,10 +1,10 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { mutation, query } from "./_generated/server";
 import {
-  customQuery,
   customCtx,
   customMutation,
+  customQuery,
 } from "convex-helpers/server/customFunctions";
+import { mutation, query } from "./_generated/server";
 
 export const viewer = query({
   args: {},
