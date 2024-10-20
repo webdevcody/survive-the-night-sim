@@ -29,18 +29,18 @@ export default function PlayLevelAttemptPage({
 
   return (
     <Authenticated>
-      <div className="container mx-auto min-h-screen flex flex-col items-center py-12 pb-24 gap-8">
-        <div className="w-full flex justify-between items-center">
-          <Button variant="outline" asChild className="flex gap-2 items-center">
+      <div className="container mx-auto flex min-h-screen flex-col items-center gap-8 py-12 pb-24">
+        <div className="flex w-full items-center justify-between">
+          <Button variant="outline" asChild className="flex items-center gap-2">
             <Link href={`/play/${level}`}>
               <ChevronLeftIcon /> Back To Night #{level}
             </Link>
           </Button>
         </div>
-        <h1 className="text-3xl font-bold text-center">Night #{level}</h1>
-        <h2 className="text-xl font-semibold mb-4">Attempt #{attemptNum}</h2>
+        <h1 className="text-center text-3xl font-bold">Night #{level}</h1>
+        <h2 className="mb-4 text-xl font-semibold">Attempt #{attemptNum}</h2>
 
-        <div className="flex flex-col gap-y-2 items-center">
+        <div className="flex flex-col items-center gap-y-2">
           <Visualizer
             autoReplay
             autoStart
