@@ -1,6 +1,6 @@
 import { v } from "convex/values";
-import { internalMutation, query } from "./_generated/server";
 import { api } from "./_generated/api";
+import { internalMutation, query } from "./_generated/server";
 
 export const getGlobalRankings = query({
   handler: async ({ db }) => {

@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
 import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
+import { type Metadata } from "next";
+import { Inter } from "next/font/google";
 import Header from "./header";
 import { Providers } from "./provider";
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 

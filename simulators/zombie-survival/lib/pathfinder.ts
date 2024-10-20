@@ -1,6 +1,6 @@
-import { allDirections, Direction, move } from "../Direction";
-import { Zombie } from "../entities/Zombie";
+import { Direction, allDirections, move } from "../Direction";
 import { ZombieSurvival } from "../ZombieSurvival";
+import { Zombie } from "../entities/Zombie";
 import { entityAt } from "./entityAt";
 
 export function pathfinder(

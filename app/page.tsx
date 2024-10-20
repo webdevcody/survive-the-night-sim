@@ -1,18 +1,18 @@
 "use client";
 
 import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
+import Link from "next/link";
+import Result from "./result";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
   TableCell,
   TableHead,
+  TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { TableHeader } from "@/components/ui/table";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import Result from "./result";
+import { api } from "@/convex/_generated/api";
 
 export default function GamePage() {
   const results = useQuery(api.results.getLastCompletedResults);
@@ -20,7 +20,7 @@ export default function GamePage() {
 
   if (results === undefined) {
     return (
-      <div className="min-h-screen container mx-auto pt-12 pb-24 space-y-8">
+      <div className="container mx-auto min-h-screen space-y-8 pb-24 pt-12">
         <h1 className="text-2xl font-bold">Recent Games</h1>
         <p>Loading...</p>
       </div>
@@ -29,7 +29,7 @@ export default function GamePage() {
 
   if (results.length === 0) {
     return (
-      <div className="min-h-screen container mx-auto pt-12 pb-24 space-y-8">
+      <div className="container mx-auto min-h-screen space-y-8 pb-24 pt-12">
         <h1 className="text-2xl font-bold">Recent Games</h1>
         <p>No results yet</p>
       </div>
@@ -37,10 +37,10 @@ export default function GamePage() {
   }
 
   return (
-    <div className="container mx-auto pt-12 flex gap-12">
-      <div className="space-y-8 flex-grow">
+    <div className="container mx-auto flex gap-12 pt-12">
+      <div className="flex-grow space-y-8">
         <h1 className="text-2xl font-bold">Recent Games</h1>
-        <div className="h-[calc(100vh_-_185px)] overflow-y-auto flex flex-col gap-4">
+        <div className="flex h-[calc(100vh_-_185px)] flex-col gap-4 overflow-y-auto">
           {results.map((result) => (
             <Result key={result._id} result={result} />
           ))}
@@ -48,7 +48,7 @@ export default function GamePage() {
       </div>
 
       <div className="space-y-8">
-        <div className="flex justify-between items-center">
+        <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold">LLM Leaderboard</h2>
           <Button asChild>
             <Link href="/leaderboard">View Full Leaderboard</Link>

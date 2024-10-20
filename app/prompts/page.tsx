@@ -1,5 +1,8 @@
 "use client";
 
+import { useMutation, useQuery } from "convex/react";
+import Link from "next/link";
+import { redirect, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -10,9 +13,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { api } from "@/convex/_generated/api";
-import { useMutation, useQuery } from "convex/react";
-import Link from "next/link";
-import { useRouter, redirect } from "next/navigation";
 
 const Page = () => {
   const prompts = useQuery(api.prompts.getAllPrompts);
@@ -37,9 +37,9 @@ const Page = () => {
   }
 
   return (
-    <div className="container mx-auto min-h-screen py-12 pb-24 gap-8">
-      <div className="flex justify-between mb-4">
-        <h1 className="font-semibold mb-4">Review Prompts</h1>
+    <div className="container mx-auto min-h-screen gap-8 py-12 pb-24">
+      <div className="mb-4 flex justify-between">
+        <h1 className="mb-4 font-semibold">Review Prompts</h1>
         <Button variant="default" onClick={handleCreatePrompt}>
           Create Prompt
         </Button>
@@ -60,7 +60,7 @@ const Page = () => {
                 <TableCell>{row.promptName}</TableCell>
                 <TableCell>{row._id}</TableCell>
                 <TableCell>{row.isActive ? "Yes" : "No"}</TableCell>
-                <TableCell className="space-x-4 flex">
+                <TableCell className="flex space-x-4">
                   <Button
                     variant="default"
                     onClick={async () => {

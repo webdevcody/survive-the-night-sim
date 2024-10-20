@@ -6,7 +6,7 @@ export function getCellImage(cell: string) {
       <img
         src="/entities/zombie_alive_1.svg"
         alt="Zombie"
-        className="w-full h-full"
+        className="h-full w-full"
         style={{
           width: "100%",
           height: "100%",
@@ -22,7 +22,7 @@ export function getCellImage(cell: string) {
       <img
         src="/entities/player_alive_1.svg"
         alt="Player"
-        className="w-full h-full"
+        className="h-full w-full"
         style={{
           position: "relative",
           top: "-20px",
@@ -33,7 +33,7 @@ export function getCellImage(cell: string) {
   }
   if (cell === "R") {
     return (
-      <img src="/entities/rocks.svg" alt="Block" className="w-full h-full" />
+      <img src="/entities/rocks.svg" alt="Block" className="h-full w-full" />
     );
   }
   if (cell === "B") {
@@ -41,7 +41,7 @@ export function getCellImage(cell: string) {
       <img
         src="/entities/block.svg"
         alt="Block"
-        className="w-full h-full"
+        className="h-full w-full"
         style={{
           position: "relative",
           top: "0px",
@@ -59,9 +59,9 @@ export function Map({ map, size = 64 }: { map: string[][]; size?: number }) {
       <img
         src="/map.png"
         alt="Background Map"
-        className="absolute inset-0 w-full h-full object-cover opacity-50"
+        className="absolute inset-0 h-full w-full object-cover opacity-50"
       />
-      <div className="relative z-10 test">
+      <div className="test relative z-10">
         {map.map((row, y) => (
           <div key={y} className="flex">
             {row.map((cell, x) => (
@@ -71,7 +71,7 @@ export function Map({ map, size = 64 }: { map: string[][]; size?: number }) {
                   width: `${size}px`,
                   height: `${size}px`,
                 }}
-                className={`border dark:border-gray-300 border-gray-700 flex items-center justify-center text-2xl bg-transparent`}
+                className={`flex items-center justify-center border border-gray-700 bg-transparent text-2xl dark:border-gray-300`}
               >
                 {getCellImage(cell)}
               </div>

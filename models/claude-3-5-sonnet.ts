@@ -1,5 +1,5 @@
-import { Anthropic } from "@anthropic-ai/sdk";
 import { type ModelHandler } from ".";
+import { Anthropic } from "@anthropic-ai/sdk";
 
 export const claude35sonnet: ModelHandler = async (prompt, map) => {
   const anthropic = new Anthropic({

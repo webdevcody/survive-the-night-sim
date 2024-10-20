@@ -1,11 +1,11 @@
 "use client";
 
+import { useAuthActions } from "@convex-dev/auth/react";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
+import { useConvexAuth, useQuery } from "convex/react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
-import dynamic from "next/dynamic";
-import { useAuthActions } from "@convex-dev/auth/react";
-import { useConvexAuth, useQuery } from "convex/react";
 import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
 
@@ -36,7 +36,7 @@ export default function Header() {
   const isAdminQuery = useQuery(api.users.isAdmin);
 
   return (
-    <header className="flex justify-between items-center py-4 px-6 shadow-sm border-b">
+    <header className="flex items-center justify-between border-b px-6 py-4 shadow-sm">
       <Link href="/" className="flex items-center">
         <Image src="/logo.png" alt="Logo" width={32} height={32} />
         <span className="ml-2 text-xl font-bold">SurviveTheNight</span>
@@ -89,12 +89,12 @@ export default function Header() {
           <ThemeToggle />
         </div>
         <Button
-          className="shrink-0 w-9"
+          className="w-9 shrink-0"
           variant="outline"
           size="icon"
           type="button"
         >
-          <GitHubLogoIcon className="w-4 h-4" />
+          <GitHubLogoIcon className="h-4 w-4" />
         </Button>
         {!isAuthenticated ? (
           <SignInWithGitHub />

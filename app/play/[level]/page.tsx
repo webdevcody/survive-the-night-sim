@@ -1,16 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useMutation, useQuery, Authenticated } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { Button } from "@/components/ui/button";
-import { Visualizer } from "@/components/Visualizer";
-import { Map } from "@/components/Map";
-import Link from "next/link";
 import { ChevronLeftIcon } from "@radix-ui/react-icons";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import TestMode from "./test-mode";
+import { Authenticated, useMutation, useQuery } from "convex/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import TestMode from "./test-mode";
+import { Map } from "@/components/Map";
+import { Visualizer } from "@/components/Visualizer";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { api } from "@/convex/_generated/api";
 import { ZombieSurvival } from "@/simulators/zombie-survival";
 
 export default function PlayLevelPage({

@@ -1,10 +1,10 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Authenticated, Unauthenticated, useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
+import Link from "next/link";
 import { Map as GameMap } from "@/components/Map";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -12,11 +12,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { api } from "@/convex/_generated/api";
 import { cn } from "@/lib/utils";
-import { StarFilledIcon } from "@radix-ui/react-icons";
 
 export default function PlayPage() {
   const maps = useQuery(api.maps.getMaps, {});

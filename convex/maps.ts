@@ -1,17 +1,17 @@
+import { runModel } from "../models";
+import { ZombieSurvival } from "../simulators/zombie-survival";
+import { getAuthUserId } from "@convex-dev/auth/server";
+import { v } from "convex/values";
+import { api, internal } from "./_generated/api";
 import {
+  action,
   internalAction,
   internalMutation,
   mutation,
   query,
-  action,
 } from "./_generated/server";
-import { v } from "convex/values";
-import { ZombieSurvival } from "../simulators/zombie-survival";
-import { api, internal } from "./_generated/api";
-import { runModel } from "../models";
-import { getAuthUserId } from "@convex-dev/auth/server";
-import { adminMutationBuilder } from "./users";
 import { Prompt } from "./prompts";
+import { adminMutationBuilder } from "./users";
 
 const LEVELS = [
   {
@@ -331,8 +331,9 @@ export const testMap = action({
   },
   handler: async (ctx, args) => {
     const isAdmin = await ctx.runQuery(api.users.isAdmin);
-    const activePrompt: Prompt  = await ctx.runQuery(api.prompts.getActivePrompt);
-    
+    const activePrompt: Prompt = await ctx.runQuery(
+      api.prompts.getActivePrompt,
+    );
 
     if (!isAdmin) {
       throw new Error("Test map is available only for admin");
@@ -342,11 +343,7 @@ export const testMap = action({
       throw new Error("Active prompt not found");
     }
 
-    return await runModel(
-      args.modelId,
-      args.map,
-      activePrompt.prompt,
-    );
+    return await runModel(args.modelId, args.map, activePrompt.prompt);
   },
 });
 
@@ -369,7 +366,9 @@ export const testAIModel = action({
       throw new Error("Map not found");
     }
 
-    const activePrompt: Prompt  = await ctx.runQuery(api.prompts.getActivePrompt);
+    const activePrompt: Prompt = await ctx.runQuery(
+      api.prompts.getActivePrompt,
+    );
 
     if (!activePrompt) {
       throw new Error("Active prompt not found");

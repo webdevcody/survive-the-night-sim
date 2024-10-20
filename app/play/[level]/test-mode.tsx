@@ -1,10 +1,9 @@
 import { useState } from "react";
-import { useAction } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { Button } from "@/components/ui/button";
-import { Visualizer } from "@/components/Visualizer";
-import { Map } from "@/components/Map";
 import { ReloadIcon } from "@radix-ui/react-icons";
+import { useAction } from "convex/react";
+import { Map } from "@/components/Map";
+import { Visualizer } from "@/components/Visualizer";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -12,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { api } from "@/convex/_generated/api";
 import { AI_MODELS } from "@/convex/constants";
 import { errorMessage } from "@/lib/utils";
 
@@ -67,13 +67,13 @@ export default function TestMode({ level, map }: TestModeProps) {
   };
 
   return (
-    <div className="flex flex-col items-center gap-4 w-full">
+    <div className="flex w-full flex-col items-center gap-4">
       {showOriginalMap && (
         <div className="mb-8">
           <Map map={map} />
         </div>
       )}
-      <div className="flex gap-4 mb-4">
+      <div className="mb-4 flex gap-4">
         <Select value={selectedModel} onValueChange={setSelectedModel}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Select AI model" />
@@ -102,11 +102,11 @@ export default function TestMode({ level, map }: TestModeProps) {
           </Button>
         )}
       </div>
-      {aiError && <div className="text-red-500 mt-4">{aiError}</div>}
+      {aiError && <div className="mt-4 text-red-500">{aiError}</div>}
       {gameResult && (
-        <div className="mt-4 flex flex-col items-center gap-8 max-w-4xl mx-auto">
+        <div className="mx-auto mt-4 flex max-w-4xl flex-col items-center gap-8">
           <Visualizer map={playerMap} autoStart={true} onReset={handleReset} />
-          <div className="flex flex-col gap-4 flex-1">
+          <div className="flex flex-1 flex-col gap-4">
             <div
               className={`text-2xl font-bold ${
                 gameResult === "WON" ? "text-green-500" : "text-red-500"
@@ -116,7 +116,7 @@ export default function TestMode({ level, map }: TestModeProps) {
             </div>
             {aiReasoning && (
               <div className="p-4">
-                <h3 className="font-semibold mb-2">AI Reasoning:</h3>
+                <h3 className="mb-2 font-semibold">AI Reasoning:</h3>
                 <p>{aiReasoning}</p>
               </div>
             )}

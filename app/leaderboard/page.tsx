@@ -1,8 +1,6 @@
 "use client";
 
-import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
   TableBody,
@@ -12,6 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { api } from "@/convex/_generated/api";
 
 // Define the types for the data
 interface Ranking {

@@ -1,10 +1,10 @@
 "use client";
 
-import React from "react";
+import * as React from "react";
 import { useMutation } from "convex/react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import { ModelSelector } from "@/components/ModelSelector";
+import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
 
 export default function TestPage() {
@@ -21,8 +21,8 @@ export default function TestPage() {
   };
 
   return (
-    <div className="container mx-auto min-h-screen flex flex-col items-center pt-12 gap-8">
-      <h1 className="text-4xl font-bold mb-8">Zombie Map Simulator</h1>
+    <div className="container mx-auto flex min-h-screen flex-col items-center gap-8 pt-12">
+      <h1 className="mb-8 text-4xl font-bold">Zombie Map Simulator</h1>
 
       <div className="flex justify-center gap-4">
         <ModelSelector onChange={setModel} value={model} />
