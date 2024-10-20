@@ -278,21 +278,24 @@ export default function PlayLevelPage({
             {tries && tries.attempts && tries.attempts.length > 0 && (
               <>
                 <div className="mt-4 text-2xl font-semibold">Tries</div>
-                <div className="flex w-full flex-wrap items-center justify-around">
-                  {tries.attempts.map((attempt) => (
-                    <div
+                <div className="flex w-full flex-wrap items-center justify-around gap-2">
+                  {tries.attempts.map((attempt, idx) => (
+                    <Button
+                      asChild
+                      className={
+                        attempt?.didWin ? "border-green-500" : "border-red-500"
+                      }
                       key={attempt?._id}
-                      className="flex flex-col items-center gap-y-2"
+                      variant="outline"
                     >
-                      {attempt?.grid && <Map map={attempt.grid} />}
-                      <div
-                        className={`mt-4 text-xl font-semibold ${
-                          attempt?.didWin ? "text-green-500" : "text-red-500"
-                        }`}
+                      <Link
+                        key={attempt?._id}
+                        className="flex flex-col items-center gap-y-2"
+                        href={`/play/${level}/${idx + 1}`}
                       >
-                        {attempt?.didWin ? "You Survived!" : "You Died!"}
-                      </div>
-                    </div>
+                        Attempt #{idx + 1}
+                      </Link>
+                    </Button>
                   ))}
                 </div>
               </>
