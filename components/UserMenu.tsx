@@ -1,5 +1,8 @@
 "use client";
 
+import { ReactNode } from "react";
+import { useAuthActions } from "@convex-dev/auth/react";
+import { PersonIcon } from "@radix-ui/react-icons";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,9 +13,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuthActions } from "@convex-dev/auth/react";
-import { PersonIcon } from "@radix-ui/react-icons";
-import { ReactNode } from "react";
 
 export function UserMenu({ children }: { children: ReactNode }) {
   return (

@@ -1,5 +1,10 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { query } from "./_generated/server";
+import {
+  customCtx,
+  customMutation,
+  customQuery,
+} from "convex-helpers/server/customFunctions";
+import { mutation, query } from "./_generated/server";
 
 export const viewer = query({
   args: {},
@@ -15,3 +20,82 @@ export const viewer = query({
     return user;
   },
 });
+
+export const getUserOrNull = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return null;
+    }
+    return await ctx.db.get(userId);
+  },
+});
+
+export const isAdmin = query({
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (userId === null) {
+      return false;
+    }
+
+    const admin = await ctx.db
+      .query("admins")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .first();
+
+    return !!admin;
+  },
+});
+
+export const adminQueryBuilder = customQuery(
+  query,
+  customCtx(async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+
+    if (userId === null) {
+      throw new Error("Unauthorized");
+    }
+
+    const admin = await ctx.db
+      .query("admins")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .first();
+
+    if (!admin) {
+      throw new Error("Admin only invocation called from non-admin user");
+    }
+
+    return {
+      admin: {
+        id: admin.userId,
+      },
+    };
+  }),
+);
+
+export const adminMutationBuilder = customMutation(
+  mutation,
+  customCtx(async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+
+    if (userId === null) {
+      throw new Error("Unauthorized");
+    }
+
+    const admin = await ctx.db
+      .query("admins")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .first();
+
+    if (!admin) {
+      throw new Error("Admin only invocation called from non-admin user");
+    }
+
+    return {
+      admin: {
+        id: admin.userId,
+      },
+    };
+  }),
+);

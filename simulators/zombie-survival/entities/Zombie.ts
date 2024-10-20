@@ -1,9 +1,9 @@
 import { Direction, allDirections, move } from "../Direction";
-import { Entity, EntityType } from "./Entity";
 import { Position } from "../Position";
 import { ZombieSurvival } from "../ZombieSurvival";
 import { entityAt } from "../lib/entityAt";
 import { pathfinder } from "../lib/pathfinder";
+import { Entity, EntityType } from "./Entity";
 
 export class Zombie extends Entity {
   public static Destructible = true;
@@ -44,50 +44,12 @@ export class Zombie extends Entity {
     return result;
   }
 
-  public predictLastMove(): Direction | null {
-    const entities = this.game.getAllEntities();
-    const position = this.position;
-
-    const downEntity = entityAt(entities, move(position, Direction.Down));
-    const leftEntity = entityAt(entities, move(position, Direction.Left));
-    const rightEntity = entityAt(entities, move(position, Direction.Right));
-    const upEntity = entityAt(entities, move(position, Direction.Up));
-
-    if (downEntity?.getType() === EntityType.Player) {
-      return Direction.Down;
-    }
-
-    if (leftEntity?.getType() === EntityType.Player) {
-      return Direction.Left;
-    }
-
-    if (rightEntity?.getType() === EntityType.Player) {
-      return Direction.Right;
-    }
-
-    if (upEntity?.getType() === EntityType.Player) {
-      return Direction.Up;
-    }
-
-    return null;
-  }
-
   public walk(direction: Direction | null = null) {
     if (this.dead()) {
       return;
     }
 
     let nextDirection = direction ?? pathfinder(this.game, this)[0];
-
-    if (typeof nextDirection === "undefined") {
-      const lastMove = this.predictLastMove();
-
-      if (lastMove === null) {
-        throw new Error("Zombie out of moves");
-      }
-
-      nextDirection = lastMove;
-    }
 
     const entities = this.game.getAllEntities();
     const newPosition = move(this.position, nextDirection);
@@ -96,6 +58,9 @@ export class Zombie extends Entity {
     if (entity !== null) {
       if (entity.getType() !== EntityType.Zombie) {
         entity.hit();
+      } else if (entity.getType() === EntityType.Zombie) {
+        // we can't move into another zombie
+        return;
       }
 
       return;

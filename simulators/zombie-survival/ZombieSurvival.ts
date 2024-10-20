@@ -1,3 +1,4 @@
+import { Position } from "./Position";
 import { Box } from "./entities/Box";
 import { Entity } from "./entities/Entity";
 import { Player } from "./entities/Player";
@@ -12,12 +13,28 @@ export class ZombieSurvival {
   private player: Player;
   private zombies: Zombie[];
 
+  public static boardHeight(map: string[][]): number {
+    return map.length;
+  }
+
+  public static boardWidth(map: string[][]): number {
+    return map[0]?.length ?? 0;
+  }
+
+  public static cloneMap(map: string[][]): string[][] {
+    return [...map.map((row) => [...row])];
+  }
+
   public static fromSnapshot(snapshot: string): ZombieSurvival {
     const config = snapshot.split(".").map((it) => it.split(""));
     return new ZombieSurvival(config);
   }
 
   public static isWin(config: string[][]): boolean {
+    if (ZombieSurvival.mapIsEmpty(config)) {
+      return false;
+    }
+
     const game = new ZombieSurvival(config);
 
     while (!game.finished()) {
@@ -27,8 +44,26 @@ export class ZombieSurvival {
     return !game.getPlayer().dead();
   }
 
+  public static mapHasMultiplePlayers(map: string[][]): boolean {
+    return (
+      map.map((row) => row.filter((cell) => cell === "P")).flat().length > 1
+    );
+  }
+
+  public static mapHasPlayer(map: string[][]): boolean {
+    return map.some((row) => row.includes("P"));
+  }
+
+  public static mapHasZombies(map: string[][]): boolean {
+    return map.some((row) => row.includes("Z"));
+  }
+
+  public static mapIsEmpty(map: string[][]): boolean {
+    return map.length === 0 || map[0].length === 0;
+  }
+
   public constructor(config: string[][]) {
-    if (config.length === 0 || config[0].length == 0) {
+    if (ZombieSurvival.mapIsEmpty(config)) {
       throw new Error("Config is empty");
     }
 
@@ -87,6 +122,12 @@ export class ZombieSurvival {
     return [this.entities, this.zombies, this.player].flat();
   }
 
+  public getAllAliveEntities(): Entity[] {
+    return [this.entities, this.zombies, this.player]
+      .flat()
+      .filter((entity) => !entity.dead());
+  }
+
   public getEntities(): Entity[] {
     return this.entities;
   }
@@ -117,6 +158,10 @@ export class ZombieSurvival {
     }
 
     return config;
+  }
+
+  public getEntityAt(position: Position): Entity | null {
+    return entityAt(this.getAllEntities(), position);
   }
 
   public getZombie(): Zombie {

@@ -33,6 +33,10 @@ export class Entity {
     return this.position;
   }
 
+  public getPositionId(): string {
+    return `${this.position.x}.${this.position.y}`;
+  }
+
   public getPositionAsNumber(): number {
     return this.position.x + this.position.y;
   }
@@ -47,6 +51,10 @@ export class Entity {
     }
 
     this.health--;
+  }
+
+  public getHealth(): number {
+    return this.health;
   }
 
   public isDestructible(): boolean {

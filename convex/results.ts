@@ -1,6 +1,6 @@
 import { v } from "convex/values";
-import { internalMutation, query } from "./_generated/server";
 import { api, internal } from "./_generated/api";
+import { internalMutation, query } from "./_generated/server";
 import { PLAY_DELAY } from "./constants";
 
 export type ResultWithGame = Awaited<
@@ -80,7 +80,12 @@ export const updateResult = internalMutation({
 
     const maps = await ctx.db.query("maps").collect();
 
-    const lastLevel = maps.reduce((max, map) => Math.max(max, map.level), 0);
+    const lastLevel = maps.reduce((acc, map) => {
+      if (map.level) {
+        return Math.max(acc, map.level);
+      }
+      return acc;
+    }, 0);
 
     await ctx.runMutation(internal.leaderboard.updateRankings, {
       modelId: game.modelId,

@@ -25,6 +25,8 @@ import type * as init from "../init.js";
 import type * as leaderboard from "../leaderboard.js";
 import type * as maps from "../maps.js";
 import type * as models from "../models.js";
+import type * as playerresults from "../playerresults.js";
+import type * as prompts from "../prompts.js";
 import type * as results from "../results.js";
 import type * as scores from "../scores.js";
 import type * as users from "../users.js";
@@ -48,6 +50,8 @@ declare const fullApi: ApiFromModules<{
   leaderboard: typeof leaderboard;
   maps: typeof maps;
   models: typeof models;
+  playerresults: typeof playerresults;
+  prompts: typeof prompts;
   results: typeof results;
   scores: typeof scores;
   users: typeof users;

@@ -12,11 +12,14 @@ export default defineSchema({
     status: v.union(v.literal("in_progress"), v.literal("completed")),
   }),
   maps: defineTable({
-    level: v.number(),
+    level: v.optional(v.number()),
     grid: v.array(v.array(v.string())),
+    submittedBy: v.optional(v.id("users")),
+    isReviewed: v.boolean(),
   }).index("by_level", ["level"]),
   scores: defineTable({
     modelId: v.string(),
+    promptId: v.optional(v.id("prompts")),
     score: v.number(),
   }).index("by_modelId", ["modelId"]),
   models: defineTable({
@@ -39,15 +42,35 @@ export default defineSchema({
   })
     .index("by_gameId_level", ["gameId", "level"])
     .index("by_status", ["status"]),
-  globalrankings: defineTable({
+  globalRankings: defineTable({
     modelId: v.string(),
     wins: v.number(),
     losses: v.number(),
-  }).index("by_modelId", ["modelId"]),
-  levelrankings: defineTable({
+    promptId: v.optional(v.id("prompts")),
+  }).index("by_modelId_promptId", ["modelId", "promptId"]),
+  levelRankings: defineTable({
     modelId: v.string(),
     level: v.number(),
     wins: v.number(),
+    promptId: v.optional(v.id("prompts")),
     losses: v.number(),
-  }).index("by_modelId_level", ["modelId", "level"]),
+  }).index("by_modelId_level_promptId", ["modelId", "level", "promptId"]),
+  attempts: defineTable({
+    grid: v.array(v.array(v.string())),
+    didWin: v.boolean(),
+  }),
+  userResults: defineTable({
+    userId: v.id("users"),
+    mapId: v.id("maps"),
+    attempts: v.array(v.id("attempts")),
+    hasWon: v.boolean(),
+  }).index("by_mapId_userId", ["mapId", "userId"]),
+  admins: defineTable({
+    userId: v.id("users"),
+  }).index("by_userId", ["userId"]),
+  prompts: defineTable({
+    promptName: v.string(),
+    prompt: v.string(),
+    isActive: v.boolean(),
+  }).index("by_active", ["isActive"]),
 });

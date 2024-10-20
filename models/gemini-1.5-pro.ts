@@ -1,5 +1,5 @@
-import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 import { type ModelHandler } from ".";
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 
 const schema = {
   description: "Game Round Results",

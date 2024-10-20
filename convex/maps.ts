@@ -1,13 +1,17 @@
+import { runModel } from "../models";
+import { ZombieSurvival } from "../simulators/zombie-survival";
+import { getAuthUserId } from "@convex-dev/auth/server";
+import { v } from "convex/values";
+import { api, internal } from "./_generated/api";
 import {
+  action,
   internalAction,
   internalMutation,
+  mutation,
   query,
-  action,
 } from "./_generated/server";
-import { v } from "convex/values";
-import { ZombieSurvival } from "../simulators/zombie-survival";
-import { api, internal } from "./_generated/api";
-import { runModel } from "../models";
+import { Prompt } from "./prompts";
+import { adminMutationBuilder } from "./users";
 
 const LEVELS = [
   {
@@ -35,7 +39,137 @@ const LEVELS = [
       ["Z", "Z"],
     ],
   },
+  {
+    grid: [
+      ["R", " ", "R"],
+      ["Z", " ", " "],
+      [" ", " ", "Z"],
+    ],
+  },
+  {
+    grid: [
+      [" ", " ", "R", "Z"],
+      ["Z", " ", " ", "Z"],
+    ],
+  },
+  {
+    grid: [
+      [" ", " ", " ", "Z"],
+      [" ", "R", "R", " "],
+      ["Z", " ", " ", " "],
+    ],
+  },
+  {
+    grid: [
+      ["R", " ", " ", " "],
+      [" ", " ", " ", " "],
+      ["Z", " ", "Z", "Z"],
+    ],
+  },
+  {
+    grid: [
+      [" ", " ", "Z", " "],
+      ["R", " ", " ", " "],
+      [" ", "Z", "R", " "],
+      ["Z", "Z", " ", " "],
+    ],
+  },
+  {
+    grid: [
+      ["Z", " ", " ", " ", " ", "R"],
+      ["Z", " ", " ", " ", " ", " "],
+      ["Z", " ", " ", "R", " ", "Z"],
+      ["Z", " ", " ", " ", " ", "R"],
+    ],
+  },
+  {
+    grid: [
+      ["R", "Z", " ", " ", "Z", " "],
+      ["Z", " ", " ", " ", " ", " "],
+      [" ", " ", "R", " ", "R", " "],
+      [" ", " ", " ", "Z", " ", " "],
+      ["R", " ", " ", " ", " ", "R"],
+    ],
+  },
+  {
+    grid: [
+      ["Z", "R", " ", " ", " ", " "],
+      [" ", " ", " ", " ", " ", "Z"],
+      [" ", "Z", " ", " ", " ", " "],
+      ["Z", " ", " ", " ", " ", " "],
+    ],
+  },
+  {
+    grid: [
+      ["Z", " ", " ", "Z", " "],
+      [" ", " ", " ", "R", " "],
+      [" ", " ", " ", " ", " "],
+      [" ", "R", " ", " ", "R"],
+      [" ", "Z", " ", " ", "Z"],
+    ],
+  },
+  {
+    grid: [
+      ["R", " ", " ", " ", " ", "R"],
+      [" ", " ", " ", " ", " ", " "],
+      [" ", "R", " ", " ", "R", " "],
+      [" ", "R", "R", "R", "R", " "],
+      ["Z", " ", "Z", "Z", " ", "Z"],
+      [" ", "Z", "R", " ", "Z", " "],
+    ],
+  },
+  {
+    grid: [
+      ["R", " ", " ", "Z", " ", " ", " "],
+      [" ", " ", "R", " ", " ", "Z", "Z"],
+      [" ", " ", "R", " ", " ", " ", " "],
+      [" ", " ", " ", " ", " ", " ", " "],
+      [" ", " ", " ", " ", "R", " ", " "],
+      ["Z", " ", " ", " ", "R", " ", " "],
+      [" ", " ", " ", "Z", " ", " ", "R"],
+    ],
+  },
 ];
+
+export const addMap = mutation({
+  args: {
+    grid: v.array(v.array(v.string())),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+
+    if (!userId) {
+      throw new Error("User not authenticated");
+    }
+
+    await ctx.db.insert("maps", {
+      grid: args.grid,
+      submittedBy: userId,
+      isReviewed: false,
+    });
+  },
+});
+
+export const publishMap = adminMutationBuilder({
+  args: {
+    map: v.array(v.array(v.string())),
+  },
+  handler: async (ctx, args) => {
+    const maps = await ctx.db
+      .query("maps")
+      .filter((q) => q.neq("level", undefined))
+      .collect();
+
+    const lastLevel = maps.sort((a, b) => b.level! - a.level!)[0].level!;
+
+    await ctx.db.insert("maps", {
+      grid: args.map,
+      level: lastLevel + 1,
+      submittedBy: ctx.admin.id,
+      isReviewed: true,
+    });
+  },
+});
 
 export const seedMaps = internalMutation({
   handler: async (ctx) => {
@@ -52,6 +186,7 @@ export const seedMaps = internalMutation({
           ctx.db.insert("maps", {
             level: idx + 1,
             grid: map.grid,
+            isReviewed: true,
           });
         }
       }),
@@ -60,9 +195,59 @@ export const seedMaps = internalMutation({
 });
 
 export const getMaps = query({
-  args: {},
-  handler: async (ctx) => {
-    return await ctx.db.query("maps").withIndex("by_level").collect();
+  args: {
+    isReviewed: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    if (args.isReviewed !== undefined) {
+      // todo: take this out into a helper function
+      // if a manual query is made, check if the user is an admin
+
+      const userId = await getAuthUserId(ctx);
+      if (userId === null) {
+        return null;
+      }
+
+      const admin = await ctx.db
+        .query("admins")
+        .withIndex("by_userId", (q) => q.eq("userId", userId))
+        .first();
+
+      if (admin) {
+        return await ctx.db
+          .query("maps")
+          .filter((q) => q.eq(q.field("isReviewed"), args.isReviewed))
+          .collect();
+      } else {
+        return null;
+      }
+    }
+
+    return await ctx.db
+      .query("maps")
+      .filter((q) => q.eq(q.field("isReviewed"), true))
+      .collect();
+  },
+});
+
+export const approveMap = adminMutationBuilder({
+  args: {
+    mapId: v.id("maps"),
+  },
+  handler: async (ctx, args) => {
+    const maps = await ctx.db.query("maps").collect();
+
+    const lastLevel = maps.reduce((acc, map) => {
+      if (map.level) {
+        return Math.max(acc, map.level);
+      }
+      return acc;
+    }, 0);
+
+    await ctx.db.patch(args.mapId, {
+      isReviewed: true,
+      level: lastLevel + 1,
+    });
   },
 });
 
@@ -100,7 +285,7 @@ export const playMapAction = internalAction({
     }
 
     if (process.env.MOCK_MODELS === "true") {
-      const existingMap = [...map.grid.map((row: string[]) => [...row])];
+      const existingMap = ZombieSurvival.cloneMap(map.grid);
 
       existingMap[0][0] = "P";
       existingMap[0][1] = "B";
@@ -116,30 +301,49 @@ export const playMapAction = internalAction({
       return;
     }
 
-    try {
-      const { solution, reasoning } = await runModel(args.modelId, map.grid);
+    const activePromptQuery = await ctx.runQuery(api.prompts.getActivePrompt);
+    const activePrompt = activePromptQuery && activePromptQuery.prompt;
 
-      await ctx.runMutation(internal.results.updateResult, {
-        resultId,
-        isWin: ZombieSurvival.isWin(solution),
-        reasoning,
-        map: solution,
-      });
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : typeof error === "string"
-            ? error
-            : "Unexpected error happened";
-
-      await ctx.runMutation(internal.results.updateResult, {
-        resultId,
-        isWin: false,
-        reasoning: errorMessage,
-        error: errorMessage,
-      });
+    if (!activePrompt) {
+      throw new Error("Active prompt not found");
     }
+
+    const { solution, reasoning, error } = await runModel(
+      args.modelId,
+      map.grid,
+      activePrompt,
+    );
+
+    await ctx.runMutation(internal.results.updateResult, {
+      resultId,
+      isWin: error ? false : ZombieSurvival.isWin(solution!),
+      reasoning,
+      error,
+      map: solution,
+    });
+  },
+});
+
+export const testMap = action({
+  args: {
+    modelId: v.string(),
+    map: v.array(v.array(v.string())),
+  },
+  handler: async (ctx, args) => {
+    const isAdmin = await ctx.runQuery(api.users.isAdmin);
+    const activePrompt: Prompt = await ctx.runQuery(
+      api.prompts.getActivePrompt,
+    );
+
+    if (!isAdmin) {
+      throw new Error("Test map is available only for admin");
+    }
+
+    if (!activePrompt) {
+      throw new Error("Active prompt not found");
+    }
+
+    return await runModel(args.modelId, args.map, activePrompt.prompt);
   },
 });
 
@@ -162,11 +366,36 @@ export const testAIModel = action({
       throw new Error("Map not found");
     }
 
-    const { solution, reasoning } = await runModel(args.modelId, map.grid);
+    const activePrompt: Prompt = await ctx.runQuery(
+      api.prompts.getActivePrompt,
+    );
+
+    if (!activePrompt) {
+      throw new Error("Active prompt not found");
+    }
+
+    const { solution, reasoning, error } = await runModel(
+      args.modelId,
+      map.grid,
+      activePrompt.prompt,
+    );
+
     return {
       map: solution,
-      isWin: ZombieSurvival.isWin(solution),
+      isWin: error ? false : ZombieSurvival.isWin(solution!),
       reasoning,
+      error,
     };
+  },
+});
+
+export const lastLevel = query({
+  handler: async (ctx) => {
+    const lastMap = await ctx.db
+      .query("maps")
+      .withIndex("by_level")
+      .order("desc")
+      .first();
+    return lastMap?.level ?? 0;
   },
 });

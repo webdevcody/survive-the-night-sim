@@ -1,5 +1,5 @@
-import { Entity, EntityType } from "./Entity";
 import { Position } from "../Position";
+import { Entity, EntityType } from "./Entity";
 
 export class Box extends Entity {
   public static Destructible = true;

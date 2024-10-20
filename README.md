@@ -2,6 +2,11 @@
 
 This is a community project for letting ai models play a puzzle game to find out which one is the best.
 
+## Live Links
+
+- [Plausible Analytics](https://plausible.survive-the-night-sim-production.up.railway.app)
+- [Survive the Night Sim](https://survive-the-night-sim-production.up.railway.app)
+
 ## How to Run
 
 Before you can run the project, you'll need to setup a
@@ -29,6 +34,8 @@ Add optional environment variable/s for simulating real AI models without mockup
 
 - `npx convex env set GEMINI_API_KEY YOUR_API_KEY`
 - `npx convex env set OPENAI_API_KEY YOUR_API_KEY`
+- `npx convex env set ANTHROPIC_API_KEY YOUR_API_KEY`
+- `npx convex env set PERPLEXITY_API_KEY YOUR_API_KEY`
 
 also, you may need to run, but I think the initial setup does that.
 
