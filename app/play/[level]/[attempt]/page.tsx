@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
-import { Authenticated, useQuery } from "convex/react";
 import { ChevronLeftIcon } from "@radix-ui/react-icons";
+import { Authenticated, useQuery } from "convex/react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Visualizer } from "@/components/Visualizer";
+import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
 
 export default function PlayLevelAttemptPage({

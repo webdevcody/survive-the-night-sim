@@ -277,8 +277,8 @@ export default function PlayLevelPage({
           <Authenticated>
             {tries && tries.attempts && tries.attempts.length > 0 && (
               <>
-                <div className="font-semibold text-2xl mt-4">Tries</div>
-                <div className="flex flex-wrap items-center justify-around w-full gap-2">
+                <div className="mt-4 text-2xl font-semibold">Tries</div>
+                <div className="flex w-full flex-wrap items-center justify-around gap-2">
                   {tries.attempts.map((attempt, idx) => (
                     <Button
                       asChild
@@ -290,7 +290,7 @@ export default function PlayLevelPage({
                     >
                       <Link
                         key={attempt?._id}
-                        className="flex flex-col gap-y-2 items-center"
+                        className="flex flex-col items-center gap-y-2"
                         href={`/play/${level}/${idx + 1}`}
                       >
                         Attempt #{idx + 1}

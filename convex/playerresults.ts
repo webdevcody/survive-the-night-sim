@@ -1,7 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
-import { Id } from "./_generated/dataModel";
 import { api } from "./_generated/api";
+import { Id } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 
 export const getUserAttempt = query({
