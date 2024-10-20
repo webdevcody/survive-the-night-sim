@@ -2,6 +2,7 @@
   "name": "survive-the-night-sim",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "npm-run-all dev:init --parallel dev:frontend dev:backend",
     "dev:frontend": "next dev",
@@ -53,6 +54,7 @@
     "npm-run-all": "^4.1.5",
     "postcss": "^8",
     "prettier": "3.3.2",
+    "prettier-plugin-tailwindcss": "^0.6.8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5",
     "vitest": "^2.1.3"

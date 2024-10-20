@@ -64,12 +64,12 @@ export default function AddMapPage() {
     setMap(newMap);
   };
   return (
-    <div className="container mx-auto min-h-screen py-12 pb-24 gap-8">
-      <h1 className="text-center text-3xl font-semibold mb-6">Submit Map</h1>
+    <div className="container mx-auto min-h-screen gap-8 py-12 pb-24">
+      <h1 className="mb-6 text-center text-3xl font-bold">Submit Map</h1>
 
       {isSubmitted ? (
         <div>
-          <div className="flex justify-center m-5">
+          <div className="m-5 flex justify-center">
             <Button
               className="mx-2"
               variant={isZombie ? "default" : "outline"}
@@ -85,13 +85,13 @@ export default function AddMapPage() {
               Place Rock
             </Button>
           </div>
-          <div className="justify-center m-5">
+          <div className="m-5 justify-center">
             {map.map((row, y) => (
               <div key={y} className="flex justify-center">
                 {row.map((cell, x) => (
                   <div
                     key={x}
-                    className={`size-8 border flex items-center justify-center text-2xl p-5`}
+                    className={`flex size-8 items-center justify-center border p-5 text-2xl`}
                   >
                     <Button
                       className="m-5"
@@ -126,13 +126,13 @@ export default function AddMapPage() {
               setWidth(+e.target.value);
             }}
           />
-          <div className="justify-center m-5">
+          <div className="m-5 justify-center">
             {map.map((row, y) => (
               <div key={y} className="flex justify-center">
                 {row.map((cell, x) => (
                   <div
                     key={x}
-                    className={`size-8 border flex items-center justify-center text-2xl`}
+                    className={`flex size-8 items-center justify-center border text-2xl`}
                   >
                     {cell}
                   </div>
@@ -142,7 +142,7 @@ export default function AddMapPage() {
           </div>
         </div>
       )}
-      <div className="flex justify-center m-5">
+      <div className="m-5 flex justify-center">
         {isSubmitted ? (
           <div>
             <Button className="mx-2" type="submit" onClick={checkValidMap}>

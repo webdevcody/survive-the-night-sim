@@ -65,10 +65,10 @@ const LeaderBoard = () => {
   );
 
   return (
-    <div className="container mx-auto min-h-screen py-12 pb-24 gap-8">
-      <h1 className="text-center text-3xl font-semibold mb-6">Leaderboard</h1>
+    <div className="container mx-auto min-h-screen gap-8 py-12 pb-24">
+      <h1 className="mb-6 text-center text-3xl font-bold">Leaderboard</h1>
 
-      <Tabs defaultValue="global" className="">
+      <Tabs defaultValue="global">
         <TabsList>
           <TabsTrigger value="global">Global Rankings</TabsTrigger>
           <TabsTrigger value="level">Map based Rankings</TabsTrigger>
