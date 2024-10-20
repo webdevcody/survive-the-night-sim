@@ -69,8 +69,8 @@ export default function PlayPage() {
 
   if (!filteredMaps) {
     return (
-      <div className="container mx-auto min-h-screen py-12 pb-24 gap-8">
-        <h1 className="text-3xl font-bold mb-6 text-center">Choose a Night</h1>
+      <div className="container mx-auto min-h-screen gap-8 py-12 pb-24">
+        <h1 className="mb-6 text-center text-3xl font-bold">Choose a Night</h1>
 
         <Authenticated>
           <ToggleGroup
@@ -87,7 +87,7 @@ export default function PlayPage() {
           </ToggleGroup>
         </Authenticated>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
             <Skeleton key={index} className="h-96" />
           ))}
@@ -97,8 +97,8 @@ export default function PlayPage() {
   }
 
   return (
-    <div className="container mx-auto min-h-screen py-12 pb-24 gap-8">
-      <h1 className="text-3xl font-bold mb-6 text-center">Choose a Night</h1>
+    <div className="container mx-auto min-h-screen gap-8 py-12 pb-24">
+      <h1 className="mb-6 text-center text-3xl font-bold">Choose a Night</h1>
 
       <Authenticated>
         <ToggleGroup
@@ -115,12 +115,12 @@ export default function PlayPage() {
         </ToggleGroup>
       </Authenticated>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
         {filteredMaps.map((map) => (
           <Card
             key={map._id}
             className={cn(
-              "flex flex-col h-full relative",
+              "relative flex h-full flex-col",
               resMap.get(map._id)
                 ? "border-green-500"
                 : resMap.has(map._id)
@@ -129,11 +129,11 @@ export default function PlayPage() {
             )}
           >
             <CardHeader>
-              <CardTitle className="text-xl font-semibold text-center">
+              <CardTitle className="text-center text-xl font-semibold">
                 Night #{map.level}
               </CardTitle>
             </CardHeader>
-            <CardContent className="flex-grow flex items-center justify-center">
+            <CardContent className="flex flex-grow items-center justify-center">
               <GameMap map={map.grid} size={52} />
             </CardContent>
             <CardFooter className="flex justify-around px-3">

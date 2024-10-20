@@ -157,11 +157,11 @@ export default function PlaygroundPage() {
   const visualizing = solution !== null || visualizingUserSolution;
 
   return (
-    <div className="container mx-auto min-h-screen flex flex-col items-center py-12 gap-8">
-      <h1 className="text-4xl font-bold">Playground</h1>
+    <div className="container mx-auto min-h-screen gap-8 py-12 pb-24">
+      <h1 className="mb-6 text-center text-3xl font-bold">Playground</h1>
 
       <div className="flex w-full gap-8">
-        <div className="flex flex-col gap-2 grow w-full">
+        <div className="flex w-full grow flex-col gap-2">
           <div className="flex justify-between">
             <div className="flex flex-col gap-0">
               <div className="flex gap-2">
@@ -171,7 +171,7 @@ export default function PlaygroundPage() {
                 </p>
                 <CopyMapButton map={map} />
                 <button
-                  className="hover:scale-125 transition"
+                  className="transition hover:scale-125"
                   onClick={handleReset}
                 >
                   <EraserIcon size={16} />
@@ -213,8 +213,8 @@ export default function PlaygroundPage() {
             )}
           </div>
         </div>
-        <div className="flex flex-col gap-4 shrink-0 w-[400px]">
-          <div className="flex flex-col gap-2 w-fit">
+        <div className="flex w-[400px] shrink-0 flex-col gap-4">
+          <div className="flex w-fit flex-col gap-2">
             {isAdmin && (
               <>
                 <p>Model (~$0.002)</p>
