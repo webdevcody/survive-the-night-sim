@@ -1,16 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronLeftIcon } from "@radix-ui/react-icons";
-import { Authenticated, useMutation, useQuery } from "convex/react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import TestMode from "./test-mode";
-import { Map } from "@/components/Map";
-import { Visualizer } from "@/components/Visualizer";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useMutation, useQuery, Authenticated } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { Button } from "@/components/ui/button";
+import { Visualizer } from "@/components/Visualizer";
+import { Map } from "@/components/Map";
+import Link from "next/link";
+import { ChevronLeftIcon } from "@radix-ui/react-icons";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import TestMode from "./test-mode";
+import { handleCellClick, handlePlacementModeChange } from "@/utils/mapUtils";
+import { useRouter } from "next/navigation";
 import { ZombieSurvival } from "@/simulators/zombie-survival";
 
 export default function PlayLevelPage({
@@ -23,14 +24,11 @@ export default function PlayLevelPage({
   const [playerMap, setPlayerMap] = useState<string[][]>([]);
   const [isSimulating, setIsSimulating] = useState(false);
   const [gameResult, setGameResult] = useState<"WON" | "LOST" | null>(null);
-  const [placementMode, setPlacementMode] = useState<"player" | "block">(
-    "player",
-  );
+  const [placementMode, setPlacementMode] = useState<"player" | "block">("player");
   const [blockCount, setBlockCount] = useState(0);
   const flags = useQuery(api.flags.getFlags);
   const [mode, setMode] = useState<"play" | "test">("play");
 
-  // Initialize playerMap when map data is available
   useEffect(() => {
     if (map) {
       setPlayerMap(map.grid.map((row) => [...row]));
@@ -49,27 +47,9 @@ export default function PlayLevelPage({
 
   if (!map) {
     return (
-      <div className="container mx-auto flex min-h-screen flex-col items-center gap-8 py-12 pb-24">
-        <div className="flex w-full items-center justify-between">
-          <Button variant="outline" asChild className="flex items-center gap-2">
-            <Link href="/play" passHref>
-              <ChevronLeftIcon /> Play Different Night
-            </Link>
-          </Button>
-          {flags?.showTestPage && (
-            <Tabs
-              value={mode}
-              onValueChange={(value) => setMode(value as "play" | "test")}
-            >
-              <TabsList>
-                <TabsTrigger value="play">Play</TabsTrigger>
-                <TabsTrigger value="test">Test AI</TabsTrigger>
-              </TabsList>
-            </Tabs>
-          )}
-        </div>
-        <h1 className="mb-6 text-center text-3xl font-bold">Night #{level}</h1>
-
+      <div className="container mx-auto min-h-screen flex flex-col items-center py-12 pb-24 gap-8">
+        <Header flags={flags} mode={mode} setMode={setMode} />
+        <h1 className="text-3xl font-bold text-center mb-6">Night #{level}</h1>
         <p>Loading...</p>
       </div>
     );
@@ -83,47 +63,18 @@ export default function PlayLevelPage({
     setPlacementMode("player");
   };
 
-  const handleCellClick = (x: number, y: number) => {
+  const handleCellClickWrapper = (x: number, y: number) => {
     if (isSimulating) return;
-
-    const newMap = [...playerMap];
-    if (placementMode === "player") {
-      // Remove existing player if any
-      for (let i = 0; i < newMap.length; i++) {
-        for (let j = 0; j < newMap[i].length; j++) {
-          if (newMap[i][j] === "P") {
-            newMap[i][j] = " ";
-          }
-        }
-      }
-      // Place new player
-      if (newMap[y][x] === " ") {
-        newMap[y][x] = "P";
-      }
-    } else if (placementMode === "block") {
-      // Place new block
-      if (newMap[y][x] === "B") {
-        newMap[y][x] = " ";
-        setBlockCount(blockCount - 1);
-      } else if (blockCount < 2) {
-        if (newMap[y][x] === " ") {
-          newMap[y][x] = "B";
-          setBlockCount(blockCount + 1);
-        }
-      }
-    }
-    setPlayerMap(newMap);
+    handleCellClick(x, y, playerMap, setPlayerMap, placementMode, blockCount, setBlockCount);
   };
 
-  const handlePlacementModeChange = async (mode: "player" | "block") => {
-    setPlacementMode(mode);
+  const handlePlacementModeChangeWrapper = (mode: "player" | "block") => {
+    handlePlacementModeChange(mode, playerMap, setPlacementMode);
   };
 
   const runSimulation = () => {
     if (!ZombieSurvival.mapHasPlayer(playerMap)) {
-      alert(
-        "Please place a player (P) on the map before running the simulation.",
-      );
+      alert("Please place a player (P) on the map before running the simulation.");
       return;
     }
     setIsSimulating(true);
@@ -153,150 +104,37 @@ export default function PlayLevelPage({
   };
 
   return (
-    <div className="container mx-auto flex min-h-screen flex-col items-center gap-8 py-12 pb-24">
-      <div className="flex w-full items-center justify-between">
-        <Button variant="outline" asChild className="flex items-center gap-2">
-          <Link href="/play" passHref>
-            <ChevronLeftIcon /> Play Different Night
-          </Link>
-        </Button>
-        {flags?.showTestPage && (
-          <Tabs
-            value={mode}
-            onValueChange={(value) => setMode(value as "play" | "test")}
-          >
-            <TabsList>
-              <TabsTrigger value="play">Play</TabsTrigger>
-              <TabsTrigger value="test">Test AI</TabsTrigger>
-            </TabsList>
-          </Tabs>
-        )}
-      </div>
-      <h1 className="text-center text-3xl font-bold">Night #{level}</h1>
+    <div className="container mx-auto min-h-screen flex flex-col items-center py-12 pb-24 gap-8">
+      <Header flags={flags} mode={mode} setMode={setMode} />
+      <h1 className="text-3xl font-bold text-center">Night #{level}</h1>
 
       {mode === "play" ? (
         <>
-          <div className="mb-4 flex justify-center gap-4">
-            <Button
-              onClick={() => handlePlacementModeChange("player")}
-              variant={placementMode === "player" ? "default" : "outline"}
-              className="h-10"
-            >
-              Place Player
-            </Button>
-            <Button
-              onClick={() => handlePlacementModeChange("block")}
-              variant={placementMode === "block" ? "default" : "outline"}
-              className="h-10"
-            >
-              Place Block ({2 - blockCount} left)
-            </Button>
-          </div>
-          <div className="mb-8 flex flex-col items-center">
-            <h2 className="mb-4 text-xl font-semibold">
-              {isSimulating ? "Simulation Result" : "Place Your Player"}
-            </h2>
-            {isSimulating ? (
-              <>
-                <Visualizer
-                  map={playerMap}
-                  autoStart={true}
-                  onReset={handleReset}
-                  onSimulationEnd={handleSimulationEnd}
-                />
-                {gameResult && (
-                  <div
-                    className={`mt-4 text-2xl font-bold ${gameResult === "WON" ? "text-green-500" : "text-red-500"}`}
-                  >
-                    {gameResult === "WON" ? "You Survived!" : "You Died!"}
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="relative">
-                <Map map={playerMap} />
-                <div
-                  className="absolute inset-0 grid"
-                  style={{
-                    gridTemplateColumns: `repeat(${playerMap[0]?.length || 0}, minmax(0, 1fr))`,
-                    gridTemplateRows: `repeat(${playerMap.length || 0}, minmax(0, 1fr))`,
-                  }}
-                >
-                  {playerMap.map((row, y) =>
-                    row.map((cell, x) => (
-                      <div
-                        key={`${x}-${y}`}
-                        className={` ${cell === " " || cell === "B" ? "z-10 cursor-pointer hover:border-2 hover:border-dashed hover:border-slate-300" : ""} border border-transparent`}
-                        onClick={() => handleCellClick(x, y)}
-                      />
-                    )),
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-          <div className="flex justify-center gap-4">
-            {!isSimulating ? (
-              <>
-                <Button onClick={runSimulation} className="h-10">
-                  Run Simulation
-                </Button>
-                <Button
-                  onClick={handleClearMap}
-                  variant="outline"
-                  className="h-10"
-                >
-                  Clear Map
-                </Button>
-              </>
-            ) : (
-              <div className="flex items-center gap-x-3">
-                <Button onClick={handleRetryClicked} className="h-10">
-                  Retry
-                </Button>
-                {gameResult && gameResult === "WON" ? (
-                  <Button
-                    onClick={() => {
-                      if (lastLevel && level + 1 <= lastLevel) {
-                        router.push(`/play/${level + 1}`);
-                      } else {
-                        router.push("/play");
-                      }
-                    }}
-                    className="h-10"
-                  >
-                    {lastLevel && level + 1 <= lastLevel
-                      ? "Next Night"
-                      : "Back to Night Selection"}
-                  </Button>
-                ) : null}
-              </div>
-            )}
-          </div>
-
+          <PlacementControls
+            placementMode={placementMode}
+            blockCount={blockCount}
+            onPlacementModeChange={handlePlacementModeChangeWrapper}
+          />
+          <GameBoard
+            isSimulating={isSimulating}
+            playerMap={playerMap}
+            gameResult={gameResult}
+            onCellClick={handleCellClickWrapper}
+            onSimulationEnd={handleSimulationEnd}
+            onReset={handleReset}
+          />
+          <SimulationControls
+            isSimulating={isSimulating}
+            onRunSimulation={runSimulation}
+            onClearMap={handleClearMap}
+            onRetry={handleRetryClicked}
+            gameResult={gameResult}
+            lastLevel={lastLevel}
+            level={level}
+            router={router}
+          />
           <Authenticated>
-            {tries && tries.attempts && tries.attempts.length > 0 && (
-              <>
-                <div className="mt-4 text-2xl font-semibold">Tries</div>
-                <div className="flex w-full flex-wrap items-center justify-around">
-                  {tries.attempts.map((attempt) => (
-                    <div
-                      key={attempt?._id}
-                      className="flex flex-col items-center gap-y-2"
-                    >
-                      {attempt?.grid && <Map map={attempt.grid} />}
-                      <div
-                        className={`mt-4 text-xl font-semibold ${
-                          attempt?.didWin ? "text-green-500" : "text-red-500"
-                        }`}
-                      >
-                        {attempt?.didWin ? "You Survived!" : "You Died!"}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
+            <PreviousAttempts tries={tries} />
           </Authenticated>
         </>
       ) : (
@@ -305,3 +143,160 @@ export default function PlayLevelPage({
     </div>
   );
 }
+
+const Header: React.FC<HeaderProps> = ({ flags, mode, setMode }) => (
+  <div className="w-full flex justify-between items-center">
+    <Button variant="outline" asChild className="flex gap-2 items-center">
+      <Link href="/play" passHref>
+        <ChevronLeftIcon /> Play Different Night
+      </Link>
+    </Button>
+    {flags?.showTestPage && (
+      <Tabs
+        value={mode}
+        onValueChange={(value) => setMode(value as "play" | "test")}
+      >
+        <TabsList>
+          <TabsTrigger value="play">Play</TabsTrigger>
+          <TabsTrigger value="test">Test AI</TabsTrigger>
+        </TabsList>
+      </Tabs>
+    )}
+  </div>
+);
+
+const PlacementControls: React.FC<PlacementControlsProps> = ({ placementMode, blockCount, onPlacementModeChange }) => (
+  <div className="mb-4 flex justify-center gap-4">
+    <Button
+      onClick={() => onPlacementModeChange("player")}
+      variant={placementMode === "player" ? "default" : "outline"}
+      className="h-10"
+    >
+      Place Player
+    </Button>
+    <Button
+      onClick={() => onPlacementModeChange("block")}
+      variant={placementMode === "block" ? "default" : "outline"}
+      className="h-10"
+    >
+      Place Block ({2 - blockCount} left)
+    </Button>
+  </div>
+);
+
+const GameBoard: React.FC<GameBoardProps> = ({ isSimulating, playerMap, gameResult, onCellClick, onSimulationEnd, onReset }) => (
+  <div className="mb-8 flex flex-col items-center">
+    <h2 className="text-xl font-semibold mb-4">
+      {isSimulating ? "Simulation Result" : "Place Your Player"}
+    </h2>
+    {isSimulating ? (
+      <>
+        <Visualizer
+          map={playerMap}
+          autoStart={true}
+          onReset={onReset}
+          onSimulationEnd={onSimulationEnd}
+        />
+        {gameResult && (
+          <div
+            className={`mt-4 text-2xl font-bold ${gameResult === "WON" ? "text-green-500" : "text-red-500"}`}
+          >
+            {gameResult === "WON" ? "You Survived!" : "You Died!"}
+          </div>
+        )}
+      </>
+    ) : (
+      <div className="relative">
+        <Map map={playerMap} />
+        <div
+          className="absolute inset-0 grid"
+          style={{
+            gridTemplateColumns: `repeat(${playerMap[0]?.length || 0}, minmax(0, 1fr))`,
+            gridTemplateRows: `repeat(${playerMap.length || 0}, minmax(0, 1fr))`,
+          }}
+        >
+          {playerMap.map((row, y) =>
+            row.map((cell, x) => (
+              <div
+                key={`${x}-${y}`}
+                className={`
+                  ${cell === " " || cell === "B" ? "cursor-pointer hover:border-2 z-10 hover:border-dashed hover:border-slate-300" : ""}
+                  border border-transparent
+                `}
+                onClick={() => onCellClick(x, y)}
+              />
+            )),
+          )}
+        </div>
+      </div>
+    )}
+  </div>
+);
+
+const SimulationControls: React.FC<SimulationControlsProps> = ({ isSimulating, onRunSimulation, onClearMap, onRetry, gameResult, lastLevel, level, router }) => (
+  <div className="flex justify-center gap-4">
+    {!isSimulating ? (
+      <>
+        <Button onClick={onRunSimulation} className="h-10">
+          Run Simulation
+        </Button>
+        <Button
+          onClick={onClearMap}
+          variant="outline"
+          className="h-10"
+        >
+          Clear Map
+        </Button>
+      </>
+    ) : (
+      <div className="flex items-center gap-x-3">
+        <Button onClick={onRetry} className="h-10">
+          Retry
+        </Button>
+        {gameResult && gameResult === "WON" ? (
+          <Button
+            onClick={() => {
+              if (lastLevel && level + 1 <= lastLevel) {
+                router.push(`/play/${level + 1}`);
+              } else {
+                router.push("/play");
+              }
+            }}
+            className="h-10"
+          >
+            {lastLevel && level + 1 <= lastLevel
+              ? "Next Night"
+              : "Back to Night Selection"}
+          </Button>
+        ) : null}
+      </div>
+    )}
+  </div>
+);
+
+const PreviousAttempts: React.FC<PreviousAttemptsProps> = ({ tries }) => (
+  <>
+    {tries && tries.attempts && tries.attempts.length > 0 && (
+      <>
+        <div className="font-semibold text-2xl mt-4">Tries</div>
+        <div className="flex flex-wrap items-center justify-around w-full">
+          {tries.attempts.map((attempt) => (
+            <div
+              key={attempt?._id}
+              className="flex flex-col gap-y-2 items-center"
+            >
+              {attempt?.grid && <Map map={attempt.grid} />}
+              <div
+                className={`mt-4 text-xl font-semibold ${
+                  attempt?.didWin ? "text-green-500" : "text-red-500"
+                }`}
+              >
+                {attempt?.didWin ? "You Survived!" : "You Died!"}
+              </div>
+            </div>
+          ))}
+        </div>
+      </>
+    )}
+  </>
+);
