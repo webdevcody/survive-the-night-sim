@@ -49,9 +49,9 @@ export default function PlayLevelPage({
 
   if (!map) {
     return (
-      <div className="container mx-auto min-h-screen flex flex-col items-center py-12 pb-24 gap-8">
-        <div className="w-full flex justify-between items-center">
-          <Button variant="outline" asChild className="flex gap-2 items-center">
+      <div className="container mx-auto flex min-h-screen flex-col items-center gap-8 py-12 pb-24">
+        <div className="flex w-full items-center justify-between">
+          <Button variant="outline" asChild className="flex items-center gap-2">
             <Link href="/play" passHref>
               <ChevronLeftIcon /> Play Different Night
             </Link>
@@ -68,7 +68,7 @@ export default function PlayLevelPage({
             </Tabs>
           )}
         </div>
-        <h1 className="text-3xl font-bold text-center">Night #{level}</h1>
+        <h1 className="mb-6 text-center text-3xl font-bold">Night #{level}</h1>
 
         <p>Loading...</p>
       </div>
@@ -153,9 +153,9 @@ export default function PlayLevelPage({
   };
 
   return (
-    <div className="container mx-auto min-h-screen flex flex-col items-center py-12 pb-24 gap-8">
-      <div className="w-full flex justify-between items-center">
-        <Button variant="outline" asChild className="flex gap-2 items-center">
+    <div className="container mx-auto flex min-h-screen flex-col items-center gap-8 py-12 pb-24">
+      <div className="flex w-full items-center justify-between">
+        <Button variant="outline" asChild className="flex items-center gap-2">
           <Link href="/play" passHref>
             <ChevronLeftIcon /> Play Different Night
           </Link>
@@ -172,7 +172,7 @@ export default function PlayLevelPage({
           </Tabs>
         )}
       </div>
-      <h1 className="text-3xl font-bold text-center">Night #{level}</h1>
+      <h1 className="text-center text-3xl font-bold">Night #{level}</h1>
 
       {mode === "play" ? (
         <>
@@ -193,7 +193,7 @@ export default function PlayLevelPage({
             </Button>
           </div>
           <div className="mb-8 flex flex-col items-center">
-            <h2 className="text-xl font-semibold mb-4">
+            <h2 className="mb-4 text-xl font-semibold">
               {isSimulating ? "Simulation Result" : "Place Your Player"}
             </h2>
             {isSimulating ? (
@@ -226,10 +226,7 @@ export default function PlayLevelPage({
                     row.map((cell, x) => (
                       <div
                         key={`${x}-${y}`}
-                        className={`
-                          ${cell === " " || cell === "B" ? "cursor-pointer hover:border-2 z-10 hover:border-dashed hover:border-slate-300" : ""}
-                          border border-transparent
-                        `}
+                        className={` ${cell === " " || cell === "B" ? "z-10 cursor-pointer hover:border-2 hover:border-dashed hover:border-slate-300" : ""} border border-transparent`}
                         onClick={() => handleCellClick(x, y)}
                       />
                     )),
@@ -280,12 +277,12 @@ export default function PlayLevelPage({
           <Authenticated>
             {tries && tries.attempts && tries.attempts.length > 0 && (
               <>
-                <div className="font-semibold text-2xl mt-4">Tries</div>
-                <div className="flex flex-wrap items-center justify-around w-full">
+                <div className="mt-4 text-2xl font-semibold">Tries</div>
+                <div className="flex w-full flex-wrap items-center justify-around">
                   {tries.attempts.map((attempt) => (
                     <div
                       key={attempt?._id}
-                      className="flex flex-col gap-y-2 items-center"
+                      className="flex flex-col items-center gap-y-2"
                     >
                       {attempt?.grid && <Map map={attempt.grid} />}
                       <div

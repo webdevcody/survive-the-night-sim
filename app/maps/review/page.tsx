@@ -19,9 +19,9 @@ const Page = () => {
 
   if (isAdmin == true) {
     return (
-      <div className="py-6">
-        <h1 className="text-center font-semibold mb-4">Review Maps</h1>
-        <div className="flex items-center justify-around">
+      <div className="container mx-auto min-h-screen gap-8 py-12 pb-24">
+        <h1 className="mb-6 text-center text-3xl font-bold">Review Maps</h1>
+        <div className="flex flex-col items-center justify-around gap-4">
           {maps?.map((map) => (
             <Card key={map._id}>
               <CardHeader>
