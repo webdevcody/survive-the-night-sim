@@ -154,13 +154,13 @@ export const publishMap = adminMutationBuilder({
   args: {
     map: v.array(v.array(v.string())),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
     const maps = await ctx.db
       .query("maps")
-      .filter((q) => q.neq("level", undefined))
+      .filter((q: any) => q.neq("level", undefined))
       .collect();
 
-    const lastLevel = maps.sort((a, b) => b.level! - a.level!)[0].level!;
+    const lastLevel = maps.sort((a: any, b: any) => b.level! - a.level!)[0].level!;
 
     await ctx.db.insert("maps", {
       grid: args.map,
@@ -234,10 +234,10 @@ export const approveMap = adminMutationBuilder({
   args: {
     mapId: v.id("maps"),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx: any, args: any) => {
     const maps = await ctx.db.query("maps").collect();
 
-    const lastLevel = maps.reduce((acc, map) => {
+    const lastLevel = maps.reduce((acc: number, map: any) => {
       if (map.level) {
         return Math.max(acc, map.level);
       }
