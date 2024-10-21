@@ -5,6 +5,7 @@ import {
   customQuery,
 } from "convex-helpers/server/customFunctions";
 import { mutation, query } from "./_generated/server";
+import { ConvexError } from "convex/values";
 
 export const viewer = query({
   args: {},
@@ -99,3 +100,19 @@ export const adminMutationBuilder = customMutation(
     };
   }),
 );
+
+
+export const authenticatedMutation = customMutation(
+  mutation,
+  customCtx(async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+
+    if (userId === null) {
+      throw new ConvexError("You must be signed in to perform this action");
+    }
+
+    return {
+      userId,
+    };
+  }),
+);        

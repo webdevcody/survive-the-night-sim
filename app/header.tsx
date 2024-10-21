@@ -8,6 +8,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ChevronDownIcon } from "@radix-ui/react-icons";
 
 const ThemeToggle = dynamic(
   async () => (await import("@/components/ThemeToggle")).ThemeToggle,
@@ -43,34 +50,36 @@ export default function Header() {
       </Link>
 
       <nav className="flex items-center space-x-4 overflow-x-scroll">
-        <Link href="/">
-          <Button variant="ghost">Watch</Button>
-        </Link>
-        <Link href="/play">
-          <Button variant="ghost">Play</Button>
-        </Link>
-        <Link href="/playground">
-          <Button variant="ghost">Playground</Button>
-        </Link>
-        {isAuthenticated && (
-          <Link href="/maps">
-            <Button variant="ghost">Submit Map</Button>
-          </Link>
-        )}
+        <Button variant="ghost" asChild>
+          <Link href="/">Watch</Link>
+        </Button>
+        <Button variant="ghost" asChild>
+          <Link href="/play">Play</Link>
+        </Button>
+        <Button variant="ghost" asChild>
+          <Link href="/playground">Playground</Link>
+        </Button>
         {isAdminQuery && (
-          <>
-            <Link href="/prompts">
-              <Button variant="ghost">Review Prompts</Button>
-            </Link>
-            <Link href="/maps/review">
-              <Button variant="ghost">Review Maps</Button>
-            </Link>
-          </>
-        )}
-        {flags?.showTestPage && (
-          <Link href="/test">
-            <Button variant="ghost">Test</Button>
-          </Link>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost">
+                Admin <ChevronDownIcon className="ml-1 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem asChild>
+                <Link href="/prompts">Review Prompts</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/admin/review">Review Maps</Link>
+              </DropdownMenuItem>
+              {flags?.showTestPage && (
+                <DropdownMenuItem asChild>
+                  <Link href="/test">Test</Link>
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
       </nav>
 

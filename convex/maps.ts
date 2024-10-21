@@ -11,7 +11,7 @@ import {
   query,
 } from "./_generated/server";
 import { Prompt } from "./prompts";
-import { adminMutationBuilder } from "./users";
+import { adminMutationBuilder, authenticatedMutation } from "./users";
 
 const LEVELS = [
   {
@@ -150,23 +150,16 @@ export const addMap = mutation({
   },
 });
 
-export const publishMap = adminMutationBuilder({
+export const submitMap = authenticatedMutation({
   args: {
     map: v.array(v.array(v.string())),
   },
   handler: async (ctx, args) => {
-    const maps = await ctx.db
-      .query("maps")
-      .filter((q) => q.neq("level", undefined))
-      .collect();
-
-    const lastLevel = maps.sort((a, b) => b.level! - a.level!)[0].level!;
-
     await ctx.db.insert("maps", {
       grid: args.map,
-      level: lastLevel + 1,
-      submittedBy: ctx.admin.id,
-      isReviewed: true,
+      level: undefined,
+      submittedBy: ctx.userId,
+      isReviewed: false,
     });
   },
 });
