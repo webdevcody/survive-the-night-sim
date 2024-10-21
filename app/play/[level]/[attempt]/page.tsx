@@ -16,7 +16,7 @@ export default function PlayLevelAttemptPage({
   const level = Number.parseInt(params.level, 10);
   const attemptNum = Number.parseInt(params.attempt, 10);
 
-  const attempt = useQuery(api.playerresults.getUserAttempt, {
+  const attempt = useQuery(api.attempts.getUserAttempt, {
     level,
     attempt: attemptNum,
   });
