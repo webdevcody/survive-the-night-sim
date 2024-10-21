@@ -178,13 +178,13 @@ export default function PlaygroundPage() {
         <div className="flex-1">
           <Card className="p-4">
             {!visualizing && !userPlaying && (
-              <p className="mb-2 text-sm text-gray-600">
+              <p className="mb-6 text-sm text-gray-600">
                 Click on the board to place or remove units. Use the buttons
                 below to switch between unit types.
               </p>
             )}
             {!visualizing && userPlaying && (
-              <p className="mb-2 text-sm text-gray-600">
+              <p className="mb-6 text-sm text-gray-600">
                 Place a player (P) and blocks (B) on the board to create your
                 escape route. Click to toggle between empty, player, and block.
               </p>
