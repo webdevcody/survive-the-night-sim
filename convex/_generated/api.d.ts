@@ -15,6 +15,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as attempts from "../attempts.js";
 import type * as auth from "../auth.js";
 import type * as constants from "../constants.js";
 import type * as crons from "../crons.js";
@@ -40,6 +41,7 @@ import type * as users from "../users.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  attempts: typeof attempts;
   auth: typeof auth;
   constants: typeof constants;
   crons: typeof crons;
