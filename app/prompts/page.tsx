@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/table";
 import { api } from "@/convex/_generated/api";
 
-const Page = () => {
+export default function PromptsPage() {
   const prompts = useQuery(api.prompts.getAllPrompts);
   const enablePrompt = useMutation(api.prompts.enablePrompt);
   const deletePrompt = useMutation(api.prompts.deletePrompt);
@@ -91,6 +91,4 @@ const Page = () => {
       </div>
     </div>
   );
-};
-
-export default Page;
+}

@@ -244,6 +244,15 @@ export const approveMap = adminMutationBuilder({
   },
 });
 
+export const rejectMap = adminMutationBuilder({
+  args: {
+    mapId: v.id("maps"),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.mapId);
+  },
+});
+
 export const getMapByLevel = query({
   args: { level: v.number() },
   handler: async (ctx, args) => {
