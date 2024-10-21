@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { api } from "@/convex/_generated/api";
 
-export default function editPromtPage({
+export default function EditPromptPage({
   params,
 }: {
   params: { promptId: string };
@@ -51,6 +51,7 @@ export default function editPromtPage({
 
   if (!isAdmin) {
     redirect("/");
+    return null;
   }
 
   return (

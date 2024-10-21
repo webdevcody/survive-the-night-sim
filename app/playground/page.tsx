@@ -57,7 +57,7 @@ export default function PlaygroundPage() {
       await submitMap({ map });
 
       toast({
-        description: "Map published successfully!",
+        description: "Map submitted successfully!",
       });
     } catch (error) {
       toast({
