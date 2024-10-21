@@ -45,7 +45,7 @@ export default function Header() {
   return (
     <header className="flex items-center justify-between border-b px-6 py-4 shadow-sm">
       <Link href="/" className="flex items-center">
-        <Image src="/logo.png" alt="Logo" width={32} height={32} />
+        <Image src="/logo.png" alt="Logo" width={32} height={32} priority />
         <span className="ml-2 text-xl font-bold">SurviveTheNight</span>
       </Link>
 
