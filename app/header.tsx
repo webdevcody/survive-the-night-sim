@@ -99,11 +99,18 @@ export default function Header() {
         </div>
         <Button
           className="w-9 shrink-0"
+          asChild
           variant="outline"
           size="icon"
           type="button"
         >
-          <GitHubLogoIcon className="h-4 w-4" />
+          <Link
+            href="https://github.com/webdevcody/survive-the-night-sim"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            <GitHubLogoIcon className="h-4 w-4" />
+          </Link>
         </Button>
         {!isAuthenticated ? (
           <SignInWithGitHub />
