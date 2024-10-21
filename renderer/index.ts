@@ -77,13 +77,18 @@ function getEntityImage(entity: Entity): HTMLImageElement | null {
 }
 
 function getEntityOffset(entity: Entity): { x: number; y: number } {
-  return {
-    x:
-      entity.getType() === EntityType.Zombie && entity.getHealth() !== 1
-        ? 8
-        : 0,
-    y: 0,
-  };
+  switch (entity.getType()) {
+    case EntityType.Zombie: {
+      if (entity.getHealth() === 1) {
+        return { x: -2, y: 0 };
+      } else {
+        return { x: 14, y: 0 };
+      }
+    }
+    default: {
+      return { x: 0, y: 0 };
+    }
+  }
 }
 
 function getEntityRatio(entity: Entity): { width: number; height: number } {
