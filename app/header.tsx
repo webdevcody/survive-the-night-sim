@@ -2,19 +2,19 @@
 
 import { useAuthActions } from "@convex-dev/auth/react";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
+import { ChevronDownIcon } from "@radix-ui/react-icons";
 import { useConvexAuth, useQuery } from "convex/react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { api } from "@/convex/_generated/api";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDownIcon } from "@radix-ui/react-icons";
+import { api } from "@/convex/_generated/api";
 
 const ThemeToggle = dynamic(
   async () => (await import("@/components/ThemeToggle")).ThemeToggle,
@@ -49,7 +49,7 @@ export default function Header() {
         <span className="ml-2 text-xl font-bold">SurviveTheNight</span>
       </Link>
 
-      <nav className="flex items-center space-x-4 overflow-x-scroll">
+      <nav className="flex items-center space-x-4">
         <Button variant="ghost" asChild>
           <Link href="/">Watch</Link>
         </Button>
