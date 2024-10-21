@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery } from "convex/react";
 import { Map } from "@/components/Map";
+import { PlayMapButton } from "@/components/PlayMapButton";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -50,6 +51,7 @@ export default function AdminReviewPage() {
                 >
                   Reject
                 </Button>
+                <PlayMapButton mapId={map._id} />
               </CardFooter>
             </Card>
           ))}

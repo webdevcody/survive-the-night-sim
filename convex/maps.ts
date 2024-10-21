@@ -11,7 +11,11 @@ import {
   query,
 } from "./_generated/server";
 import { Prompt } from "./prompts";
-import { adminMutationBuilder, authenticatedMutation } from "./users";
+import {
+  adminMutationBuilder,
+  adminQueryBuilder,
+  authenticatedMutation,
+} from "./users";
 
 const LEVELS = [
   {
@@ -260,6 +264,15 @@ export const getMapByLevel = query({
       .query("maps")
       .withIndex("by_level", (q) => q.eq("level", args.level))
       .first();
+  },
+});
+
+export const adminGetMapById = adminQueryBuilder({
+  args: {
+    mapId: v.id("maps"),
+  },
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.mapId);
   },
 });
 

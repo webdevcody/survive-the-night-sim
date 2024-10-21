@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { ChevronLeft, UploadIcon } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { Map } from "@/components/Map";
 import { MapStatus } from "@/components/MapStatus";
 import { ModelSelector } from "@/components/ModelSelector";
@@ -11,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 import { errorMessage } from "@/lib/utils";
 import { ZombieSurvival } from "@/simulators/zombie-survival";
 
@@ -20,6 +22,13 @@ export default function PlaygroundPage() {
   const isAdmin = useQuery(api.users.isAdmin);
   const submitMap = useMutation(api.maps.submitMap);
   const testMap = useAction(api.maps.testMap);
+  const searchParams = useSearchParams();
+  const mapId = searchParams.get("map") as Id<"maps"> | null;
+  const adminMapMaybe = useQuery(
+    api.maps.adminGetMapById,
+    !isAdmin || mapId === null ? "skip" : { mapId },
+  );
+  const adminMap = adminMapMaybe ?? null;
   const { toast } = useToast();
   const [map, setMap] = React.useState<string[][]>([
     [" ", " ", " ", " ", " "],
@@ -97,7 +106,9 @@ export default function PlaygroundPage() {
   function handleChangeMap(value: string[][]) {
     setMap(value);
     setError(null);
-    window.localStorage.setItem(STORAGE_MAP_KEY, JSON.stringify(value));
+    if (adminMap === null) {
+      window.localStorage.setItem(STORAGE_MAP_KEY, JSON.stringify(value));
+    }
   }
 
   function handleChangeModel(value: string) {
@@ -166,6 +177,12 @@ export default function PlaygroundPage() {
       setMap(JSON.parse(maybeMap));
     }
   }, []);
+
+  React.useEffect(() => {
+    if (adminMap !== null) {
+      setMap(adminMap.grid);
+    }
+  }, [adminMap]);
 
   const visualizing = solution !== null || visualizingUserSolution;
 
