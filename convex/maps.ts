@@ -191,38 +191,23 @@ export const seedMaps = internalMutation({
   },
 });
 
-export const getMaps = query({
-  args: {
-    isReviewed: v.optional(v.boolean()),
-  },
-  handler: async (ctx, args) => {
-    if (args.isReviewed !== undefined) {
-      // todo: take this out into a helper function
-      // if a manual query is made, check if the user is an admin
 
-      const userId = await getAuthUserId(ctx);
-      if (userId === null) {
-        return null;
-      }
-
-      const admin = await ctx.db
-        .query("admins")
-        .withIndex("by_userId", (q) => q.eq("userId", userId))
-        .first();
-
-      if (admin) {
-        return await ctx.db
-          .query("maps")
-          .filter((q) => q.eq(q.field("isReviewed"), args.isReviewed))
-          .collect();
-      } else {
-        return null;
-      }
-    }
-
+export const getUnreviewedMaps = adminQueryBuilder({
+  handler: async (ctx) => {
     return await ctx.db
       .query("maps")
-      .filter((q) => q.eq(q.field("isReviewed"), true))
+      .withIndex("by_isReviewed_level", (q) => q.eq("isReviewed", false))
+      .collect();
+  },
+});
+
+export const getMaps = query({
+  args: {
+  },
+  handler: async (ctx, args) => {
+        return await ctx.db
+      .query("maps")
+      .withIndex("by_isReviewed_level", (q) => q.eq("isReviewed", true))
       .collect();
   },
 });

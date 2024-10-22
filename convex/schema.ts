@@ -16,7 +16,8 @@ export default defineSchema({
     grid: v.array(v.array(v.string())),
     submittedBy: v.optional(v.id("users")),
     isReviewed: v.boolean(),
-  }).index("by_level", ["level"]),
+  }).index("by_level", ["level"])
+    .index("by_isReviewed_level", ["isReviewed", "level"]),
   scores: defineTable({
     modelId: v.string(),
     promptId: v.optional(v.id("prompts")),

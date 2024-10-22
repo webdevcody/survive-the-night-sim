@@ -15,7 +15,7 @@ import { api } from "@/convex/_generated/api";
 
 export default function AdminReviewPage() {
   const isAdmin = useQuery(api.users.isAdmin);
-  const maps = useQuery(api.maps.getMaps, { isReviewed: false });
+  const maps = useQuery(api.maps.getUnreviewedMaps);
   const adminApprovalMutation = useMutation(api.maps.approveMap);
   const adminRejectMapMutation = useMutation(api.maps.rejectMap);
 
