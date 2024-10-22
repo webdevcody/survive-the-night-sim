@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import Header from "./header";
 import { Providers } from "./provider";
 import "./globals.css";
+import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,9 +24,9 @@ export default function RootLayout({
 }>) {
   return (
     <ConvexAuthNextjsServerProvider>
-      <script defer src="https://umami-production-101d.up.railway.app/script.js"
+      <Script defer src="https://umami-production-101d.up.railway.app/script.js"
         data-website-id="6e6265bb-25ed-4f8b-819b-44a27434ed51"
-      ></script>
+      ></Script>
       <html lang="en" suppressHydrationWarning>
         <body className={inter.className}>
           <Providers>
