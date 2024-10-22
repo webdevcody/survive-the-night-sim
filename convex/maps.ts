@@ -257,6 +257,38 @@ export const rejectMap = adminMutationBuilder({
   },
 });
 
+export const deleteMap = adminMutationBuilder({
+  args: {
+    mapId: v.id("maps"),
+  },
+  handler: async (ctx, args) => {
+    const map = await ctx.db.get(args.mapId);
+
+    if (map === null) {
+      return;
+    }
+
+    await ctx.db.delete(args.mapId);
+
+    if (map.level === undefined) {
+      return;
+    }
+
+    const higherLevelMaps = await ctx.db
+      .query("maps")
+      .withIndex("by_level", (q) => q.gt("level", map.level))
+      .collect();
+
+    await Promise.all(
+      higherLevelMaps.map(async (higherLevelMap) => {
+        return await ctx.db.patch(higherLevelMap._id, {
+          level: higherLevelMap.level! - 1,
+        });
+      }),
+    );
+  },
+});
+
 export const getMapByLevel = query({
   args: { level: v.number() },
   handler: async (ctx, args) => {

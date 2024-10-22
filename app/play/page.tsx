@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Authenticated, Unauthenticated, useQuery } from "convex/react";
+import {
+  Authenticated,
+  Unauthenticated,
+  useMutation,
+  useQuery,
+} from "convex/react";
+import { TrashIcon } from "lucide-react";
 import Link from "next/link";
 import { Map as GameMap } from "@/components/Map";
 import { Button } from "@/components/ui/button";
@@ -18,9 +24,11 @@ import { api } from "@/convex/_generated/api";
 import { cn } from "@/lib/utils";
 
 export default function PlayPage() {
+  const isAdmin = useQuery(api.users.isAdmin);
   const maps = useQuery(api.maps.getMaps, {});
   const userMapResults = useQuery(api.playerresults.getUserMapStatus);
   const mapCountResults = useQuery(api.playerresults.getMapsWins);
+  const adminDeleteMapMutation = useMutation(api.maps.deleteMap);
 
   const [resMap, setResMap] = useState(new Map());
   const [countMap, setCountMap] = useState(new Map());
@@ -128,9 +136,24 @@ export default function PlayPage() {
             )}
           >
             <CardHeader>
-              <CardTitle className="text-center text-xl font-semibold">
-                Night #{map.level}
-              </CardTitle>
+              <div
+                className={`flex ${isAdmin ? "justify-between" : "justify-center"}`}
+              >
+                <CardTitle className="text-center text-xl font-semibold">
+                  Night #{map.level}
+                </CardTitle>
+                {isAdmin && (
+                  <Button
+                    onClick={async () => {
+                      await adminDeleteMapMutation({ mapId: map._id });
+                    }}
+                    size="icon"
+                    variant="destructive"
+                  >
+                    <TrashIcon size={16} />
+                  </Button>
+                )}
+              </div>
             </CardHeader>
             <CardContent className="flex flex-grow items-center justify-center">
               <GameMap map={map.grid} size={52} />
