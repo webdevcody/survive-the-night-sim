@@ -13,7 +13,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <PlausibleProvider
       selfHosted
       customDomain="https://plausible-analytics-ce-production-e655.up.railway.app"
-      domain="survive-the-night-sim-production.up.railway.app"
+      domain="survivethenightgame.com"
     >
       <ThemeProvider attribute="class">
         <ConvexAuthNextjsProvider client={convex}>
