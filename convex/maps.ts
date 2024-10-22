@@ -191,7 +191,6 @@ export const seedMaps = internalMutation({
   },
 });
 
-
 export const getUnreviewedMaps = adminQueryBuilder({
   handler: async (ctx) => {
     return await ctx.db
@@ -202,10 +201,9 @@ export const getUnreviewedMaps = adminQueryBuilder({
 });
 
 export const getMaps = query({
-  args: {
-  },
+  args: {},
   handler: async (ctx, args) => {
-        return await ctx.db
+    return await ctx.db
       .query("maps")
       .withIndex("by_isReviewed_level", (q) => q.eq("isReviewed", true))
       .collect();

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import {
   Authenticated,
   Unauthenticated,
+  useConvexAuth,
   useMutation,
   useQuery,
 } from "convex/react";
@@ -29,6 +30,7 @@ export default function PlayPage() {
   const userMapResults = useQuery(api.playerresults.getUserMapStatus);
   const mapCountResults = useQuery(api.playerresults.getMapsWins);
   const adminDeleteMapMutation = useMutation(api.maps.deleteMap);
+  const { isAuthenticated } = useConvexAuth();
 
   const [resMap, setResMap] = useState(new Map());
   const [countMap, setCountMap] = useState(new Map());
@@ -68,6 +70,7 @@ export default function PlayPage() {
   }, [userMapResults, mapCountResults]);
 
   const filteredMaps = maps?.filter((map) => {
+    if (!isAuthenticated) return true;
     if (filter === "all") return true;
     if (filter === "beaten") return resMap.get(map._id);
     if (filter === "unbeaten") return !resMap.get(map._id);
