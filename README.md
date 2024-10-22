@@ -4,7 +4,7 @@ This is a community project for letting ai models play a puzzle game to find out
 
 ## Live Links
 
-- [Plausible Analytics](https://plausible.survive-the-night-sim-production.up.railway.app)
+- [Plausible Analytics](https://plausible-analytics-ce-production-e655.up.railway.app/survive-the-night-sim-production.up.railway.app)
 - [Survive the Night Sim](https://survive-the-night-sim-production.up.railway.app)
 
 ## How to Run
