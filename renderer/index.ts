@@ -8,6 +8,7 @@ export interface RendererAssets {
   player: HTMLImageElement | null;
   rock: HTMLImageElement | null;
   zombie: HTMLImageElement | null;
+  zombieHit: HTMLImageElement | null;
 }
 
 const assets: RendererAssets = {
@@ -18,6 +19,7 @@ const assets: RendererAssets = {
   player: null,
   rock: null,
   zombie: null,
+  zombieHit: null,
 };
 
 async function loadAssets() {
@@ -27,12 +29,13 @@ async function loadAssets() {
 
   assets.loading = true;
 
-  const [bg, box, player, rock, zombie] = await Promise.all([
+  const [bg, box, player, rock, zombie, zombieHit] = await Promise.all([
     loadImage("/map.png"),
     loadImage("/entities/block.svg"),
     loadImage("/entities/player_alive_1.svg"),
     loadImage("/entities/rocks.svg"),
     loadImage("/entities/zombie_alive_1.svg"),
+    loadImage("/entities/zombie_alive_2.svg"),
   ]);
 
   assets.loaded = true;
@@ -41,6 +44,7 @@ async function loadAssets() {
   assets.player = player;
   assets.rock = rock;
   assets.zombie = zombie;
+  assets.zombieHit = zombieHit;
 }
 
 async function loadImage(src: string): Promise<HTMLImageElement> {
@@ -63,16 +67,49 @@ function getEntityImage(entity: Entity): HTMLImageElement | null {
       return assets.rock;
     }
     case EntityType.Zombie: {
-      return assets.zombie;
+      if (entity.getHealth() === 1) {
+        return assets.zombieHit;
+      } else {
+        return assets.zombie;
+      }
     }
   }
 }
 
 function getEntityOffset(entity: Entity): { x: number; y: number } {
-  return {
-    x: entity.getType() === EntityType.Zombie ? 16 : 0,
-    y: 0,
-  };
+  switch (entity.getType()) {
+    case EntityType.Zombie: {
+      if (entity.getHealth() === 1) {
+        return { x: -2, y: 0 };
+      } else {
+        return { x: 14, y: 0 };
+      }
+    }
+    default: {
+      return { x: 0, y: 0 };
+    }
+  }
+}
+
+function getEntityRatio(entity: Entity): { width: number; height: number } {
+  switch (entity.getType()) {
+    case EntityType.Box: {
+      return { width: 0.87, height: 1 }; // 41x47
+    }
+    case EntityType.Player: {
+      return { width: 1, height: 1 }; // 64x64
+    }
+    case EntityType.Rock: {
+      return { width: 1, height: 0.76 }; // 67x51
+    }
+    case EntityType.Zombie: {
+      if (entity.getHealth() === 1) {
+        return { width: 0.61, height: 1 }; // 40x65
+      } else {
+        return { width: 1, height: 1 }; // 64x64
+      }
+    }
+  }
 }
 
 export class Renderer {
@@ -118,8 +155,6 @@ export class Renderer {
     for (const entity of entities) {
       this.drawEntity(entity);
     }
-
-    this.ctx.globalAlpha = 1.0;
   }
 
   private drawBg() {
@@ -158,6 +193,7 @@ export class Renderer {
 
     const entityPosition = entity.getPosition();
     const entityOffset = getEntityOffset(entity);
+    const entityScale = getEntityRatio(entity);
 
     this.ctx.globalAlpha =
       entity.getType() === EntityType.Zombie && entity.getHealth() === 1
@@ -166,10 +202,16 @@ export class Renderer {
 
     this.ctx.drawImage(
       entityImage,
-      entityPosition.x * this.cellSize + entityOffset.x,
-      entityPosition.y * this.cellSize + entityOffset.y,
-      this.cellSize,
-      this.cellSize,
+      entityPosition.x * this.cellSize +
+        ((1 - entityScale.width) / 2) * this.cellSize +
+        entityOffset.x,
+      entityPosition.y * this.cellSize +
+        ((1 - entityScale.height) / 2) * this.cellSize +
+        entityOffset.y,
+      this.cellSize * entityScale.width,
+      this.cellSize * entityScale.height,
     );
+
+    this.ctx.globalAlpha = 1;
   }
 }

@@ -2,19 +2,19 @@
 
 import * as React from "react";
 import { useAction, useMutation, useQuery } from "convex/react";
-import { CircleAlertIcon, EraserIcon, SendIcon, UploadIcon, ChevronLeft } from "lucide-react";
-import { CopyMapButton } from "@/components/CopyMapButton";
-import { MapBuilder } from "@/components/MapBuilder";
+import { ChevronLeft, UploadIcon } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { Map } from "@/components/Map";
 import { MapStatus } from "@/components/MapStatus";
 import { ModelSelector } from "@/components/ModelSelector";
 import { Visualizer } from "@/components/Visualizer";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 import { errorMessage } from "@/lib/utils";
 import { ZombieSurvival } from "@/simulators/zombie-survival";
-import { Card } from "@/components/ui/card";
-import { Map } from "@/components/Map";
 
 const STORAGE_MAP_KEY = "playground-map";
 
@@ -22,6 +22,13 @@ export default function PlaygroundPage() {
   const isAdmin = useQuery(api.users.isAdmin);
   const submitMap = useMutation(api.maps.submitMap);
   const testMap = useAction(api.maps.testMap);
+  const searchParams = useSearchParams();
+  const mapId = searchParams.get("map") as Id<"maps"> | null;
+  const adminMapMaybe = useQuery(
+    api.maps.adminGetMapById,
+    !isAdmin || mapId === null ? "skip" : { mapId },
+  );
+  const adminMap = adminMapMaybe ?? null;
   const { toast } = useToast();
   const [map, setMap] = React.useState<string[][]>([
     [" ", " ", " ", " ", " "],
@@ -99,7 +106,9 @@ export default function PlaygroundPage() {
   function handleChangeMap(value: string[][]) {
     setMap(value);
     setError(null);
-    window.localStorage.setItem(STORAGE_MAP_KEY, JSON.stringify(value));
+    if (adminMap === null) {
+      window.localStorage.setItem(STORAGE_MAP_KEY, JSON.stringify(value));
+    }
   }
 
   function handleChangeModel(value: string) {
@@ -112,10 +121,10 @@ export default function PlaygroundPage() {
     setReasoning(null);
     setUserPlaying(false);
     setVisualizingUserSolution(false);
-    
+
     // Remove players and blocks from the map
-    const cleanedMap = map.map(row => 
-      row.map(cell => (cell === "P" || cell === "B") ? " " : cell)
+    const cleanedMap = map.map((row) =>
+      row.map((cell) => (cell === "P" || cell === "B" ? " " : cell)),
     );
     setMap(cleanedMap);
     window.localStorage.setItem(STORAGE_MAP_KEY, JSON.stringify(cleanedMap));
@@ -169,6 +178,12 @@ export default function PlaygroundPage() {
     }
   }, []);
 
+  React.useEffect(() => {
+    if (adminMap !== null) {
+      setMap(adminMap.grid);
+    }
+  }, [adminMap]);
+
   const visualizing = solution !== null || visualizingUserSolution;
 
   return (
@@ -180,16 +195,20 @@ export default function PlaygroundPage() {
         <div className="flex-1">
           <Card className="p-4">
             {!visualizing && !userPlaying && (
-              <p className="mb-2 text-sm text-gray-600">
-                Click on the board to place or remove units. Use the buttons below to switch between unit types.
+              <p className="mb-6 text-sm text-gray-600">
+                Click on the board to place or remove units. Use the buttons
+                below to switch between unit types.
               </p>
             )}
             {!visualizing && userPlaying && (
-              <p className="mb-2 text-sm text-gray-600">
-                Place a player (P) and blocks (B) on the board to create your escape route. Click to toggle between empty, player, and block.
+              <p className="mb-6 text-sm text-gray-600">
+                Place a player (P) and blocks (B) on the board to create your
+                escape route. Click to toggle between empty, player, and block.
               </p>
             )}
-            <div className={`flex justify-center ${visualizing ? "pt-[28px]" : ""}`}>
+            <div
+              className={`flex justify-center ${visualizing ? "pt-[28px]" : ""}`}
+            >
               {visualizing && (
                 <Visualizer
                   autoReplay
@@ -213,8 +232,12 @@ export default function PlaygroundPage() {
                         <div
                           key={`${x}-${y}`}
                           className={`${
-                            cell === " " || cell === "Z" || cell === "R" || cell === "P" || cell === "B"
-                              ? "z-10 cursor-pointer hover:border-2 hover:border-dashed hover:border-slate-300 "
+                            cell === " " ||
+                            cell === "Z" ||
+                            cell === "R" ||
+                            cell === "P" ||
+                            cell === "B"
+                              ? "z-10 cursor-pointer hover:border-2 hover:border-dashed hover:border-slate-300"
                               : ""
                           } border border-transparent`}
                           onClick={() => {
@@ -223,8 +246,12 @@ export default function PlaygroundPage() {
                               : [...map];
                             if (userPlaying) {
                               // Count existing players and blocks
-                              const playerCount = newMap.flat().filter(c => c === "P").length;
-                              const blockCount = newMap.flat().filter(c => c === "B").length;
+                              const playerCount = newMap
+                                .flat()
+                                .filter((c) => c === "P").length;
+                              const blockCount = newMap
+                                .flat()
+                                .filter((c) => c === "B").length;
 
                               // Toggle logic for play mode
                               if (cell === " ") {
@@ -252,7 +279,7 @@ export default function PlaygroundPage() {
                               : handleChangeMap(newMap);
                           }}
                         />
-                      ))
+                      )),
                     )}
                   </div>
                 </div>
