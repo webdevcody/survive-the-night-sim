@@ -24,9 +24,13 @@ export default function RootLayout({
 }>) {
   return (
     <ConvexAuthNextjsServerProvider>
-      <Script defer src="https://umami-production-101d.up.railway.app/script.js"
-        data-website-id="6e6265bb-25ed-4f8b-819b-44a27434ed51"
-      ></Script>
+      {process.env.NEXT_PUBLIC_ENABLE_UNAMI === "true" && (
+        <Script
+          defer
+          src="https://umami-production-101d.up.railway.app/script.js"
+          data-website-id="6e6265bb-25ed-4f8b-819b-44a27434ed51"
+        />
+      )}
       <html lang="en" suppressHydrationWarning>
         <body className={inter.className}>
           <Providers>
