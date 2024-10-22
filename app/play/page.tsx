@@ -77,7 +77,7 @@ export default function PlayPage() {
     return true;
   });
 
-  if (!filteredMaps) {
+  if (filteredMaps === undefined) {
     return (
       <div className="container mx-auto min-h-screen gap-8 py-12 pb-24">
         <h1 className="mb-6 text-center text-3xl font-bold">Choose a Night</h1>
@@ -124,6 +124,23 @@ export default function PlayPage() {
           <ToggleGroupItem value="unbeaten">Unbeaten</ToggleGroupItem>
         </ToggleGroup>
       </Authenticated>
+
+      {filteredMaps.length === 0 && (
+        <div className="py-8">
+          <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-col items-center gap-2 text-center">
+              <h2 className="text-xl/snug text-white">Congratulations!</h2>
+              <p className="text-base/snug text-white">
+                You completed all maps, consider creating and publishing your
+                own map.
+              </p>
+            </div>
+            <Button asChild variant="outline">
+              <Link href="/playground">Create Map</Link>
+            </Button>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
         {filteredMaps.map((map) => (
