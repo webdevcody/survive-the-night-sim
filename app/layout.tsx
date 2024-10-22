@@ -23,9 +23,21 @@ export default function RootLayout({
 }>) {
   return (
     <ConvexAuthNextjsServerProvider>
-      {/* `suppressHydrationWarning` only affects the html tag,
-      and is needed by `ThemeProvider` which sets the theme
-      class attribute on it */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            (function(s,r,t){
+              s._umamiQueue=s._umamiQueue||[];
+              s._umamiConfig=s._umamiConfig||{};
+              s._umamiConfig.websiteId="6e6265bb-25ed-4f8b-819b-44a27434ed51";
+              s._umamiConfig.src="https://umami-production-101d.up.railway.app/script.js";
+              var a=r.createElement(t),m=r.getElementsByTagName(t)[0];
+              a.async=1;a.src=s._umamiConfig.src;
+              m.parentNode.insertBefore(a,m);
+            })(window,document,"script");
+          `,
+        }}
+      />
       <html lang="en" suppressHydrationWarning>
         <body className={inter.className}>
           <Providers>
