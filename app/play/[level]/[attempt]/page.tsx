@@ -31,7 +31,7 @@ export default function PlayLevelAttemptPage({
     <div className="container mx-auto flex min-h-screen flex-col items-center gap-8 py-12 pb-24">
       <div className="flex w-full items-center justify-between">
         <Button variant="outline" asChild className="flex items-center gap-2">
-          <Link href={`/play/${level}`}>
+          <Link href={`/play/${level}`} passHref>
             <ChevronLeftIcon /> Back To Night #{level}
           </Link>
         </Button>

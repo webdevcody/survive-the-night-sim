@@ -44,7 +44,7 @@ export default function Header() {
 
   return (
     <header className="flex items-center justify-between border-b px-6 py-4 shadow-sm">
-      <Link href="/" className="flex items-center">
+      <Link href="/" className="flex items-center" passHref>
         <Image src="/logo.png" alt="Logo" width={32} height={32} priority />
         <span className="ml-2 text-xl font-bold">SurviveTheNight</span>
       </Link>
@@ -89,6 +89,7 @@ export default function Header() {
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-2 text-sm"
+          passHref
         >
           Synced using Convex
           <Image src="/convex.svg" alt="Convex" width={24} height={24} />
@@ -108,6 +109,7 @@ export default function Header() {
             href="https://github.com/webdevcody/survive-the-night-sim"
             rel="noopener noreferrer"
             target="_blank"
+            passHref
           >
             <GitHubLogoIcon className="h-4 w-4" />
           </Link>

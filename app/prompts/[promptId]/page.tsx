@@ -61,7 +61,7 @@ export default function EditPromptPage({
           <h1 className="mb-4 font-semibold">Edit your prompt</h1>
           <div className="flex space-x-4">
             <Button variant="default">Save</Button>
-            <Link href="/prompts">
+            <Link href="/prompts" passHref>
               <Button variant="default">Return</Button>
             </Link>
           </div>

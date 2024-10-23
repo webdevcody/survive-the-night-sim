@@ -72,6 +72,7 @@ export default function PromptsPage() {
                   <Link
                     href={`/prompts/${row._id}`}
                     className="flex items-center"
+                    passHref
                   >
                     <Button variant="secondary">Edit</Button>
                   </Link>

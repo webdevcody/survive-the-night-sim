@@ -57,9 +57,7 @@ export default function PlayLevelPage({
             </Link>
           </Button>
           <Button variant="outline" asChild className="flex items-center gap-2">
-            <Link href="/rules" passHref>
-              Rules
-            </Link>
+            <Link href="/rules">Rules</Link>
           </Button>
           {flags?.showTestPage && (
             <Tabs
@@ -166,9 +164,7 @@ export default function PlayLevelPage({
           </Link>
         </Button>
         <Button variant="outline" asChild className="flex items-center gap-2">
-          <Link href="/rules" passHref>
-            Rules
-          </Link>
+          <Link href="/rules">Rules</Link>
         </Button>
         {flags?.showTestPage && (
           <Tabs
