@@ -40,7 +40,7 @@ export async function runModel(
         break;
       }
       case "perplexity-llama-3.1": {
-        result = await perplexityLlama(prompt, map);
+        result = await perplexityLlama31(prompt, map);
         break;
       }
       default: {
