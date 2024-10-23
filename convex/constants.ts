@@ -15,6 +15,10 @@ export const AI_MODELS = [
     model: "perplexity-llama-3.1",
     name: "Perplexity - Llama 3.1",
   },
+  {
+    model: "mistral-large-2",
+    name: "Mistral - Large 2",
+  },
 ];
 
 export const AI_MODEL_IDS = AI_MODELS.map((model) => model.model);

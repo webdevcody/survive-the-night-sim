@@ -3,6 +3,7 @@ import { ZombieSurvival } from "../simulators/zombie-survival";
 import { claude35sonnet } from "./claude-3-5-sonnet";
 import { gemini15pro } from "./gemini-1.5-pro";
 import { gpt4o } from "./gpt-4o";
+import { mistralLarge2 } from "./mistral-large-2";
 import { perplexityLlama31 } from "./perplexity-llama-3.1";
 
 export type ModelHandler = (
@@ -41,6 +42,10 @@ export async function runModel(
       }
       case "perplexity-llama-3.1": {
         result = await perplexityLlama31(prompt, map);
+        break;
+      }
+      case "mistral-large-2": {
+        result = await mistralLarge2(prompt, map);
         break;
       }
       default: {
