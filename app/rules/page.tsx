@@ -22,8 +22,9 @@ export default function RulesPage() {
             place a player and two blocks on the map.
           </li>
           <li>
-            Your goal is for the player to survive the zombie attack. Zombie's
-            have 2 health and if a zombie reaches the player you lose.
+            Your goal is for the player to survive the zombie attack.
+            Zombie&#39;s have 2 health and if a zombie reaches the player you
+            lose.
           </li>
           <li>
             Zombies can only move horizontally or vertically and they will
@@ -37,7 +38,7 @@ export default function RulesPage() {
         <h2 className="py-4 text-xl">Tips and Tricks</h2>
         <ul className="list-inside list-disc flex-wrap space-y-2">
           <li>
-            Often it's good to wall off between the zombies and players if
+            Often it&#39;s good to wall off between the zombies and players if
             possible, as this will slow zombies down.
           </li>
           <li>You should never put a player directly next to a zombie.</li>
