@@ -12,3 +12,12 @@ export function errorMessage(error: unknown) {
       ? error
       : "An unexpected error occurred";
 }
+
+export function isJSON(val: string): boolean {
+  try {
+    JSON.parse(val);
+    return true;
+  } catch {
+    return false;
+  }
+}

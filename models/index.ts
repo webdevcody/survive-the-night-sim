@@ -3,7 +3,7 @@ import { ZombieSurvival } from "../simulators/zombie-survival";
 import { claude35sonnet } from "./claude-3-5-sonnet";
 import { gemini15pro } from "./gemini-1.5-pro";
 import { gpt4o } from "./gpt-4o";
-import { perplexityModel } from "./perplexity-llama";
+import { perplexityLlama } from "./perplexity-llama";
 
 export type ModelHandler = (
   prompt: string,
@@ -40,7 +40,7 @@ export async function runModel(
         break;
       }
       case "perplexity-llama-3.1": {
-        result = await perplexityModel(prompt, map);
+        result = await perplexityLlama(prompt, map);
         break;
       }
       default: {

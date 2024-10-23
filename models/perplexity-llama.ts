@@ -1,3 +1,4 @@
+import { isJSON } from "../lib/utils";
 import { z } from "zod";
 import { ModelHandler } from "./index";
 
@@ -30,18 +31,23 @@ const PerplexityResponseSchema = z.object({
 });
 
 const GameResponseSchema = z.object({
-  reasoning: z.string(),
   playerCoordinates: z.array(z.number()),
   boxCoordinates: z.array(z.array(z.number())),
 });
 
-export const perplexityModel: ModelHandler = async (
+export const perplexityLlama: ModelHandler = async (
   prompt: string,
   map: string[][],
 ) => {
+  const promptAnswerRequirement =
+    "Answer only with JSON output and a single paragraph explaining your placement strategy.";
+
   const messages = [
     { role: "system", content: "Be precise and concise." },
-    { role: "user", content: `${prompt}\n\nMap:\n${JSON.stringify(map)}` },
+    {
+      role: "user",
+      content: `${prompt}\n\nMap:\n${JSON.stringify(map)}\n\n${promptAnswerRequirement}`,
+    },
   ];
 
   const data = {
@@ -49,7 +55,7 @@ export const perplexityModel: ModelHandler = async (
     messages,
     temperature: 0.2,
     top_p: 0.9,
-    return_citations: true,
+    return_citations: false,
     search_domain_filter: ["perplexity.ai"],
     return_images: false,
     return_related_questions: false,
@@ -78,14 +84,43 @@ export const perplexityModel: ModelHandler = async (
   }
 
   const responseData = await response.json();
-  const validatedResponse = PerplexityResponseSchema.parse(responseData);
-  const content = validatedResponse.choices[0].message.content;
-  const parsedContent = JSON.parse(content);
-  const gameResponse = GameResponseSchema.parse(parsedContent);
+
+  const validatedResponse =
+    await PerplexityResponseSchema.safeParseAsync(responseData);
+
+  if (!validatedResponse.success) {
+    throw new Error(validatedResponse.error.message);
+  }
+
+  const content = validatedResponse.data.choices[0].message.content;
+  const jsonContent = content.match(/```json([^`]+)```/)?.[1] ?? "";
+
+  if (!isJSON(jsonContent)) {
+    throw new Error("JSON returned by perplexity is malformed");
+  }
+
+  const parsedContent = JSON.parse(jsonContent);
+  const gameResponse = await GameResponseSchema.safeParseAsync(parsedContent);
+
+  if (!gameResponse.success) {
+    throw new Error(gameResponse.error.message);
+  }
+
+  const reasoning = content
+    .replace(/```json([^`]+)```/, "")
+    .split("\n")
+    .map((it) => it)
+    .map((it) => it.replace(/(\*\*|```)/, "").trim())
+    .filter((it) => it !== "")
+    .join(" ");
+
+  if (reasoning === "") {
+    throw new Error("Answer returned by perplexity doesn't contain reasoning");
+  }
 
   return {
-    boxCoordinates: gameResponse.boxCoordinates,
-    playerCoordinates: gameResponse.playerCoordinates,
-    reasoning: gameResponse.reasoning,
+    boxCoordinates: gameResponse.data.boxCoordinates,
+    playerCoordinates: gameResponse.data.playerCoordinates,
+    reasoning,
   };
 };
