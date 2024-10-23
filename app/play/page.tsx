@@ -129,8 +129,8 @@ export default function PlayPage() {
         <div className="py-8">
           <div className="flex flex-col items-center gap-4">
             <div className="flex flex-col items-center gap-2 text-center">
-              <h2 className="text-xl/snug text-white">Congratulations!</h2>
-              <p className="text-base/snug text-white">
+              <h2 className="text-xl/snug">Congratulations!</h2>
+              <p className="text-base/snug">
                 You completed all maps, consider creating and publishing your
                 own map.
               </p>
