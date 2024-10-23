@@ -1,19 +1,19 @@
 export const AI_MODELS = [
   {
     model: "gemini-1.5-pro",
-    name: "Gemini - 1.5 Pro",
+    name: "Google - Gemini 1.5 Pro",
   },
   {
     model: "gpt-4o",
-    name: "OpenAI - 4o Mini",
+    name: "OpenAI - GPT-4o",
   },
   {
     model: "claude-3.5-sonnet",
-    name: "Claude 3.5 Sonnnet",
+    name: "Anthropic - Claude 3.5 Sonnet",
   },
   {
     model: "perplexity-llama-3.1",
-    name: "Perplextity AI",
+    name: "Perplexity - Llama 3.1",
   },
 ];
 

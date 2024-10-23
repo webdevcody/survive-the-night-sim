@@ -35,7 +35,7 @@ const GameResponseSchema = z.object({
   boxCoordinates: z.array(z.array(z.number())),
 });
 
-export const perplexityLlama: ModelHandler = async (
+export const perplexityLlama31: ModelHandler = async (
   prompt: string,
   map: string[][],
 ) => {
