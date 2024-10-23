@@ -179,9 +179,9 @@ export default function PlayPage() {
               <GameMap map={map.grid} size={52} />
             </CardContent>
             <CardFooter className="flex justify-around px-3">
-              <Link href={`/play/${map.level}`} passHref>
-                <Button>Play</Button>
-              </Link>
+              <Button asChild>
+                <Link href={`/play/${map.level}`}>Play</Link>
+              </Button>
 
               <Authenticated>
                 <div className="flex flex-col items-center gap-y-2">

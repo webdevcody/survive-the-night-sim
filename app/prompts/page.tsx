@@ -69,13 +69,14 @@ export default function PromptsPage() {
                   >
                     Activate
                   </Button>
-                  <Link
-                    href={`/prompts/${row._id}`}
-                    className="flex items-center"
-                    passHref
-                  >
-                    <Button variant="secondary">Edit</Button>
-                  </Link>
+                  <Button asChild variant="secondary">
+                    <Link
+                      className="flex items-center"
+                      href={`/prompts/${row._id}`}
+                    >
+                      Edit
+                    </Link>
+                  </Button>
                   <Button
                     variant="destructive"
                     onClick={async () => {
