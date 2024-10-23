@@ -3,7 +3,7 @@
 import { useAuthActions } from "@convex-dev/auth/react";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import { ChevronDownIcon } from "@radix-ui/react-icons";
-import { useConvexAuth, useQuery } from "convex/react";
+import { Authenticated, Unauthenticated, useQuery } from "convex/react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
@@ -23,22 +23,8 @@ const ThemeToggle = dynamic(
   },
 );
 
-function SignInWithGitHub() {
-  const { signIn } = useAuthActions();
-  return (
-    <Button
-      variant="outline"
-      type="button"
-      onClick={() => void signIn("github", { redirectTo: "/" })}
-    >
-      Sign In
-    </Button>
-  );
-}
-
 export default function Header() {
   const { signOut } = useAuthActions();
-  const { isAuthenticated } = useConvexAuth();
   const flags = useQuery(api.flags.getFlags);
   const isAdminQuery = useQuery(api.users.isAdmin);
 
@@ -94,7 +80,6 @@ export default function Header() {
           Synced using Convex
           <Image src="/convex.svg" alt="Convex" width={24} height={24} />
         </Link>
-
         <div className="">
           <ThemeToggle />
         </div>
@@ -114,11 +99,16 @@ export default function Header() {
             <GitHubLogoIcon className="h-4 w-4" />
           </Link>
         </Button>
-        {!isAuthenticated ? (
-          <SignInWithGitHub />
-        ) : (
+        <Unauthenticated>
+          <Link href="/auth">
+            <Button variant="outline" type="button">
+              Sign In
+            </Button>
+          </Link>
+        </Unauthenticated>
+        <Authenticated>
           <Button onClick={() => void signOut()}>Sign Out</Button>
-        )}
+        </Authenticated>
       </div>
     </header>
   );
