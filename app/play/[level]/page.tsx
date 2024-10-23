@@ -56,6 +56,11 @@ export default function PlayLevelPage({
               <ChevronLeftIcon /> Play Different Night
             </Link>
           </Button>
+          <Button variant="outline" asChild className="flex items-center gap-2">
+            <Link href="/rules" passHref>
+              Rules
+            </Link>
+          </Button>
           {flags?.showTestPage && (
             <Tabs
               value={mode}
@@ -159,6 +164,11 @@ export default function PlayLevelPage({
           <Link href="/play" passHref>
             <ChevronLeftIcon /> Play Different Night
           </Link>
+        </Button>
+        <Button variant="outline" asChild className="flex items-center gap-2">
+            <Link href="/rules" passHref>
+              Rules
+            </Link>
         </Button>
         {flags?.showTestPage && (
           <Tabs
