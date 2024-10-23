@@ -6,6 +6,8 @@ import { gpt4o } from "./gpt-4o";
 import { mistralLarge2 } from "./mistral-large-2";
 import { perplexityLlama31 } from "./perplexity-llama-3.1";
 
+const MAX_RETRIES = 3;
+
 export type ModelHandler = (
   prompt: string,
   map: string[][],
@@ -19,12 +21,14 @@ export async function runModel(
   modelId: string,
   map: string[][],
   prompt: string,
+  retry = 1,
 ): Promise<{
   solution?: string[][];
   reasoning: string;
   error?: string;
 }> {
   let result;
+  let reasoning: string | null = null;
 
   try {
     switch (modelId) {
@@ -53,14 +57,13 @@ export async function runModel(
       }
     }
 
+    reasoning = result.reasoning;
+
     const originalMap = ZombieSurvival.cloneMap(map);
     const [playerRow, playerCol] = result.playerCoordinates;
 
     if (originalMap[playerRow][playerCol] !== " ") {
-      return {
-        reasoning: result.reasoning,
-        error: "Tried to place player in a non-empty space",
-      };
+      throw new Error("Tried to place player in a non-empty space");
     }
 
     originalMap[playerRow][playerCol] = "P";
@@ -69,10 +72,7 @@ export async function runModel(
       const [blockRow, blockCol] = block;
 
       if (originalMap[blockRow][blockCol] !== " ") {
-        return {
-          reasoning: result.reasoning,
-          error: "Tried to place block in a non-empty space",
-        };
+        throw new Error("Tried to place block in a non-empty space");
       }
 
       originalMap[blockRow][blockCol] = "B";
@@ -83,9 +83,13 @@ export async function runModel(
       reasoning: result.reasoning,
     };
   } catch (error) {
-    return {
-      reasoning: "Internal error",
-      error: errorMessage(error),
-    };
+    if (retry === MAX_RETRIES || reasoning === null) {
+      return {
+        reasoning: reasoning ?? "Internal error",
+        error: errorMessage(error),
+      };
+    }
+
+    return await runModel(modelId, map, prompt, retry + 1);
   }
 }
