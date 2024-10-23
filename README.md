@@ -24,10 +24,16 @@ Before you can run the project, you'll need to setup a
 
 This starter project works with [convex](https://www.convex.dev) so to run you need to use the [.env.example](.env.example) file to create your own .env file.
 
-If you want to mock all models - in convex, please add the following environment variables:
+If you want to mock all models - in convex, please add the following environment variable:
 
-- `npx convex env set MOCK_MODELS true`
+- `npx convex env set FLAG_MOCK_MODELS true`
+
+If you want to show a Test page - in convex, please add the following environment variable:
+
 - `npx convex env set FLAG_TEST_PAGE true`
+
+If you want to have cron jobs running - in convex, please add the following environment variable:
+
 - `npx convex env set FLAG_CRON_JOBS true`
 
 Add optional environment variable/s for simulating real AI models without mockup responses(when mockup flags are set to FALSE):

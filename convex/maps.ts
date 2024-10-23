@@ -314,7 +314,7 @@ export const playMapAction = internalAction({
       throw new Error("Map not found");
     }
 
-    if (process.env.MOCK_MODELS === "true") {
+    if (process.env.FLAG_MOCK_MODELS === "true") {
       const existingMap = ZombieSurvival.cloneMap(map.grid);
 
       existingMap[0][0] = "P";
