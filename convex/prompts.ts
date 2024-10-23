@@ -1,10 +1,9 @@
 import { v } from "convex/values";
 import { Id } from "./_generated/dataModel";
-import { internalMutation, mutation, query } from "./_generated/server";
+import { internalMutation, query } from "./_generated/server";
 import { adminMutationBuilder } from "./users";
 
-const defaultPrompt = `
-Your task is to play a game.  We will give you a 2d array of characters that represent the game board.  Before the game starts, you have these two tasks:
+const defaultPrompt = `Your task is to play a game.  We will give you a 2d array of characters that represent the game board.  Before the game starts, you have these two tasks:
 
 1. Place two blocks ("B") in locations which maximize the player's survival.
 2. Place the player ("P") in a location which maximize the player's survival.
@@ -20,13 +19,13 @@ The 2d Grid is made up of characters, where each character has a meaning.
 " " represents an empty space.
 "Z" represents a zombie.
 "R" represents rocks which zombies can not pass through and path finding will not allow them to go through.
-"P" represents the player, who cannot move. The player's goal is to throw popsickles at zombies before they reach them.
+"P" represents the player, who cannot move. The player's goal is to throw popsicle at zombies before they reach them.
 "B" represents blocks that can be placed before the round begins to hinder the zombies.
 
 # Game Rules
 - The game is turn based.
-- At the start of the turn, the player (P) throws a popsickle at the closest zombie (using euclidean distance).
-- Popsickles deal 1 damage to zombies.
+- At the start of the turn, the player (P) throws a popsicle at the closest zombie (using euclidean distance).
+- Popsicle deal 1 damage to zombies.
 - A zombie is removed from the game when its health reaches 0.
 - When all zombies are removed, the player wins.
 - If a zombie reaches a player, the player loses.
@@ -53,19 +52,20 @@ The 2d Grid is made up of characters, where each character has a meaning.
 
 # Output Format
 
+- Respond only with valid JSON. Do not write an introduction or summary.
+- Assume a single paragraph explaining your placement strategy is always represented as REASONING.
 - Assume a position on the 2d grid is always represented as [ROW, COL].
 - Your output should be a JSON object with the following format:
 
 {
   "boxCoordinates": [[ROW, COL], [ROW, COL]],
-  "playerCoordinates": [ROW, COL]
+  "playerCoordinates": [ROW, COL],
+  "reasoning": "REASONING"
 }
 
-## MOST IMPORTANT RULE
+# MOST IMPORTANT RULE
 
-- DO NOT TRY TO PUT A BLOCK OR PLAYER IN A LOCATION THAT IS ALREADY OCCUPIED
-
-`;
+- DO NOT TRY TO PUT A BLOCK OR A PLAYER IN A LOCATION THAT IS ALREADY OCCUPIED`;
 
 export type Prompt = {
   _id: Id<"prompts">;

@@ -1,7 +1,14 @@
 import { type ModelHandler } from ".";
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 
-const schema = {
+interface GeminiResponse {
+  boxCoordinates: number[][];
+  map: string[][];
+  playerCoordinates: number[];
+  reasoning: string;
+}
+
+const responseSchema = {
   description: "Game Round Results",
   type: SchemaType.OBJECT,
   properties: {
@@ -40,31 +47,22 @@ const schema = {
   required: ["map", "reasoning", "playerCoordinates", "boxCoordinates"],
 };
 
-interface GeminiResponse {
-  boxCoordinates: number[][];
-  map: string[][];
-  playerCoordinates: number[];
-  reasoning: string;
-}
-
-export const gemini15pro: ModelHandler = async (prompt, map) => {
+export const gemini15pro: ModelHandler = async (prompt, map, config) => {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
   const model = genAI.getGenerativeModel({
     model: "gemini-1.5-pro",
+    systemInstruction: prompt,
     generationConfig: {
       responseMimeType: "application/json",
-      responseSchema: schema,
+      responseSchema,
+      maxOutputTokens: config.maxTokens,
+      temperature: config.temperature,
+      topP: config.topP,
     },
   });
 
-  const result = await model.generateContent(
-    `${prompt}\n\nGrid: ${JSON.stringify(map)}`,
-  );
-
-  // todo: check if the response is valid acc to types and the player and box coordinates are valid,
-  // as sometimes the model returns a state that's erroring out in the simulator
-
+  const result = await model.generateContent(JSON.stringify(map));
   const parsedResponse = JSON.parse(result.response.text()) as GeminiResponse;
 
   return {

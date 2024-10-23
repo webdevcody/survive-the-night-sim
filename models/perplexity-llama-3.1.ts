@@ -2,7 +2,7 @@ import { isJSON } from "../lib/utils";
 import { z } from "zod";
 import { ModelHandler } from "./index";
 
-const PerplexityResponseSchema = z.object({
+const completionSchema = z.object({
   id: z.string(),
   model: z.string(),
   object: z.string(),
@@ -30,63 +30,46 @@ const PerplexityResponseSchema = z.object({
   }),
 });
 
-const GameResponseSchema = z.object({
+const responseSchema = z.object({
   playerCoordinates: z.array(z.number()),
   boxCoordinates: z.array(z.array(z.number())),
+  reasoning: z.string(),
 });
 
-export const perplexityLlama31: ModelHandler = async (
-  prompt: string,
-  map: string[][],
-) => {
-  const promptAnswerRequirement =
-    "Answer only with JSON output and a single paragraph explaining your placement strategy.";
-
-  const messages = [
-    { role: "system", content: "Be precise and concise." },
-    {
-      role: "user",
-      content: `${prompt}\n\nMap:\n${JSON.stringify(map)}\n\n${promptAnswerRequirement}`,
-    },
-  ];
-
-  const data = {
-    model: "llama-3.1-sonar-large-128k-online",
-    messages,
-    temperature: 0.2,
-    top_p: 0.9,
-    return_citations: false,
-    search_domain_filter: ["perplexity.ai"],
-    return_images: false,
-    return_related_questions: false,
-    search_recency_filter: "month",
-    top_k: 0,
-    stream: false,
-    presence_penalty: 0,
-    frequency_penalty: 1,
-  };
-
-  const response = await fetch("https://api.perplexity.ai/chat/completions", {
+export const perplexityLlama31: ModelHandler = async (prompt, map, config) => {
+  const completion = await fetch("https://api.perplexity.ai/chat/completions", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${process.env.PERPLEXITY_API_KEY}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify({
+      model: "llama-3.1-sonar-large-128k-online",
+      messages: [
+        { role: "system", content: prompt },
+        {
+          role: "user",
+          content: JSON.stringify(map),
+        },
+      ],
+      max_tokens: config.maxTokens,
+      temperature: config.temperature,
+      top_p: config.topP,
+      search_domain_filter: ["perplexity.ai"],
+      search_recency_filter: "month",
+    }),
   });
 
-  if (!response.ok) {
-    const errorData = await response.json();
+  if (!completion.ok) {
+    const errorData = await completion.json();
 
     throw new Error(
-      `HTTP error! status: ${response.status}, message: ${JSON.stringify(errorData)}`,
+      `HTTP error! status: ${completion.status}, message: ${JSON.stringify(errorData)}`,
     );
   }
 
-  const responseData = await response.json();
-
-  const validatedResponse =
-    await PerplexityResponseSchema.safeParseAsync(responseData);
+  const data = await completion.json();
+  const validatedResponse = await completionSchema.safeParseAsync(data);
 
   if (!validatedResponse.success) {
     throw new Error(validatedResponse.error.message);
@@ -100,27 +83,11 @@ export const perplexityLlama31: ModelHandler = async (
   }
 
   const parsedContent = JSON.parse(jsonContent);
-  const gameResponse = await GameResponseSchema.safeParseAsync(parsedContent);
+  const response = await responseSchema.safeParseAsync(parsedContent);
 
-  if (!gameResponse.success) {
-    throw new Error(gameResponse.error.message);
+  if (!response.success) {
+    throw new Error(response.error.message);
   }
 
-  const reasoning = content
-    .replace(/```json([^`]+)```/, "")
-    .split("\n")
-    .map((it) => it)
-    .map((it) => it.replace(/(\*\*|```)/, "").trim())
-    .filter((it) => it !== "")
-    .join(" ");
-
-  if (reasoning === "") {
-    throw new Error("Answer returned by perplexity doesn't contain reasoning");
-  }
-
-  return {
-    boxCoordinates: gameResponse.data.boxCoordinates,
-    playerCoordinates: gameResponse.data.playerCoordinates,
-    reasoning,
-  };
+  return response.data;
 };

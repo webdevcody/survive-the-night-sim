@@ -9,19 +9,22 @@ const responseSchema = z.object({
   boxCoordinates: z.array(z.array(z.number())),
 });
 
-export const mistralLarge2: ModelHandler = async (prompt, map) => {
-  const promptAnswerRequirement =
-    'Answer only with JSON containing "playerCoordinates" key, "boxCoordinates" key,' +
-    'and a single paragraph explaining your placement strategy as "reasoning" key.';
-
+export const mistralLarge2: ModelHandler = async (prompt, map, config) => {
   const client = new Mistral();
 
   const completion = await client.chat.complete({
     model: "mistral-large-2407",
+    maxTokens: config.maxTokens,
+    temperature: config.temperature,
+    topP: config.topP,
     messages: [
       {
+        role: "system",
+        content: prompt,
+      },
+      {
         role: "user",
-        content: `${prompt}\n\nMap: ${JSON.stringify(map)}\n\n${promptAnswerRequirement}`,
+        content: JSON.stringify(map),
       },
     ],
     responseFormat: {
