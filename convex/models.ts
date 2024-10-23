@@ -35,7 +35,7 @@ export const seedModels = internalMutation({
         ctx.db.insert("models", {
           slug: model.model,
           name: model.name,
-          active: true,
+          active: false,
         }),
       );
     }
