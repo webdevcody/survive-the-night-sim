@@ -54,6 +54,28 @@ const variables = JSON.stringify({
       ],
     },
     {
+      name: "Google OAuth",
+      help:
+        "Create a Google OAuth App, follow the instruction here: " +
+        "https://support.google.com/cloud/answer/6158849?hl=en\n\n" +
+        `When you're asked for an authorised domain use:\n\n` +
+        `  ${deploymentName}.convex.site\n\n` +
+        `When you're asked for an authorised JS origin use:\n\n` +
+        `  https://${deploymentName}.convex.site\n\n` +
+        `When you're asked for a callback URL use:\n\n` +
+        `  https://${deploymentName}.convex.site/api/auth/callback/google`,
+      variables: [
+        {
+          name: "AUTH_GOOGLE_ID",
+          description: "the Client ID of your Google OAuth App",
+        },
+        {
+          name: "AUTH_GOOGLE_SECRET",
+          description: "the generated client secret",
+        },
+      ],
+    },
+    {
       name: "Resend",
       help: "Sign up for Resend at https://resend.com/signup. Then create an API Key.",
       variables: [

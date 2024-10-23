@@ -17,8 +17,13 @@ Before you can run the project, you'll need to setup a
 4. Y for configure GitHub OAuth
 5. create a github OAuth app at https://github.com/settings/applications/new
 6. for authorization callback URL enter, https://YOUR_CONVEX_PROJECT_NAME.convex.site/api/auth/callback/github
-7. paste client id when prompted
-8. paste client secret when prompted
+7. Y for configure Google OAuth
+8. create a google OAuth app with following the instructions here https://support.google.com/cloud/answer/6158849?hl=en
+9. for authorised domain enter, YOUR_CONVEX_PROJECT_NAME.convex.site
+10. for authorised JS origin enter, https://YOUR_CONVEX_PROJECT_NAME.convex.site
+11. for redirect URI enter, https://YOUR_CONVEX_PROJECT_NAME.convex.site/api/auth/callback/google
+12. paste client ids when prompted
+13. paste client secrets when prompted
 
 ## Env Setup
 
