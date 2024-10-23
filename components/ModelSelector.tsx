@@ -19,10 +19,10 @@ export function ModelSelector({
   const models = useQuery(api.models.getActiveModels);
 
   React.useEffect(() => {
-    if (models !== undefined && models.length !== 0) {
+    if (models !== undefined && models.length !== 0 && value === "") {
       onChange(models[0].slug);
     }
-  }, [models]);
+  }, [models, value]);
 
   if (models === undefined) {
     return <p>Loading...</p>;

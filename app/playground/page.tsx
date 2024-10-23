@@ -17,6 +17,7 @@ import { errorMessage } from "@/lib/utils";
 import { ZombieSurvival } from "@/simulators/zombie-survival";
 
 const STORAGE_MAP_KEY = "playground-map";
+const STORAGE_MODEL_KEY = "playground-model";
 
 export default function PlaygroundPage() {
   const isAdmin = useQuery(api.users.isAdmin);
@@ -114,6 +115,7 @@ export default function PlaygroundPage() {
   function handleChangeModel(value: string) {
     setModel(value);
     setError(null);
+    window.localStorage.setItem(STORAGE_MODEL_KEY, value);
   }
 
   function handleEdit() {
@@ -172,9 +174,13 @@ export default function PlaygroundPage() {
 
   React.useEffect(() => {
     const maybeMap = window.localStorage.getItem(STORAGE_MAP_KEY);
+    const maybeModel = window.localStorage.getItem(STORAGE_MODEL_KEY);
 
     if (maybeMap !== null) {
       setMap(JSON.parse(maybeMap));
+    }
+    if (maybeModel !== null) {
+      setModel(maybeModel);
     }
   }, []);
 
