@@ -1,8 +1,14 @@
 "use client";
 
-import * as React from "react";
+import { useEffect, useState } from "react";
 import { useAction, useMutation, useQuery } from "convex/react";
-import { ChevronLeft, UploadIcon } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ChevronUp,
+  UploadIcon,
+} from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { Map } from "@/components/Map";
 import { MapStatus } from "@/components/MapStatus";
@@ -31,23 +37,22 @@ export default function PlaygroundPage() {
   );
   const adminMap = adminMapMaybe ?? null;
   const { toast } = useToast();
-  const [map, setMap] = React.useState<string[][]>([
+  const [map, setMap] = useState<string[][]>([
     [" ", " ", " ", " ", " "],
     [" ", " ", " ", " ", " "],
     [" ", " ", " ", " ", " "],
     [" ", " ", " ", " ", " "],
     [" ", " ", " ", " ", " "],
   ]);
-  const [model, setModel] = React.useState("");
-  const [error, setError] = React.useState<string | null>(null);
-  const [solution, setSolution] = React.useState<string[][] | null>(null);
-  const [reasoning, setReasoning] = React.useState<string | null>(null);
-  const [publishing, setPublishing] = React.useState(false);
-  const [simulating, setSimulating] = React.useState(false);
-  const [userPlaying, setUserPlaying] = React.useState(false);
-  const [userSolution, setUserSolution] = React.useState<string[][]>([]);
-  const [visualizingUserSolution, setVisualizingUserSolution] =
-    React.useState(false);
+  const [model, setModel] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [solution, setSolution] = useState<string[][] | null>(null);
+  const [reasoning, setReasoning] = useState<string | null>(null);
+  const [publishing, setPublishing] = useState(false);
+  const [simulating, setSimulating] = useState(false);
+  const [userPlaying, setUserPlaying] = useState(false);
+  const [userSolution, setUserSolution] = useState<string[][]>([]);
+  const [visualizingUserSolution, setVisualizingUserSolution] = useState(false);
 
   async function handlePublish() {
     if (!ZombieSurvival.mapHasZombies(map)) {
@@ -172,7 +177,47 @@ export default function PlaygroundPage() {
     setVisualizingUserSolution(false);
   }
 
-  React.useEffect(() => {
+  function handleIncreaseUp() {
+    setMap([[...map[0].map(() => " ")], ...map.map((row) => [...row])]);
+  }
+
+  function handleDecreaseUp() {
+    if (map.length > 1) {
+      setMap([...map.slice(1).map((row) => [...row])]);
+    }
+  }
+
+  function handleIncreaseLeft() {
+    setMap(map.map((row) => [" ", ...row]));
+  }
+
+  function handleDecreaseLeft() {
+    if (map[0].length > 1) {
+      setMap(map.map((row) => [...row.slice(1)]));
+    }
+  }
+
+  function handleIncreaseDown() {
+    setMap([...map.map((row) => [...row]), [...map[0].map(() => " ")]]);
+  }
+
+  function handleDecreaseDown() {
+    if (map.length > 1) {
+      setMap([...map.slice(0, -1).map((row) => [...row])]);
+    }
+  }
+
+  function handleIncreaseRight() {
+    setMap(map.map((row) => [...row, " "]));
+  }
+
+  function handleDecreaseRight() {
+    if (map[0].length > 1) {
+      setMap(map.map((row) => [...row.slice(0, -1)]));
+    }
+  }
+
+  useEffect(() => {
     const maybeMap = window.localStorage.getItem(STORAGE_MAP_KEY);
     const maybeModel = window.localStorage.getItem(STORAGE_MODEL_KEY);
 
@@ -184,7 +229,7 @@ export default function PlaygroundPage() {
     }
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (adminMap !== null) {
       setMap(adminMap.grid);
     }
@@ -199,9 +244,9 @@ export default function PlaygroundPage() {
       <div className="flex gap-8">
         {/* Left side: Grid */}
         <div className="flex-1">
-          <Card className="p-4">
+          <Card className="p-8">
             {!visualizing && !userPlaying && (
-              <p className="mb-6 text-sm text-gray-600">
+              <p className="mb-12 text-sm">
                 Click on the board to place or remove units. Use the buttons
                 below to switch between unit types.
               </p>
@@ -213,7 +258,7 @@ export default function PlaygroundPage() {
               </p>
             )}
             <div
-              className={`flex justify-center ${visualizing ? "pt-[28px]" : ""}`}
+              className={`flex justify-center ${visualizing ? "pt-[28px]" : ""} relative`}
             >
               {visualizing && (
                 <Visualizer
@@ -288,6 +333,44 @@ export default function PlaygroundPage() {
                       )),
                     )}
                   </div>
+
+                  {/* Grid expansion controls */}
+                  {!userPlaying && !visualizing && (
+                    <>
+                      <div className="absolute left-1/2 top-0 flex -translate-x-1/2 -translate-y-full gap-4">
+                        <button onClick={handleIncreaseUp}>
+                          <ChevronUp />
+                        </button>
+                        <button onClick={handleDecreaseUp}>
+                          <ChevronDown />
+                        </button>
+                      </div>
+                      <div className="absolute left-0 top-1/2 flex -translate-x-full -translate-y-1/2 flex-col gap-4">
+                        <button onClick={handleIncreaseLeft}>
+                          <ChevronLeft />
+                        </button>
+                        <button onClick={handleDecreaseLeft}>
+                          <ChevronRight />
+                        </button>
+                      </div>
+                      <div className="absolute right-0 top-1/2 flex -translate-y-1/2 translate-x-full flex-col gap-4">
+                        <button onClick={handleIncreaseRight}>
+                          <ChevronRight />
+                        </button>
+                        <button onClick={handleDecreaseRight}>
+                          <ChevronLeft />
+                        </button>
+                      </div>
+                      <div className="absolute bottom-0 left-1/2 flex -translate-x-1/2 translate-y-full gap-4">
+                        <button onClick={handleIncreaseDown}>
+                          <ChevronDown />
+                        </button>
+                        <button onClick={handleDecreaseDown}>
+                          <ChevronUp />
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
             </div>
@@ -295,7 +378,7 @@ export default function PlaygroundPage() {
         </div>
 
         {/* Right side: Action Panel */}
-        <Card className="w-[400px] p-4">
+        <Card className="w-[400px] p-8">
           <div className="flex flex-col gap-4">
             {userPlaying || solution !== null ? (
               <>
