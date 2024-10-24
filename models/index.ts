@@ -12,6 +12,17 @@ export interface ModelHandlerConfig {
   topP: number;
 }
 
+export function getValidLocations(map: string[][]) {
+  return map.flatMap((row, y) =>
+    row.reduce((acc, cell, x) => {
+      if (cell === " ") {
+        acc.push([y, x]);
+      }
+      return acc;
+    }, [] as number[][]),
+  );
+}
+
 export type ModelHandler = (
   prompt: string,
   map: string[][],

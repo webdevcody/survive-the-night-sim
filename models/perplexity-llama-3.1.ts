@@ -1,6 +1,6 @@
 import { isJSON } from "../lib/utils";
 import { z } from "zod";
-import { ModelHandler } from "./index";
+import { ModelHandler, getValidLocations } from "./index";
 
 const completionSchema = z.object({
   id: z.string(),
@@ -49,7 +49,11 @@ export const perplexityLlama31: ModelHandler = async (prompt, map, config) => {
         { role: "system", content: prompt },
         {
           role: "user",
-          content: JSON.stringify(map),
+          content: `
+Grid: ${JSON.stringify(map)}
+
+Valid Locations: ${JSON.stringify(getValidLocations(map))}
+`,
         },
       ],
       max_tokens: config.maxTokens,

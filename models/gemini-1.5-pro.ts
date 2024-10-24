@@ -1,4 +1,4 @@
-import { type ModelHandler } from ".";
+import { type ModelHandler, getValidLocations } from ".";
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 
 interface GeminiResponse {
@@ -62,7 +62,11 @@ export const gemini15pro: ModelHandler = async (prompt, map, config) => {
     },
   });
 
-  const result = await model.generateContent(JSON.stringify(map));
+  const result = await model.generateContent(`
+Grid: ${JSON.stringify(map)}
+
+Valid Locations: ${JSON.stringify(getValidLocations(map))}
+`);
   const parsedResponse = JSON.parse(result.response.text()) as GeminiResponse;
 
   return {

@@ -61,11 +61,7 @@ The 2d Grid is made up of characters, where each character has a meaning.
   "boxCoordinates": [[ROW, COL], [ROW, COL]],
   "playerCoordinates": [ROW, COL],
   "reasoning": "REASONING"
-}
-
-# MOST IMPORTANT RULE
-
-- DO NOT TRY TO PUT A BLOCK OR A PLAYER IN A LOCATION THAT IS ALREADY OCCUPIED`;
+}`;
 
 export type Prompt = {
   _id: Id<"prompts">;

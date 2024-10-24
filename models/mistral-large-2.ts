@@ -1,4 +1,4 @@
-import { type ModelHandler } from ".";
+import { type ModelHandler, getValidLocations } from ".";
 import { isJSON } from "../lib/utils";
 import { Mistral } from "@mistralai/mistralai";
 import { z } from "zod";
@@ -24,7 +24,11 @@ export const mistralLarge2: ModelHandler = async (prompt, map, config) => {
       },
       {
         role: "user",
-        content: JSON.stringify(map),
+        content: `
+Grid: ${JSON.stringify(map)}
+
+Valid Locations: ${JSON.stringify(getValidLocations(map))}
+`,
       },
     ],
     responseFormat: {

@@ -1,4 +1,4 @@
-import { type ModelHandler } from ".";
+import { type ModelHandler, getValidLocations } from ".";
 import { Anthropic } from "@anthropic-ai/sdk";
 import { z } from "zod";
 
@@ -22,7 +22,11 @@ export const claude35sonnet: ModelHandler = async (prompt, map, config) => {
     messages: [
       {
         role: "user",
-        content: JSON.stringify(map),
+        content: `
+Grid: ${JSON.stringify(map)}
+
+Valid Locations: ${JSON.stringify(getValidLocations(map))}
+`,
       },
     ],
   });
@@ -33,7 +37,11 @@ export const claude35sonnet: ModelHandler = async (prompt, map, config) => {
     throw new Error("Unexpected completion type from Claude");
   }
 
-  const parsedContent = JSON.parse(content.text);
+  const jsonStartIndex = content.text.indexOf("{");
+  const jsonEndIndex = content.text.lastIndexOf("}") + 1;
+  const jsonString = content.text.substring(jsonStartIndex, jsonEndIndex);
+
+  const parsedContent = JSON.parse(jsonString);
   const response = await responseSchema.safeParseAsync(parsedContent);
 
   if (!response.success) {

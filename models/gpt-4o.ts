@@ -1,4 +1,4 @@
-import { type ModelHandler } from ".";
+import { type ModelHandler, getValidLocations } from ".";
 import OpenAI from "openai";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
@@ -24,7 +24,11 @@ export const gpt4o: ModelHandler = async (prompt, map, config) => {
       },
       {
         role: "user",
-        content: JSON.stringify(map),
+        content: `
+Grid: ${JSON.stringify(map)}
+
+Valid Locations: ${JSON.stringify(getValidLocations(map))}
+`,
       },
     ],
     response_format: zodResponseFormat(responseSchema, "game_map"),
