@@ -31,11 +31,11 @@ async function loadAssets() {
 
   const [bg, box, player, rock, zombie, zombieHit] = await Promise.all([
     loadImage("/map.webp"),
-    loadImage("/entities/block.svg"),
-    loadImage("/entities/player_alive_1.svg"),
-    loadImage("/entities/rocks.svg"),
-    loadImage("/entities/zombie_alive_1.svg"),
-    loadImage("/entities/zombie_alive_2.svg"),
+    loadImage("/entities/box.svg"),
+    loadImage("/entities/player-attacking.svg"),
+    loadImage("/entities/rock.svg"),
+    loadImage("/entities/zombie-idle.svg"),
+    loadImage("/entities/zombie-walking.svg"),
   ]);
 
   assets.loaded = true;
@@ -71,42 +71,6 @@ function getEntityImage(entity: Entity): HTMLImageElement | null {
         return assets.zombieHit;
       } else {
         return assets.zombie;
-      }
-    }
-  }
-}
-
-function getEntityOffset(entity: Entity): { x: number; y: number } {
-  switch (entity.getType()) {
-    case EntityType.Zombie: {
-      if (entity.getHealth() === 1) {
-        return { x: -2, y: 0 };
-      } else {
-        return { x: 14, y: 0 };
-      }
-    }
-    default: {
-      return { x: 0, y: 0 };
-    }
-  }
-}
-
-function getEntityRatio(entity: Entity): { width: number; height: number } {
-  switch (entity.getType()) {
-    case EntityType.Box: {
-      return { width: 0.87, height: 1 }; // 41x47
-    }
-    case EntityType.Player: {
-      return { width: 1, height: 1 }; // 64x64
-    }
-    case EntityType.Rock: {
-      return { width: 1, height: 0.76 }; // 67x51
-    }
-    case EntityType.Zombie: {
-      if (entity.getHealth() === 1) {
-        return { width: 0.61, height: 1 }; // 40x65
-      } else {
-        return { width: 1, height: 1 }; // 64x64
       }
     }
   }
@@ -192,8 +156,6 @@ export class Renderer {
     }
 
     const entityPosition = entity.getPosition();
-    const entityOffset = getEntityOffset(entity);
-    const entityScale = getEntityRatio(entity);
 
     this.ctx.globalAlpha =
       entity.getType() === EntityType.Zombie && entity.getHealth() === 1
@@ -202,14 +164,10 @@ export class Renderer {
 
     this.ctx.drawImage(
       entityImage,
-      entityPosition.x * this.cellSize +
-        ((1 - entityScale.width) / 2) * this.cellSize +
-        entityOffset.x,
-      entityPosition.y * this.cellSize +
-        ((1 - entityScale.height) / 2) * this.cellSize +
-        entityOffset.y,
-      this.cellSize * entityScale.width,
-      this.cellSize * entityScale.height,
+      entityPosition.x * this.cellSize,
+      entityPosition.y * this.cellSize,
+      this.cellSize,
+      this.cellSize,
     );
 
     this.ctx.globalAlpha = 1;
