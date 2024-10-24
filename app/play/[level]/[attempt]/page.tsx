@@ -22,9 +22,26 @@ export default function PlayLevelAttemptPage({
   });
 
   if (attempt === undefined) {
-    return <p>Loading...</p>;
+    return (
+      <div className="container mx-auto flex min-h-screen flex-col items-center gap-8 py-12 pb-24">
+        <div className="flex w-full items-center justify-between">
+          <Button variant="outline" asChild className="flex items-center gap-2">
+            <Link href={`/play/${level}`} passHref>
+              <ChevronLeftIcon /> Back To Night #{level}
+            </Link>
+          </Button>
+        </div>
+        <h1 className="text-center text-3xl font-bold">Night #{level}</h1>
+        <h2 className="mb-4 text-xl font-semibold">Attempt #{attemptNum}</h2>
+        Loading...
+      </div>
+    );
   } else if (attempt === null) {
-    return <p className="text-red-500">Attempt Not Found</p>;
+    return (
+      <div className="flex min-h-screen justify-center pt-5 text-2xl text-red-500">
+        Attempt Not Found
+      </div>
+    );
   }
 
   return (
