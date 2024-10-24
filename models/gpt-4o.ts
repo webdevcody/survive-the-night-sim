@@ -1,4 +1,4 @@
-import { type ModelHandler, getValidLocations } from ".";
+import { type ModelHandler } from ".";
 import OpenAI from "openai";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
@@ -9,7 +9,7 @@ const responseSchema = z.object({
   boxCoordinates: z.array(z.array(z.number())),
 });
 
-export const gpt4o: ModelHandler = async (prompt, map, config) => {
+export const gpt4o: ModelHandler = async (systemPrompt, userPrompt, config) => {
   const openai = new OpenAI();
 
   const completion = await openai.beta.chat.completions.parse({
@@ -20,15 +20,11 @@ export const gpt4o: ModelHandler = async (prompt, map, config) => {
     messages: [
       {
         role: "system",
-        content: prompt,
+        content: systemPrompt,
       },
       {
         role: "user",
-        content: `
-Grid: ${JSON.stringify(map)}
-
-Valid Locations: ${JSON.stringify(getValidLocations(map))}
-`,
+        content: userPrompt,
       },
     ],
     response_format: zodResponseFormat(responseSchema, "game_map"),

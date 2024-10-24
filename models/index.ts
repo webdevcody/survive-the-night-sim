@@ -12,20 +12,9 @@ export interface ModelHandlerConfig {
   topP: number;
 }
 
-export function getValidLocations(map: string[][]) {
-  return map.flatMap((row, y) =>
-    row.reduce((acc, cell, x) => {
-      if (cell === " ") {
-        acc.push([y, x]);
-      }
-      return acc;
-    }, [] as number[][]),
-  );
-}
-
 export type ModelHandler = (
-  prompt: string,
-  map: string[][],
+  systemPrompt: string,
+  userPrompt: string,
   config: ModelHandlerConfig,
 ) => Promise<{
   boxCoordinates: number[][];
@@ -54,29 +43,33 @@ export async function runModel(
   reasoning: string;
   error?: string;
 }> {
+  const userPrompt =
+    `Grid: ${JSON.stringify(map)}\n\n` +
+    `Valid Locations: ${JSON.stringify(ZombieSurvival.validLocations(map))}`;
+
   let result;
   let reasoning: string | null = null;
 
   try {
     switch (modelId) {
       case "gemini-1.5-pro": {
-        result = await gemini15pro(prompt, map, CONFIG);
+        result = await gemini15pro(prompt, userPrompt, CONFIG);
         break;
       }
       case "gpt-4o": {
-        result = await gpt4o(prompt, map, CONFIG);
+        result = await gpt4o(prompt, userPrompt, CONFIG);
         break;
       }
       case "claude-3.5-sonnet": {
-        result = await claude35sonnet(prompt, map, CONFIG);
+        result = await claude35sonnet(prompt, userPrompt, CONFIG);
         break;
       }
       case "perplexity-llama-3.1": {
-        result = await perplexityLlama31(prompt, map, CONFIG);
+        result = await perplexityLlama31(prompt, userPrompt, CONFIG);
         break;
       }
       case "mistral-large-2": {
-        result = await mistralLarge2(prompt, map, CONFIG);
+        result = await mistralLarge2(prompt, userPrompt, CONFIG);
         break;
       }
       default: {

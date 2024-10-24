@@ -62,6 +62,17 @@ export class ZombieSurvival {
     return map.length === 0 || map[0].length === 0;
   }
 
+  public static validLocations(map: string[][]): number[][] {
+    return map.flatMap((row, y) =>
+      row.reduce((acc, cell, x) => {
+        if (cell === " ") {
+          acc.push([y, x]);
+        }
+        return acc;
+      }, [] as number[][]),
+    );
+  }
+
   public constructor(config: string[][]) {
     if (ZombieSurvival.mapIsEmpty(config)) {
       throw new Error("Config is empty");

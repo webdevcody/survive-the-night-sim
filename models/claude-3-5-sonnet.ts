@@ -1,4 +1,4 @@
-import { type ModelHandler, getValidLocations } from ".";
+import { type ModelHandler } from ".";
 import { Anthropic } from "@anthropic-ai/sdk";
 import { z } from "zod";
 
@@ -8,7 +8,11 @@ const responseSchema = z.object({
   reasoning: z.string(),
 });
 
-export const claude35sonnet: ModelHandler = async (prompt, map, config) => {
+export const claude35sonnet: ModelHandler = async (
+  systemPrompt,
+  userPrompt,
+  config,
+) => {
   const anthropic = new Anthropic({
     apiKey: process.env.ANTHROPIC_API_KEY,
   });
@@ -18,15 +22,11 @@ export const claude35sonnet: ModelHandler = async (prompt, map, config) => {
     max_tokens: config.maxTokens,
     temperature: config.temperature,
     top_p: config.topP,
-    system: prompt,
+    system: systemPrompt,
     messages: [
       {
         role: "user",
-        content: `
-Grid: ${JSON.stringify(map)}
-
-Valid Locations: ${JSON.stringify(getValidLocations(map))}
-`,
+        content: userPrompt,
       },
     ],
   });

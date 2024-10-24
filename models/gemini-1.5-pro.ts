@@ -1,4 +1,4 @@
-import { type ModelHandler, getValidLocations } from ".";
+import { type ModelHandler } from ".";
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 
 interface GeminiResponse {
@@ -47,12 +47,16 @@ const responseSchema = {
   required: ["map", "reasoning", "playerCoordinates", "boxCoordinates"],
 };
 
-export const gemini15pro: ModelHandler = async (prompt, map, config) => {
+export const gemini15pro: ModelHandler = async (
+  systemPrompt,
+  userPrompt,
+  config,
+) => {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
   const model = genAI.getGenerativeModel({
     model: "gemini-1.5-pro",
-    systemInstruction: prompt,
+    systemInstruction: systemPrompt,
     generationConfig: {
       responseMimeType: "application/json",
       responseSchema,
@@ -62,11 +66,7 @@ export const gemini15pro: ModelHandler = async (prompt, map, config) => {
     },
   });
 
-  const result = await model.generateContent(`
-Grid: ${JSON.stringify(map)}
-
-Valid Locations: ${JSON.stringify(getValidLocations(map))}
-`);
+  const result = await model.generateContent(userPrompt);
   const parsedResponse = JSON.parse(result.response.text()) as GeminiResponse;
 
   return {
