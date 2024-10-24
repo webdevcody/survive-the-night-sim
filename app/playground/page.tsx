@@ -338,34 +338,58 @@ export default function PlaygroundPage() {
                   {!userPlaying && !visualizing && (
                     <>
                       <div className="absolute left-1/2 top-0 flex -translate-x-1/2 -translate-y-full gap-4">
-                        <button onClick={handleIncreaseUp}>
+                        <button
+                          onClick={handleIncreaseUp}
+                          aria-label="One more row on top"
+                        >
                           <ChevronUp />
                         </button>
-                        <button onClick={handleDecreaseUp}>
+                        <button
+                          onClick={handleDecreaseUp}
+                          aria-label="One less row on top"
+                        >
                           <ChevronDown />
                         </button>
                       </div>
                       <div className="absolute left-0 top-1/2 flex -translate-x-full -translate-y-1/2 flex-col gap-4">
-                        <button onClick={handleIncreaseLeft}>
+                        <button
+                          onClick={handleIncreaseLeft}
+                          aria-label="One more column on left side"
+                        >
                           <ChevronLeft />
                         </button>
-                        <button onClick={handleDecreaseLeft}>
+                        <button
+                          onClick={handleDecreaseLeft}
+                          aria-label="One less column on left side"
+                        >
                           <ChevronRight />
                         </button>
                       </div>
                       <div className="absolute right-0 top-1/2 flex -translate-y-1/2 translate-x-full flex-col gap-4">
-                        <button onClick={handleIncreaseRight}>
+                        <button
+                          onClick={handleIncreaseRight}
+                          aria-label="One more column on right side"
+                        >
                           <ChevronRight />
                         </button>
-                        <button onClick={handleDecreaseRight}>
+                        <button
+                          onClick={handleDecreaseRight}
+                          aria-label="One less column on right side"
+                        >
                           <ChevronLeft />
                         </button>
                       </div>
                       <div className="absolute bottom-0 left-1/2 flex -translate-x-1/2 translate-y-full gap-4">
-                        <button onClick={handleIncreaseDown}>
+                        <button
+                          onClick={handleIncreaseDown}
+                          aria-label="One more row on bottom"
+                        >
                           <ChevronDown />
                         </button>
-                        <button onClick={handleDecreaseDown}>
+                        <button
+                          onClick={handleDecreaseDown}
+                          aria-label="One less row on bottom"
+                        >
                           <ChevronUp />
                         </button>
                       </div>

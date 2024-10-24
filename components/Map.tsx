@@ -57,7 +57,7 @@ export function Map({ map, size = 64 }: { map: string[][]; size?: number }) {
   return (
     <div className="relative">
       <img
-        src="/map.png"
+        src="/map.webp"
         alt="Background Map"
         className="absolute inset-0 h-full w-full object-cover opacity-50"
       />

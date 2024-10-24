@@ -95,6 +95,7 @@ export default function Header() {
             rel="noopener noreferrer"
             target="_blank"
             passHref
+            aria-label="Link to GitHub repo of the project"
           >
             <GitHubLogoIcon className="h-4 w-4" />
           </Link>
