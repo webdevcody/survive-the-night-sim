@@ -34,7 +34,7 @@ export const Result = ({ result }: { result: Doc<"results"> }) => {
           {result.error}
         </div>
       ) : (
-        <Visualizer map={result.map} autoStart={true} />
+        <Visualizer map={result.map} autoStart />
       )}
 
       <div className="flex flex-col">

@@ -206,7 +206,7 @@ export default function PlayLevelPage({
               <>
                 <Visualizer
                   map={playerMap}
-                  autoStart={true}
+                  autoStart
                   onReset={handleReset}
                   onSimulationEnd={handleSimulationEnd}
                 />
