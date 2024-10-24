@@ -125,7 +125,7 @@ export default function PlayPage() {
         </ToggleGroup>
       </Authenticated>
 
-      {filteredMaps.length === 0 && (
+      {filteredMaps.length === 0 && filter === "unbeaten" && (
         <div className="py-8">
           <div className="flex flex-col items-center gap-4">
             <div className="flex flex-col items-center gap-2 text-center">
@@ -138,6 +138,20 @@ export default function PlayPage() {
             <Button asChild variant="outline">
               <Link href="/playground">Create Map</Link>
             </Button>
+          </div>
+        </div>
+      )}
+
+      {filteredMaps.length === 0 && filter === "beaten" && (
+        <div className="py-8">
+          <div className="flex flex-col items-center gap-4">
+            <div className="flex flex-col items-center gap-2 text-center">
+              <h2 className="text-xl/snug">Oh no!</h2>
+              <p className="text-base/snug">
+                You haven&apos;t completed as single map, what about starting
+                with some easy maps?
+              </p>
+            </div>
           </div>
         </div>
       )}
