@@ -30,7 +30,7 @@ async function loadAssets() {
   assets.loading = true;
 
   const [bg, box, player, rock, zombie, zombieHit] = await Promise.all([
-    loadImage("/map.png"),
+    loadImage("/map.webp"),
     loadImage("/entities/block.svg"),
     loadImage("/entities/player_alive_1.svg"),
     loadImage("/entities/rocks.svg"),
