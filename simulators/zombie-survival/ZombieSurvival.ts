@@ -1,4 +1,5 @@
-import { Position } from "./Position";
+import { Change } from "./Change";
+import { Position, samePosition } from "./Position";
 import { Box } from "./entities/Box";
 import { Entity } from "./entities/Entity";
 import { Player } from "./entities/Player";
@@ -193,14 +194,30 @@ export class ZombieSurvival {
   }
 
   public step() {
+    const initialHealth = this.zombies.map((zombie) => zombie.getHealth());
+
+    this.player.clearChanges();
     this.player.shoot();
 
-    for (const zombie of this.zombies) {
+    for (let i = 0; i < this.zombies.length; i++) {
+      const zombie = this.zombies[i];
+
       if (this.player.dead()) {
         break;
       }
 
+      const initialPosition = zombie.getPosition();
+
+      zombie.clearChanges();
       zombie.walk();
+
+      if (initialHealth[i] !== zombie.getHealth()) {
+        zombie.addChange(Change.Hit);
+      }
+
+      if (!samePosition(initialPosition, zombie.getPosition())) {
+        zombie.addChange(Change.Walking);
+      }
     }
   }
 }

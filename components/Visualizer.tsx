@@ -50,7 +50,7 @@ export function Visualizer({
 
   function startSimulation() {
     simulator.current = new ZombieSurvival(map);
-    renderer.current?.render(simulator.current.getAllAliveEntities());
+    renderer.current?.render(simulator.current);
     setRunning(true);
 
     interval.current = setInterval(() => {
@@ -60,7 +60,7 @@ export function Visualizer({
 
       if (!simulator.current.finished()) {
         simulator.current.step();
-        renderer.current?.render(simulator.current.getAllAliveEntities());
+        renderer.current?.render(simulator.current);
         return;
       }
 
