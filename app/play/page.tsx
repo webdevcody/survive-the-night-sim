@@ -11,6 +11,7 @@ import {
 import { TrashIcon } from "lucide-react";
 import Link from "next/link";
 import { Map as GameMap } from "@/components/Map";
+import { Page, PageTitle } from "@/components/Page";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -79,8 +80,8 @@ export default function PlayPage() {
 
   if (filteredMaps === undefined) {
     return (
-      <div className="container mx-auto min-h-screen gap-8 py-12 pb-24">
-        <h1 className="mb-6 text-center text-3xl font-bold">Choose a Night</h1>
+      <Page>
+        <PageTitle>Choose a Night</PageTitle>
 
         <Authenticated>
           <ToggleGroup
@@ -102,13 +103,13 @@ export default function PlayPage() {
             <Skeleton key={index} className="h-96" />
           ))}
         </div>
-      </div>
+      </Page>
     );
   }
 
   return (
-    <div className="container mx-auto min-h-screen gap-8 py-12 pb-24">
-      <h1 className="mb-6 text-center text-3xl font-bold">Choose a Night</h1>
+    <Page>
+      <PageTitle>Choose a Night</PageTitle>
 
       <Authenticated>
         <ToggleGroup
@@ -223,6 +224,6 @@ export default function PlayPage() {
           </Card>
         ))}
       </div>
-    </div>
+    </Page>
   );
 }

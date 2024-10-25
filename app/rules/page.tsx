@@ -1,7 +1,9 @@
+import { Page, PageTitle } from "@/components/Page";
+
 export default function RulesPage() {
   return (
-    <div className="container mx-auto min-h-screen gap-8 py-12 pb-24">
-      <h1 className="mb-6 text-center text-3xl font-bold">Rules</h1>
+    <Page>
+      <PageTitle>Rules</PageTitle>
       <div className="items-center justify-around">
         <h2 className="pb-4 text-xl">Placing rules</h2>
         <ul className="list-inside list-disc flex-wrap space-y-2">
@@ -48,6 +50,6 @@ export default function RulesPage() {
           </li>
         </ul>
       </div>
-    </div>
+    </Page>
   );
 }

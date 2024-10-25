@@ -2,6 +2,7 @@
 
 import { useQuery } from "convex/react";
 import { Result } from "./result";
+import { Page } from "@/components/Page";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 
@@ -14,7 +15,7 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
   });
 
   return (
-    <div className="container mx-auto flex min-h-screen max-w-5xl flex-col items-center gap-8 py-12 pb-24">
+    <Page className="flex max-w-5xl flex-col items-center gap-8">
       <h1>Game {params.gameId}</h1>
       <h2>Model: {game?.modelId}</h2>
 
@@ -28,6 +29,6 @@ export default function GamePage({ params }: { params: { gameId: string } }) {
           results.map((result) => <Result result={result} key={result._id} />)
         )}
       </div>
-    </div>
+    </Page>
   );
 }

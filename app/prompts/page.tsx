@@ -3,6 +3,7 @@
 import { useMutation, useQuery } from "convex/react";
 import Link from "next/link";
 import { redirect, useRouter } from "next/navigation";
+import { Page } from "@/components/Page";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -37,7 +38,7 @@ export default function PromptsPage() {
   }
 
   return (
-    <div className="container mx-auto min-h-screen gap-8 py-12 pb-24">
+    <Page>
       <div className="mb-4 flex justify-between">
         <h1 className="mb-4 font-semibold">Review Prompts</h1>
         <Button variant="default" onClick={handleCreatePrompt}>
@@ -91,6 +92,6 @@ export default function PromptsPage() {
           </TableBody>
         </Table>
       </div>
-    </div>
+    </Page>
   );
 }

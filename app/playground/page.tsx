@@ -14,6 +14,7 @@ import { useSearchParams } from "next/navigation";
 import { Map } from "@/components/Map";
 import { MapStatus } from "@/components/MapStatus";
 import { ModelSelector } from "@/components/ModelSelector";
+import { Page, PageTitle } from "@/components/Page";
 import { Visualizer } from "@/components/Visualizer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -272,37 +273,35 @@ export default function PlaygroundPage() {
           </DialogHeader>
         </DialogContent>
       </Dialog>
-      <div className="container mx-auto min-h-screen py-12 pb-24">
-        <h1 className="mb-6 text-center text-3xl font-bold">Playground</h1>
+    <Page>
+      <PageTitle>Playground</PageTitle>
 
-        <div className="flex gap-8">
-          {/* Left side: Grid */}
-          <div className="flex-1">
-            <Card className="p-8">
-              {!visualizing && !userPlaying && (
-                <p className="mb-12 text-sm">
-                  Click on the board to place or remove units. Use the buttons
-                  below to switch between unit types.
-                </p>
-              )}
-              {!visualizing && userPlaying && (
-                <p className="mb-6 text-sm text-gray-600">
-                  Place a player (P) and blocks (B) on the board to create your
-                  escape route. Click to toggle between empty, player, and
-                  block.
-                </p>
-              )}
-              <div
-                className={`flex justify-center ${visualizing ? "pt-[28px]" : ""} relative`}
-              >
-                {visualizing && (
-                  <Visualizer
-                    autoReplay
-                    autoStart
-                    controls={false}
-                    map={visualizingUserSolution ? userSolution : solution!}
-                  />
-                )}
+      <div className="flex gap-8">
+        {/* Left side: Grid */}
+        <div className="flex-1">
+          <Card className="p-8">
+            {!visualizing && !userPlaying && (
+              <p className="mb-12 text-sm">
+                Click on the board to place or remove units. Use the buttons
+                below to switch between unit types.
+              </p>
+            )}
+            {!visualizing && userPlaying && (
+              <p className="mb-6 text-sm text-gray-600">
+                Place a player (P) and blocks (B) on the board to create your
+                escape route. Click to toggle between empty, player, and block.
+              </p>
+            )}
+            <div
+              className={`flex justify-center ${visualizing ? "pt-[28px]" : ""} relative`}
+            >
+              {visualizing && (
+                <Visualizer
+                  autoReplay
+                  autoStart
+                  controls={false}
+                  map={visualizingUserSolution ? userSolution : solution!}
+                />
                 {!visualizing && (
                   <div className="relative">
                     <Map map={userPlaying ? userSolution : map} />
@@ -520,6 +519,7 @@ export default function PlaygroundPage() {
           </Card>
         </div>
       </div>
+    </Page>
     </>
   );
 }

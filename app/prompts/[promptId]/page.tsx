@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import Link from "next/link";
 import { redirect, useRouter } from "next/navigation";
+import { Page } from "@/components/Page";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { api } from "@/convex/_generated/api";
@@ -55,7 +56,7 @@ export default function EditPromptPage({
   }
 
   return (
-    <div className="container mx-auto min-h-screen gap-8 py-12 pb-24">
+    <Page>
       <form className="h-full px-6 py-6" onSubmit={handleSubmit}>
         <div className="mb-4 flex justify-between">
           <h1 className="mb-4 font-semibold">Edit your prompt</h1>
@@ -80,6 +81,6 @@ export default function EditPromptPage({
           />
         </div>
       </form>
-    </div>
+    </Page>
   );
 }

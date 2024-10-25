@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import TestMode from "./test-mode";
 import { Map } from "@/components/Map";
+import { Page, PageTitle } from "@/components/Page";
 import { Visualizer } from "@/components/Visualizer";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -49,7 +50,7 @@ export default function PlayLevelPage({
 
   if (!map) {
     return (
-      <div className="container mx-auto flex min-h-screen flex-col items-center gap-8 py-12 pb-24">
+      <Page className="flex flex-col items-center gap-8">
         <div className="flex w-full items-center justify-between">
           <Button variant="outline" asChild className="flex items-center gap-2">
             <Link href="/play" passHref>
@@ -71,10 +72,10 @@ export default function PlayLevelPage({
             </Tabs>
           )}
         </div>
-        <h1 className="mb-6 text-center text-3xl font-bold">Night #{level}</h1>
+        <PageTitle>Night #{level}</PageTitle>
 
         <p>Loading...</p>
-      </div>
+      </Page>
     );
   }
 
@@ -156,7 +157,7 @@ export default function PlayLevelPage({
   };
 
   return (
-    <div className="container mx-auto flex min-h-screen flex-col items-center gap-8 py-12 pb-24">
+    <Page className="flex flex-col items-center gap-8">
       <div className="flex w-full items-center justify-between">
         <Button variant="outline" asChild className="flex items-center gap-2">
           <Link href="/play" passHref>
@@ -178,7 +179,7 @@ export default function PlayLevelPage({
           </Tabs>
         )}
       </div>
-      <h1 className="text-center text-3xl font-bold">Night #{level}</h1>
+      <PageTitle>Night #{level}</PageTitle>
 
       {mode === "play" ? (
         <>
@@ -311,6 +312,6 @@ export default function PlayLevelPage({
       ) : (
         <TestMode level={level} map={map.grid} />
       )}
-    </div>
+    </Page>
   );
 }
