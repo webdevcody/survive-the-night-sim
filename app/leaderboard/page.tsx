@@ -1,6 +1,7 @@
 "use client";
 
 import { useQuery } from "convex/react";
+import { Page, PageTitle } from "@/components/Page";
 import {
   Table,
   TableBody,
@@ -65,8 +66,8 @@ const LeaderBoard = () => {
   );
 
   return (
-    <div className="container mx-auto min-h-screen gap-8 py-12 pb-24">
-      <h1 className="mb-6 text-center text-3xl font-bold">Leaderboard</h1>
+    <Page>
+      <PageTitle>Leaderboard</PageTitle>
 
       <Tabs defaultValue="global">
         <TabsList>
@@ -140,7 +141,7 @@ const LeaderBoard = () => {
           </Table>
         </TabsContent>
       </Tabs>
-    </div>
+    </Page>
   );
 };
 

@@ -105,7 +105,7 @@ export default function TestMode({ level, map }: TestModeProps) {
       {aiError && <div className="mt-4 text-red-500">{aiError}</div>}
       {gameResult && (
         <div className="mx-auto mt-4 flex max-w-4xl flex-col items-center gap-8">
-          <Visualizer map={playerMap} autoStart={true} onReset={handleReset} />
+          <Visualizer map={playerMap} autoStart onReset={handleReset} />
           <div className="flex flex-1 flex-col gap-4">
             <div
               className={`text-2xl font-bold ${

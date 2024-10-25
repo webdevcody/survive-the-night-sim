@@ -4,6 +4,7 @@ import * as React from "react";
 import { useMutation, useQuery } from "convex/react";
 import { useRouter } from "next/navigation";
 import { ModelSelector } from "@/components/ModelSelector";
+import { Page, PageTitle } from "@/components/Page";
 import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
 
@@ -22,8 +23,8 @@ export default function TestPage() {
   };
 
   return (
-    <div className="container mx-auto flex min-h-screen flex-col items-center gap-8 pt-12">
-      <h1 className="mb-8 text-4xl font-bold">Zombie Map Simulator</h1>
+    <Page className="flex flex-col items-center gap-8">
+      <PageTitle>Zombie Map Simulator</PageTitle>
 
       <div className="flex justify-center gap-4">
         <ModelSelector onChange={setModel} value={model} />
@@ -50,6 +51,6 @@ export default function TestPage() {
           Test All Models
         </Button>
       </div>
-    </div>
+    </Page>
   );
 }

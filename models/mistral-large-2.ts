@@ -1,4 +1,4 @@
-import { type ModelHandler, getValidLocations } from ".";
+import { type ModelHandler } from ".";
 import { isJSON } from "../lib/utils";
 import { Mistral } from "@mistralai/mistralai";
 import { z } from "zod";
@@ -9,7 +9,11 @@ const responseSchema = z.object({
   boxCoordinates: z.array(z.array(z.number())),
 });
 
-export const mistralLarge2: ModelHandler = async (prompt, map, config) => {
+export const mistralLarge2: ModelHandler = async (
+  systemPrompt,
+  userPrompt,
+  config,
+) => {
   const client = new Mistral();
 
   const completion = await client.chat.complete({
@@ -20,15 +24,11 @@ export const mistralLarge2: ModelHandler = async (prompt, map, config) => {
     messages: [
       {
         role: "system",
-        content: prompt,
+        content: systemPrompt,
       },
       {
         role: "user",
-        content: `
-Grid: ${JSON.stringify(map)}
-
-Valid Locations: ${JSON.stringify(getValidLocations(map))}
-`,
+        content: userPrompt,
       },
     ],
     responseFormat: {

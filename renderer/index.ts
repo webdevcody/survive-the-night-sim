@@ -1,4 +1,9 @@
-import { type Entity, EntityType } from "@/simulators/zombie-survival";
+import {
+  type Entity,
+  EntityType,
+  ZombieSurvival,
+} from "@/simulators/zombie-survival";
+import { Change } from "@/simulators/zombie-survival/Change";
 
 export interface RendererAssets {
   loading: boolean;
@@ -8,7 +13,7 @@ export interface RendererAssets {
   player: HTMLImageElement | null;
   rock: HTMLImageElement | null;
   zombie: HTMLImageElement | null;
-  zombieHit: HTMLImageElement | null;
+  zombieWalking: HTMLImageElement | null;
 }
 
 const assets: RendererAssets = {
@@ -19,7 +24,7 @@ const assets: RendererAssets = {
   player: null,
   rock: null,
   zombie: null,
-  zombieHit: null,
+  zombieWalking: null,
 };
 
 async function loadAssets() {
@@ -31,11 +36,11 @@ async function loadAssets() {
 
   const [bg, box, player, rock, zombie, zombieHit] = await Promise.all([
     loadImage("/map.webp"),
-    loadImage("/entities/block.svg"),
-    loadImage("/entities/player_alive_1.svg"),
-    loadImage("/entities/rocks.svg"),
-    loadImage("/entities/zombie_alive_1.svg"),
-    loadImage("/entities/zombie_alive_2.svg"),
+    loadImage("/entities/box.svg"),
+    loadImage("/entities/player-attacking.svg"),
+    loadImage("/entities/rock.svg"),
+    loadImage("/entities/zombie-idle.svg"),
+    loadImage("/entities/zombie-walking.svg"),
   ]);
 
   assets.loaded = true;
@@ -44,7 +49,7 @@ async function loadAssets() {
   assets.player = player;
   assets.rock = rock;
   assets.zombie = zombie;
-  assets.zombieHit = zombieHit;
+  assets.zombieWalking = zombieHit;
 }
 
 async function loadImage(src: string): Promise<HTMLImageElement> {
@@ -67,46 +72,10 @@ function getEntityImage(entity: Entity): HTMLImageElement | null {
       return assets.rock;
     }
     case EntityType.Zombie: {
-      if (entity.getHealth() === 1) {
-        return assets.zombieHit;
+      if (entity.getChanges().includes(Change.Walking)) {
+        return assets.zombieWalking;
       } else {
         return assets.zombie;
-      }
-    }
-  }
-}
-
-function getEntityOffset(entity: Entity): { x: number; y: number } {
-  switch (entity.getType()) {
-    case EntityType.Zombie: {
-      if (entity.getHealth() === 1) {
-        return { x: -2, y: 0 };
-      } else {
-        return { x: 14, y: 0 };
-      }
-    }
-    default: {
-      return { x: 0, y: 0 };
-    }
-  }
-}
-
-function getEntityRatio(entity: Entity): { width: number; height: number } {
-  switch (entity.getType()) {
-    case EntityType.Box: {
-      return { width: 0.87, height: 1 }; // 41x47
-    }
-    case EntityType.Player: {
-      return { width: 1, height: 1 }; // 64x64
-    }
-    case EntityType.Rock: {
-      return { width: 1, height: 0.76 }; // 67x51
-    }
-    case EntityType.Zombie: {
-      if (entity.getHealth() === 1) {
-        return { width: 0.61, height: 1 }; // 40x65
-      } else {
-        return { width: 1, height: 1 }; // 64x64
       }
     }
   }
@@ -118,7 +87,9 @@ export class Renderer {
   private readonly h: number;
   private readonly w: number;
 
+  private canvas2: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
+  private ctx2: CanvasRenderingContext2D;
 
   public constructor(
     boardHeight: number,
@@ -131,24 +102,37 @@ export class Renderer {
     this.h = boardHeight * cellSize;
     this.w = boardWidth * cellSize;
 
-    const ctx = canvas.getContext("2d");
+    this.canvas2 = document.createElement("canvas");
 
-    if (ctx === null) {
+    const ctx = canvas.getContext("2d");
+    const ctx2 = this.canvas2.getContext("2d");
+
+    if (ctx === null || ctx2 === null) {
       throw new Error("Unable to get 2d context");
     }
 
     this.ctx = ctx;
+    this.ctx2 = ctx2;
 
-    canvas.setAttribute("height", `${this.h * window.devicePixelRatio}`);
-    canvas.setAttribute("width", `${this.w * window.devicePixelRatio}`);
+    canvas.height = this.h * window.devicePixelRatio;
+    canvas.width = this.w * window.devicePixelRatio;
     canvas.style.height = `${this.h}px`;
     canvas.style.width = `${this.w}px`;
 
+    this.canvas2.width = this.cellSize * window.devicePixelRatio;
+    this.canvas2.height = this.cellSize * window.devicePixelRatio;
+    this.canvas2.style.height = `${this.cellSize}px`;
+    this.canvas2.style.width = `${this.cellSize}px`;
+
     ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    ctx2.scale(window.devicePixelRatio, window.devicePixelRatio);
+
     void loadAssets();
   }
 
-  public render(entities: Entity[]) {
+  public render(simulator: ZombieSurvival) {
+    const entities = simulator.getAllEntities();
+
     this.ctx.clearRect(0, 0, this.w, this.h);
     this.drawBg();
 
@@ -185,6 +169,10 @@ export class Renderer {
   }
 
   private drawEntity(entity: Entity) {
+    if (entity.dead()) {
+      return;
+    }
+
     const entityImage = getEntityImage(entity);
 
     if (entityImage === null) {
@@ -192,26 +180,24 @@ export class Renderer {
     }
 
     const entityPosition = entity.getPosition();
-    const entityOffset = getEntityOffset(entity);
-    const entityScale = getEntityRatio(entity);
+    const x = entityPosition.x * this.cellSize;
+    const y = entityPosition.y * this.cellSize;
 
-    this.ctx.globalAlpha =
-      entity.getType() === EntityType.Zombie && entity.getHealth() === 1
-        ? 0.5
-        : 1;
+    if (entity.getChanges().includes(Change.Hit)) {
+      this.ctx2.clearRect(0, 0, this.cellSize, this.cellSize);
 
-    this.ctx.drawImage(
-      entityImage,
-      entityPosition.x * this.cellSize +
-        ((1 - entityScale.width) / 2) * this.cellSize +
-        entityOffset.x,
-      entityPosition.y * this.cellSize +
-        ((1 - entityScale.height) / 2) * this.cellSize +
-        entityOffset.y,
-      this.cellSize * entityScale.width,
-      this.cellSize * entityScale.height,
-    );
+      this.ctx2.filter = "hue-rotate(300deg)";
+      this.ctx2.drawImage(entityImage, 0, 0, this.cellSize, this.cellSize);
+      this.ctx2.filter = "none";
 
-    this.ctx.globalAlpha = 1;
+      this.ctx2.globalCompositeOperation = "destination-in";
+      this.ctx2.fillRect(0, 0, this.cellSize, this.cellSize);
+      this.ctx2.globalCompositeOperation = "source-over";
+
+      this.ctx.drawImage(this.canvas2, x, y, this.cellSize, this.cellSize);
+      return;
+    }
+
+    this.ctx.drawImage(entityImage, x, y, this.cellSize, this.cellSize);
   }
 }

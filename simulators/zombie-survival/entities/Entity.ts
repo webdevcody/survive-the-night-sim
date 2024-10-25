@@ -1,3 +1,4 @@
+import { type Change } from "../Change";
 import { Position } from "../Position";
 
 export enum EntityType {
@@ -9,6 +10,7 @@ export enum EntityType {
 
 export class Entity {
   protected destructible: boolean;
+  protected changes: Change[];
   protected health: number;
   protected position: Position;
   protected type: EntityType;
@@ -20,13 +22,26 @@ export class Entity {
     position: Position,
   ) {
     this.destructible = destructible;
+    this.changes = [];
     this.health = health;
     this.position = position;
     this.type = type;
   }
 
+  public addChange(change: Change): void {
+    this.changes.push(change);
+  }
+
+  public clearChanges(): void {
+    this.changes = [];
+  }
+
   public dead(): boolean {
     return this.health === 0;
+  }
+
+  public getChanges(): Change[] {
+    return this.changes;
   }
 
   public getPosition(): Position {

@@ -1,6 +1,6 @@
 import { isJSON } from "../lib/utils";
 import { z } from "zod";
-import { ModelHandler, getValidLocations } from "./index";
+import { ModelHandler } from "./index";
 
 const completionSchema = z.object({
   id: z.string(),
@@ -36,7 +36,11 @@ const responseSchema = z.object({
   reasoning: z.string(),
 });
 
-export const perplexityLlama31: ModelHandler = async (prompt, map, config) => {
+export const perplexityLlama31: ModelHandler = async (
+  systemPrompt,
+  userPrompt,
+  config,
+) => {
   const completion = await fetch("https://api.perplexity.ai/chat/completions", {
     method: "POST",
     headers: {
@@ -46,14 +50,10 @@ export const perplexityLlama31: ModelHandler = async (prompt, map, config) => {
     body: JSON.stringify({
       model: "llama-3.1-sonar-large-128k-online",
       messages: [
-        { role: "system", content: prompt },
+        { role: "system", content: systemPrompt },
         {
           role: "user",
-          content: `
-Grid: ${JSON.stringify(map)}
-
-Valid Locations: ${JSON.stringify(getValidLocations(map))}
-`,
+          content: userPrompt,
         },
       ],
       max_tokens: config.maxTokens,
