@@ -273,35 +273,37 @@ export default function PlaygroundPage() {
           </DialogHeader>
         </DialogContent>
       </Dialog>
-    <Page>
-      <PageTitle>Playground</PageTitle>
+      <Page>
+        <PageTitle>Playground</PageTitle>
 
-      <div className="flex gap-8">
-        {/* Left side: Grid */}
-        <div className="flex-1">
-          <Card className="p-8">
-            {!visualizing && !userPlaying && (
-              <p className="mb-12 text-sm">
-                Click on the board to place or remove units. Use the buttons
-                below to switch between unit types.
-              </p>
-            )}
-            {!visualizing && userPlaying && (
-              <p className="mb-6 text-sm text-gray-600">
-                Place a player (P) and blocks (B) on the board to create your
-                escape route. Click to toggle between empty, player, and block.
-              </p>
-            )}
-            <div
-              className={`flex justify-center ${visualizing ? "pt-[28px]" : ""} relative`}
-            >
-              {visualizing && (
-                <Visualizer
-                  autoReplay
-                  autoStart
-                  controls={false}
-                  map={visualizingUserSolution ? userSolution : solution!}
-                />
+        <div className="flex gap-8">
+          {/* Left side: Grid */}
+          <div className="flex-1">
+            <Card className="p-8">
+              {!visualizing && !userPlaying && (
+                <p className="mb-12 text-sm">
+                  Click on the board to place or remove units. Use the buttons
+                  below to switch between unit types.
+                </p>
+              )}
+              {!visualizing && userPlaying && (
+                <p className="mb-6 text-sm text-gray-600">
+                  Place a player (P) and blocks (B) on the board to create your
+                  escape route. Click to toggle between empty, player, and
+                  block.
+                </p>
+              )}
+              <div
+                className={`flex justify-center ${visualizing ? "pt-[28px]" : ""} relative`}
+              >
+                {visualizing && (
+                  <Visualizer
+                    autoReplay
+                    autoStart
+                    controls={false}
+                    map={visualizingUserSolution ? userSolution : solution!}
+                  />
+                )}
                 {!visualizing && (
                   <div className="relative">
                     <Map map={userPlaying ? userSolution : map} />
@@ -518,8 +520,7 @@ export default function PlaygroundPage() {
             </div>
           </Card>
         </div>
-      </div>
-    </Page>
+      </Page>
     </>
   );
 }
