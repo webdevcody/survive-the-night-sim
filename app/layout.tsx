@@ -1,10 +1,11 @@
 import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import { type Metadata } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
+import Footer from "./footer";
 import Header from "./header";
 import { Providers } from "./provider";
 import "./globals.css";
-import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -35,7 +36,8 @@ export default function RootLayout({
         <body className={inter.className}>
           <Providers>
             <Header />
-            {children}
+            <main className="mb-12 flex-grow">{children}</main>
+            <Footer />
           </Providers>
         </body>
       </html>

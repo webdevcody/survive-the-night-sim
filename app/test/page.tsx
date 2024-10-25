@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { useRouter } from "next/navigation";
 import { ModelSelector } from "@/components/ModelSelector";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ export default function TestPage() {
   const testModel = useMutation(api.games.testModel);
   const [model, setModel] = React.useState("");
   const router = useRouter();
+  const activeModels = useQuery(api.models.getActiveModels);
 
   const handleClick = async () => {
     await testModel({
@@ -27,6 +28,27 @@ export default function TestPage() {
       <div className="flex justify-center gap-4">
         <ModelSelector onChange={setModel} value={model} />
         <Button onClick={handleClick}>Test Model</Button>
+      </div>
+
+      <div className="flex flex-col gap-4">
+        <Button
+          variant="secondary"
+          onClick={async () => {
+            if (!activeModels) return;
+
+            await Promise.all(
+              activeModels.map((model) => {
+                return testModel({
+                  modelId: model.slug,
+                });
+              }),
+            );
+
+            router.push("/");
+          }}
+        >
+          Test All Models
+        </Button>
       </div>
     </div>
   );
