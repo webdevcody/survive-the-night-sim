@@ -18,7 +18,7 @@ export default function TermsOfService() {
         <p>
           You agree to use Survive The Night only for lawful purposes and in a
           way that does not infringe the rights of, restrict or inhibit anyone
-          else's use and enjoyment of the website.
+          else&apos;s use and enjoyment of the website.
         </p>
         <h2>3. Intellectual Property</h2>
         <p>
