@@ -1,5 +1,12 @@
+import dynamic from "next/dynamic";
 import Link from "next/link";
-import { ThemeToggle } from "@/components/ThemeToggle";
+
+const ThemeToggle = dynamic(
+  async () => (await import("@/components/ThemeToggle")).ThemeToggle,
+  {
+    ssr: false,
+  },
+);
 
 export default function Footer() {
   return (

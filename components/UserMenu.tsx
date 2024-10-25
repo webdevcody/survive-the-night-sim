@@ -3,7 +3,7 @@
 import { ReactNode } from "react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { PersonIcon } from "@radix-ui/react-icons";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -13,6 +13,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+const ThemeToggle = dynamic(
+  async () => (await import("@/components/ThemeToggle")).ThemeToggle,
+  {
+    ssr: false,
+  },
+);
 
 export function UserMenu({ children }: { children: ReactNode }) {
   return (
