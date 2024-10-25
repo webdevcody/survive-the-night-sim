@@ -1,21 +1,27 @@
 import Link from "next/link";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function Footer() {
   return (
     <footer className="border-t bg-gray-100 py-8 dark:bg-slate-950">
       <div className="container mx-auto px-4">
         <div className="flex flex-wrap justify-between">
-          <div className="mb-4 w-full md:w-1/3">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <div className="mb-12 flex w-full flex-col gap-4 md:mb-4 md:w-1/3">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100 md:mb-2">
               Survive The Night
             </h3>
+
             <p className="text-sm text-gray-600 dark:text-gray-300">
               A zombie survival simulation game that challenges both AI models
               and human players.
             </p>
+
+            <div className="hidden w-fit md:block">
+              <ThemeToggle />
+            </div>
           </div>
-          <div className="mb-4 w-full md:w-1/3">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <div className="mb-12 w-full md:mb-4 md:w-1/3">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100 md:mb-2">
               Quick Links
             </h3>
             <ul className="space-y-2">
@@ -53,8 +59,8 @@ export default function Footer() {
               </li>
             </ul>
           </div>
-          <div className="mb-4 w-full md:w-1/3">
-            <h3 className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <div className="mb-12 w-full md:mb-4 md:w-1/3">
+            <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-gray-100 md:mb-2">
               Connect
             </h3>
             <p className="text-sm text-gray-600 dark:text-gray-300">
@@ -72,6 +78,7 @@ export default function Footer() {
             </div>
           </div>
         </div>
+
         <div className="mt-8 border-t border-gray-200 pt-4 text-center dark:border-gray-700">
           <p className="text-sm text-gray-600 dark:text-gray-300">
             © {new Date().getFullYear()} Survive The Night. All rights

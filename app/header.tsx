@@ -1,8 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { useAuthActions } from "@convex-dev/auth/react";
-import { GitHubLogoIcon } from "@radix-ui/react-icons";
-import { ChevronDownIcon } from "@radix-ui/react-icons";
+import {
+  ChevronDownIcon,
+  GitHubLogoIcon,
+  HamburgerMenuIcon,
+} from "@radix-ui/react-icons";
 import { Authenticated, Unauthenticated, useQuery } from "convex/react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
@@ -16,35 +20,36 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { api } from "@/convex/_generated/api";
 
-const ThemeToggle = dynamic(
-  async () => (await import("@/components/ThemeToggle")).ThemeToggle,
-  {
-    ssr: false,
-  },
-);
+const links = [
+  { href: "/", label: "Watch" },
+  { href: "/play", label: "Play" },
+  { href: "/playground", label: "Playground" },
+];
 
 export default function Header() {
   const { signOut } = useAuthActions();
   const flags = useQuery(api.flags.getFlags);
   const isAdminQuery = useQuery(api.users.isAdmin);
+  const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => setMobileMenuOpen(!isMobileMenuOpen);
 
   return (
     <header className="flex items-center justify-between border-b px-6 py-4 shadow-sm">
       <Link href="/" className="flex items-center" passHref>
         <Image src="/logo.png" alt="Logo" width={32} height={32} priority />
-        <span className="ml-2 text-xl font-bold">SurviveTheNight</span>
+        <span className="text-md ml-2 text-xs font-bold md:text-xl lg:text-xl">
+          SurviveTheNight
+        </span>
       </Link>
 
-      <nav className="flex items-center space-x-4">
-        <Button variant="ghost" asChild>
-          <Link href="/">Watch</Link>
-        </Button>
-        <Button variant="ghost" asChild>
-          <Link href="/play">Play</Link>
-        </Button>
-        <Button variant="ghost" asChild>
-          <Link href="/playground">Playground</Link>
-        </Button>
+      <nav className="hidden items-center gap-2 md:flex xl:gap-4">
+        {links.map((link) => (
+          <Button key={link.href} variant="ghost" asChild>
+            <Link href={link.href}>{link.label}</Link>
+          </Button>
+        ))}
+
         {isAdminQuery && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -74,17 +79,14 @@ export default function Header() {
           href="https://www.convex.dev"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 text-sm"
+          className="hidden items-center gap-2 text-sm md:flex"
           passHref
         >
-          Synced using Convex
+          <span className="hidden lg:block">Synced using Convex</span>
           <Image src="/convex.svg" alt="Convex" width={24} height={24} />
         </Link>
-        <div className="">
-          <ThemeToggle />
-        </div>
         <Button
-          className="w-9 shrink-0"
+          className="flex items-center justify-center"
           asChild
           variant="outline"
           size="icon"
@@ -108,9 +110,53 @@ export default function Header() {
           </Link>
         </Unauthenticated>
         <Authenticated>
-          <Button onClick={() => void signOut()}>Sign Out</Button>
+          <Button className="hidden md:block" onClick={() => void signOut()}>
+            Sign Out
+          </Button>
         </Authenticated>
+        <Button
+          className="md:hidden"
+          variant="ghost"
+          onClick={toggleMobileMenu}
+        >
+          <HamburgerMenuIcon className="h-4 w-4" />
+        </Button>
       </div>
+
+      {isMobileMenuOpen && (
+        <div className="absolute left-0 top-16 w-full border-b bg-white shadow-md dark:bg-slate-950 md:hidden">
+          <nav className="flex flex-col items-start space-y-2 p-4">
+            {links.map((link) => (
+              <Button key={link.href} variant="ghost" asChild>
+                <Link href={link.href}>{link.label}</Link>
+              </Button>
+            ))}
+
+            {isAdminQuery && (
+              <>
+                <div className="my-2 w-full border-t border-gray-200 dark:border-gray-700"></div>
+                <Button variant="ghost" asChild>
+                  <Link href="/prompts">Review Prompts</Link>
+                </Button>
+                <Button variant="ghost" asChild>
+                  <Link href="/admin/review">Review Maps</Link>
+                </Button>
+                {flags?.showTestPage && (
+                  <Button variant="ghost" asChild>
+                    <Link href="/test">Test</Link>
+                  </Button>
+                )}
+              </>
+            )}
+            <Authenticated>
+              <div className="my-2 w-full border-t border-gray-200 dark:border-gray-700"></div>
+              <Button variant="ghost" onClick={() => void signOut()}>
+                Sign Out
+              </Button>
+            </Authenticated>
+          </nav>
+        </div>
+      )}
     </header>
   );
 }

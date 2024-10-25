@@ -37,7 +37,7 @@ export default function GamePage() {
   }
 
   return (
-    <div className="container mx-auto flex gap-12 pt-12">
+    <div className="container mx-auto flex flex-col gap-12 pt-12 lg:flex-row">
       <div className="flex-grow space-y-8">
         <h1 className="text-2xl font-bold">Recent Games</h1>
         <div className="flex h-[calc(100vh_-_185px)] flex-col gap-4 overflow-y-auto">
@@ -49,37 +49,37 @@ export default function GamePage() {
 
       <div className="space-y-8">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-bold">LLM Leaderboard</h2>
-          <Button asChild>
-            <Link href="/leaderboard">View Full Leaderboard</Link>
-          </Button>
+          <h2 className="text-2xl font-bold">AI Leaderboard</h2>
         </div>
-        <Table className="w-[500px]">
-          <TableHeader>
-            <TableRow>
-              <TableHead>Model ID</TableHead>
-              <TableHead className="text-right">Wins</TableHead>
-              <TableHead className="text-right">Losses</TableHead>
-              <TableHead className="text-right">Total Games</TableHead>
-              <TableHead className="text-right">Win Ratio</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {globalRanking?.map((item) => (
-              <TableRow key={item._id}>
-                <TableCell>{item.modelId}</TableCell>
-                <TableCell className="text-right">{item.wins}</TableCell>
-                <TableCell className="text-right">{item.losses}</TableCell>
-                <TableCell className="text-right">
-                  {item.wins + item.losses}
-                </TableCell>
-                <TableCell className="text-right">
-                  {((item.wins / (item.wins + item.losses)) * 100).toFixed(2)}%
-                </TableCell>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Model ID</TableHead>
+                <TableHead className="text-right">Wins</TableHead>
+                <TableHead className="text-right">Losses</TableHead>
+                <TableHead className="text-right">Total Games</TableHead>
+                <TableHead className="text-right">Win Ratio</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {globalRanking?.map((item) => (
+                <TableRow key={item._id}>
+                  <TableCell>{item.modelId}</TableCell>
+                  <TableCell className="text-right">{item.wins}</TableCell>
+                  <TableCell className="text-right">{item.losses}</TableCell>
+                  <TableCell className="text-right">
+                    {item.wins + item.losses}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {((item.wins / (item.wins + item.losses)) * 100).toFixed(2)}
+                    %
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     </div>
   );
