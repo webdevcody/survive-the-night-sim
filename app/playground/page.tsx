@@ -13,6 +13,7 @@ import { useSearchParams } from "next/navigation";
 import { Map } from "@/components/Map";
 import { MapStatus } from "@/components/MapStatus";
 import { ModelSelector } from "@/components/ModelSelector";
+import { Page, PageTitle } from "@/components/Page";
 import { Visualizer } from "@/components/Visualizer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -238,8 +239,8 @@ export default function PlaygroundPage() {
   const visualizing = solution !== null || visualizingUserSolution;
 
   return (
-    <div className="container mx-auto min-h-screen py-12 pb-24">
-      <h1 className="mb-6 text-center text-3xl font-bold">Playground</h1>
+    <Page>
+      <PageTitle>Playground</PageTitle>
 
       <div className="flex gap-8">
         {/* Left side: Grid */}
@@ -480,6 +481,6 @@ export default function PlaygroundPage() {
           </div>
         </Card>
       </div>
-    </div>
+    </Page>
   );
 }

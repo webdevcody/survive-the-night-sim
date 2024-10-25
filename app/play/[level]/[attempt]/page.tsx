@@ -4,6 +4,7 @@ import * as React from "react";
 import { ChevronLeftIcon } from "@radix-ui/react-icons";
 import { useQuery } from "convex/react";
 import Link from "next/link";
+import { Page, PageTitle } from "@/components/Page";
 import { Visualizer } from "@/components/Visualizer";
 import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
@@ -23,7 +24,7 @@ export default function PlayLevelAttemptPage({
 
   if (attempt === undefined) {
     return (
-      <div className="container mx-auto flex min-h-screen flex-col items-center gap-8 py-12 pb-24">
+      <Page className="flex flex-col items-center gap-8">
         <div className="flex w-full items-center justify-between">
           <Button variant="outline" asChild className="flex items-center gap-2">
             <Link href={`/play/${level}`} passHref>
@@ -31,10 +32,10 @@ export default function PlayLevelAttemptPage({
             </Link>
           </Button>
         </div>
-        <h1 className="text-center text-3xl font-bold">Night #{level}</h1>
+        <PageTitle>Night #{level}</PageTitle>
         <h2 className="mb-4 text-xl font-semibold">Attempt #{attemptNum}</h2>
         Loading...
-      </div>
+      </Page>
     );
   } else if (attempt === null) {
     return (
@@ -45,7 +46,7 @@ export default function PlayLevelAttemptPage({
   }
 
   return (
-    <div className="container mx-auto flex min-h-screen flex-col items-center gap-8 py-12 pb-24">
+    <Page className="flex flex-col items-center gap-8">
       <div className="flex w-full items-center justify-between">
         <Button variant="outline" asChild className="flex items-center gap-2">
           <Link href={`/play/${level}`} passHref>
@@ -53,7 +54,7 @@ export default function PlayLevelAttemptPage({
           </Link>
         </Button>
       </div>
-      <h1 className="text-center text-3xl font-bold">Night #{level}</h1>
+      <PageTitle>Night #{level}</PageTitle>
       <h2 className="mb-4 text-xl font-semibold">Attempt #{attemptNum}</h2>
 
       <div className="flex flex-col items-center gap-y-2">
@@ -66,6 +67,6 @@ export default function PlayLevelAttemptPage({
           {attempt.didWin ? "You Survived!" : "You Died!"}
         </div>
       </div>
-    </div>
+    </Page>
   );
 }

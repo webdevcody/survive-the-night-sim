@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery } from "convex/react";
 import { Map } from "@/components/Map";
+import { Page, PageTitle } from "@/components/Page";
 import { PlayMapButton } from "@/components/PlayMapButton";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,8 +22,8 @@ export default function AdminReviewPage() {
 
   if (isAdmin == true) {
     return (
-      <div className="container mx-auto min-h-screen gap-8 py-12 pb-24">
-        <h1 className="mb-6 text-center text-3xl font-bold">Review Maps</h1>
+      <Page>
+        <PageTitle>Review Maps</PageTitle>
         <div className="grid grid-cols-[max-content_max-content] justify-center gap-4">
           {maps?.map((map) => (
             <Card key={map._id}>
@@ -56,7 +57,7 @@ export default function AdminReviewPage() {
             </Card>
           ))}
         </div>
-      </div>
+      </Page>
     );
   }
 
