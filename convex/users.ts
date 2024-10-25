@@ -150,7 +150,16 @@ export const deleteUserById = mutation({
     for (const account of authAccounts) {
       await ctx.db.delete(account._id);
     }
-    
+
+    const admin = await ctx.db
+      .query("admins")
+      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .first();
+
+    if (admin) {
+      await ctx.db.delete(admin._id);
+    }
+
     await ctx.db.delete(args.userId);
   },
 });
