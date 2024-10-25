@@ -4,7 +4,7 @@ import {
   customMutation,
   customQuery,
 } from "convex-helpers/server/customFunctions";
-import { ConvexError } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
 export const viewer = query({
@@ -118,3 +118,39 @@ export const authenticatedMutation = customMutation(
     };
   }),
 );
+
+export const deleteUserById = mutation({
+  args: {
+    userId: v.id("users"),
+  },
+  handler: async (ctx, args) => {
+    if (args.userId === null) {
+      throw new ConvexError(SIGN_IN_ERROR_MESSAGE);
+    }
+
+    const userResults = await ctx.db
+      .query("userResults")
+      .filter((q) => q.eq(q.field("userId"), args.userId))
+      .collect();
+    for (const result of userResults) {
+      await ctx.db.delete(result._id);
+    }
+
+    const maps = await ctx.db
+      .query("maps")
+      .filter((q) => q.eq(q.field("submittedBy"), args.userId))
+      .collect();
+    for (const map of maps) {
+      await ctx.db.patch(map._id, { submittedBy: undefined });
+    }
+
+    const authAccounts = await ctx.db.query("authAccounts").filter(q => q.eq(q.field("userId"), args.userId)).collect();
+
+    // Iterate over the queried documents and delete each one
+    for (const account of authAccounts) {
+      await ctx.db.delete(account._id);
+    }
+    
+    await ctx.db.delete(args.userId);
+  },
+});
