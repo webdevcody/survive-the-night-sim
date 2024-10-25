@@ -219,6 +219,17 @@ export default function PlaygroundPage() {
     }
   }
 
+  // function handleReset() {
+  //   handleChangeMap([]);
+  //   setSolution(null);
+  //   setReasoning(null);
+  //   setPublishing(false);
+  //   setSimulating(false);
+  //   setUserPlaying(false);
+  //   setUserSolution([]);
+  //   setVisualizingUserSolution(false);
+  // }
+
   useEffect(() => {
     const maybeMap = window.localStorage.getItem(STORAGE_MAP_KEY);
     const maybeModel = window.localStorage.getItem(STORAGE_MODEL_KEY);
