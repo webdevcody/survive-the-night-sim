@@ -1,10 +1,8 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
+import { AUTO_REPLAY_SPEED, REPLAY_SPEED } from "@/constants/visualizer";
 import { Renderer } from "@/renderer";
 import { ZombieSurvival } from "@/simulators/zombie-survival";
-
-const AUTO_REPLAY_SPEED = 1_500;
-const REPLAY_SPEED = 600;
 
 export function Visualizer({
   autoReplay = false,

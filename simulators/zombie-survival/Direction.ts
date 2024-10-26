@@ -51,6 +51,20 @@ export function directionFromString(val: string): Direction {
   }
 }
 
+export function determine(p1: Position, p2: Position): Direction {
+  if (p1.x > p2.x) {
+    return Direction.Left;
+  } else if (p1.x < p2.x) {
+    return Direction.Right;
+  } else if (p1.y > p2.y) {
+    return Direction.Up;
+  } else if (p1.y < p2.y) {
+    return Direction.Down;
+  }
+
+  throw new Error("Unable to determine direction");
+}
+
 export function move(position: Position, direction: Direction): Position {
   switch (direction) {
     case Direction.Down: {

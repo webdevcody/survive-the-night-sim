@@ -1,11 +1,12 @@
-import { Change } from "./Change";
+import { ChangeType } from "./Change";
+import { Entity } from "./Entity";
 import { Position, samePosition } from "./Position";
 import { Box } from "./entities/Box";
-import { Entity } from "./entities/Entity";
 import { Player } from "./entities/Player";
 import { Rock } from "./entities/Rock";
 import { Zombie } from "./entities/Zombie";
 import { entityAt } from "./lib/entityAt";
+import { REPLAY_SPEED } from "@/constants/visualizer";
 
 export class ZombieSurvival {
   public readonly boardHeight: number;
@@ -212,11 +213,19 @@ export class ZombieSurvival {
       zombie.walk();
 
       if (initialHealth[i] !== zombie.getHealth()) {
-        zombie.addChange(Change.Hit);
+        zombie.addChange({ type: ChangeType.Hit });
       }
 
-      if (!samePosition(initialPosition, zombie.getPosition())) {
-        zombie.addChange(Change.Walking);
+      const currentPosition = zombie.getPosition();
+
+      if (!samePosition(initialPosition, currentPosition)) {
+        zombie.addChange({
+          type: ChangeType.Walking,
+          duration: REPLAY_SPEED,
+          startedAt: Date.now(),
+          from: initialPosition,
+          to: currentPosition,
+        });
       }
     }
   }

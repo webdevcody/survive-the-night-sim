@@ -1,5 +1,5 @@
 export * from "./entities/Box";
-export * from "./entities/Entity";
+export * from "./Entity";
 export * from "./entities/Player";
 export * from "./entities/Rock";
 export * from "./entities/Zombie";

@@ -1,5 +1,6 @@
-import { type Change } from "../Change";
-import { Position } from "../Position";
+import { type Change, ChangeType } from "./Change";
+import { Position } from "./Position";
+import { randomId } from "./lib/randomId";
 
 export enum EntityType {
   Box,
@@ -9,8 +10,10 @@ export enum EntityType {
 }
 
 export class Entity {
+  private id: string = randomId();
+
   protected destructible: boolean;
-  protected changes: Change[];
+  protected changes: Change[] = [];
   protected health: number;
   protected position: Position;
   protected type: EntityType;
@@ -22,7 +25,6 @@ export class Entity {
     position: Position,
   ) {
     this.destructible = destructible;
-    this.changes = [];
     this.health = health;
     this.position = position;
     this.type = type;
@@ -32,12 +34,35 @@ export class Entity {
     this.changes.push(change);
   }
 
+  public animating(): boolean {
+    if (this.hasChange(ChangeType.Walking)) {
+      const change = this.getChange(ChangeType.Walking);
+      return Date.now() < change.startedAt + change.duration;
+    }
+
+    return false;
+  }
+
   public clearChanges(): void {
     this.changes = [];
   }
 
   public dead(): boolean {
     return this.health === 0;
+  }
+
+  public eq(entity: Entity): boolean {
+    return this.id === entity.id;
+  }
+
+  public getChange<T extends ChangeType>(type: T) {
+    const change = this.changes.find((change) => change.type === type);
+
+    if (change === undefined) {
+      throw new Error("Unable to find change of this type");
+    }
+
+    return change as Extract<Change, { type: T }>;
   }
 
   public getChanges(): Change[] {
@@ -58,6 +83,10 @@ export class Entity {
 
   public getType(): EntityType {
     return this.type;
+  }
+
+  public hasChange(type: ChangeType): boolean {
+    return this.changes.some((change) => change.type === type);
   }
 
   public hit() {

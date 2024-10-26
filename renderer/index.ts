@@ -1,9 +1,20 @@
+import { REPLAY_SPEED } from "@/constants/visualizer";
 import {
   type Entity,
   EntityType,
+  Position,
   ZombieSurvival,
+  move,
 } from "@/simulators/zombie-survival";
-import { Change } from "@/simulators/zombie-survival/Change";
+import { ChangeType } from "@/simulators/zombie-survival/Change";
+
+export interface AnimatedEntity {
+  entity: Entity;
+  duration: number;
+  startedAt: number;
+  from: Position;
+  to: Position;
+}
 
 export interface RendererAssets {
   loading: boolean;
@@ -60,27 +71,6 @@ async function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
-function getEntityImage(entity: Entity): HTMLImageElement | null {
-  switch (entity.getType()) {
-    case EntityType.Box: {
-      return assets.box;
-    }
-    case EntityType.Player: {
-      return assets.player;
-    }
-    case EntityType.Rock: {
-      return assets.rock;
-    }
-    case EntityType.Zombie: {
-      if (entity.getChanges().includes(Change.Walking)) {
-        return assets.zombieWalking;
-      } else {
-        return assets.zombie;
-      }
-    }
-  }
-}
-
 export class Renderer {
   private readonly assets: RendererAssets;
   private readonly cellSize: number;
@@ -90,6 +80,8 @@ export class Renderer {
   private canvas2: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private ctx2: CanvasRenderingContext2D;
+  private req: number | null = null;
+  private simulator: ZombieSurvival | null = null;
 
   public constructor(
     boardHeight: number,
@@ -131,13 +123,34 @@ export class Renderer {
   }
 
   public render(simulator: ZombieSurvival) {
-    const entities = simulator.getAllEntities();
+    if (this.req !== null) {
+      window.cancelAnimationFrame(this.req);
+      this.req = null;
+    }
+
+    this.simulator = simulator;
+    this.draw();
+  }
+
+  private draw() {
+    if (this.simulator === null) {
+      return;
+    }
+
+    const entities = this.simulator.getAllEntities();
 
     this.ctx.clearRect(0, 0, this.w, this.h);
     this.drawBg();
 
     for (const entity of entities) {
       this.drawEntity(entity);
+    }
+
+    if (this.hasEntitiesToAnimate()) {
+      this.req = window.requestAnimationFrame(() => {
+        this.req = null;
+        this.draw();
+      });
     }
   }
 
@@ -173,17 +186,30 @@ export class Renderer {
       return;
     }
 
-    const entityImage = getEntityImage(entity);
+    const entityImage = this.getEntityImage(entity);
 
     if (entityImage === null) {
       return;
     }
 
     const entityPosition = entity.getPosition();
-    const x = entityPosition.x * this.cellSize;
-    const y = entityPosition.y * this.cellSize;
+    let x = entityPosition.x;
+    let y = entityPosition.y;
 
-    if (entity.getChanges().includes(Change.Hit)) {
+    if (entity.hasChange(ChangeType.Walking)) {
+      const change = entity.getChange(ChangeType.Walking);
+      const timePassed = Date.now() - change.startedAt;
+      const delta = timePassed / change.duration;
+      const { to, from } = change;
+
+      x = from.x + (to.x - from.x) * delta;
+      y = from.y + (to.y - from.y) * delta;
+    }
+
+    x *= this.cellSize;
+    y *= this.cellSize;
+
+    if (entity.hasChange(ChangeType.Hit)) {
       this.ctx2.clearRect(0, 0, this.cellSize, this.cellSize);
 
       this.ctx2.filter = "hue-rotate(300deg)";
@@ -199,5 +225,35 @@ export class Renderer {
     }
 
     this.ctx.drawImage(entityImage, x, y, this.cellSize, this.cellSize);
+  }
+
+  private getEntityImage(entity: Entity): HTMLImageElement | null {
+    switch (entity.getType()) {
+      case EntityType.Box: {
+        return this.assets.box;
+      }
+      case EntityType.Player: {
+        return this.assets.player;
+      }
+      case EntityType.Rock: {
+        return this.assets.rock;
+      }
+      case EntityType.Zombie: {
+        if (entity.hasChange(ChangeType.Walking)) {
+          return this.assets.zombieWalking;
+        } else {
+          return this.assets.zombie;
+        }
+      }
+    }
+  }
+
+  private hasEntitiesToAnimate(): boolean {
+    if (this.simulator === null) {
+      return false;
+    }
+
+    const entities = this.simulator.getAllEntities();
+    return entities.some((entity) => entity.animating());
   }
 }

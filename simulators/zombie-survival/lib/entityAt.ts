@@ -1,5 +1,5 @@
+import { Entity } from "../Entity";
 import { Position } from "../Position";
-import { Entity } from "../entities/Entity";
 
 export function entityAt(
   entities: Entity[],

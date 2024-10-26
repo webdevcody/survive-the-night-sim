@@ -1,9 +1,9 @@
 import { Direction, allDirections, move } from "../Direction";
+import { Entity, EntityType } from "../Entity";
 import { Position } from "../Position";
 import { ZombieSurvival } from "../ZombieSurvival";
 import { entityAt } from "../lib/entityAt";
 import { pathfinder } from "../lib/pathfinder";
-import { Entity, EntityType } from "./Entity";
 
 export class Zombie extends Entity {
   public static Destructible = true;
