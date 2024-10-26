@@ -1,3 +1,4 @@
+import { REPLAY_SPEED } from "../../constants/visualizer";
 import { ChangeType } from "./Change";
 import { Entity } from "./Entity";
 import { Position, samePosition } from "./Position";
@@ -6,7 +7,6 @@ import { Player } from "./entities/Player";
 import { Rock } from "./entities/Rock";
 import { Zombie } from "./entities/Zombie";
 import { entityAt } from "./lib/entityAt";
-import { REPLAY_SPEED } from "@/constants/visualizer";
 
 export class ZombieSurvival {
   public readonly boardHeight: number;
