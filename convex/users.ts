@@ -119,18 +119,17 @@ export const authenticatedMutation = customMutation(
   }),
 );
 
-export const deleteUserById = mutation({
-  args: {
-    userId: v.id("users"),
-  },
+export const deleteUserById = authenticatedMutation({
   handler: async (ctx, args) => {
-    if (args.userId === null) {
+
+    const userId = ctx.userId;
+    if (userId === null) {
       throw new ConvexError(SIGN_IN_ERROR_MESSAGE);
     }
 
     const userResults = await ctx.db
       .query("userResults")
-      .filter((q) => q.eq(q.field("userId"), args.userId))
+      .filter((q) => q.eq(q.field("userId"), userId))
       .collect();
     for (const result of userResults) {
       await ctx.db.delete(result._id);
@@ -138,13 +137,13 @@ export const deleteUserById = mutation({
 
     const maps = await ctx.db
       .query("maps")
-      .filter((q) => q.eq(q.field("submittedBy"), args.userId))
+      .filter((q) => q.eq(q.field("submittedBy"), userId))
       .collect();
     for (const map of maps) {
       await ctx.db.patch(map._id, { submittedBy: undefined });
     }
 
-    const authAccounts = await ctx.db.query("authAccounts").filter(q => q.eq(q.field("userId"), args.userId)).collect();
+    const authAccounts = await ctx.db.query("authAccounts").filter(q => q.eq(q.field("userId"), userId)).collect();
 
     // Iterate over the queried documents and delete each one
     for (const account of authAccounts) {
@@ -153,13 +152,13 @@ export const deleteUserById = mutation({
 
     const admin = await ctx.db
       .query("admins")
-      .withIndex("by_userId", (q) => q.eq("userId", args.userId))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .first();
 
     if (admin) {
       await ctx.db.delete(admin._id);
     }
 
-    await ctx.db.delete(args.userId);
+    await ctx.db.delete(userId);
   },
 });
