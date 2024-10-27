@@ -1,4 +1,3 @@
-import { REPLAY_SPEED } from "../../constants/visualizer";
 import { ChangeType } from "./Change";
 import { Entity } from "./Entity";
 import { Position, samePosition } from "./Position";
@@ -221,8 +220,6 @@ export class ZombieSurvival {
       if (!samePosition(initialPosition, currentPosition)) {
         zombie.addChange({
           type: ChangeType.Walking,
-          duration: REPLAY_SPEED,
-          startedAt: Date.now(),
           from: initialPosition,
           to: currentPosition,
         });

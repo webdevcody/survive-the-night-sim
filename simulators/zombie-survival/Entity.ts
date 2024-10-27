@@ -34,15 +34,6 @@ export class Entity {
     this.changes.push(change);
   }
 
-  public animating(): boolean {
-    if (this.hasChange(ChangeType.Walking)) {
-      const change = this.getChange(ChangeType.Walking);
-      return Date.now() < change.startedAt + change.duration;
-    }
-
-    return false;
-  }
-
   public clearChanges(): void {
     this.changes = [];
   }

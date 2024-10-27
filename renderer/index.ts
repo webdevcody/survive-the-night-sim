@@ -4,17 +4,8 @@ import {
   EntityType,
   Position,
   ZombieSurvival,
-  move,
 } from "@/simulators/zombie-survival";
 import { ChangeType } from "@/simulators/zombie-survival/Change";
-
-export interface AnimatedEntity {
-  entity: Entity;
-  duration: number;
-  startedAt: number;
-  from: Position;
-  to: Position;
-}
 
 export interface RendererAssets {
   loading: boolean;
@@ -25,6 +16,64 @@ export interface RendererAssets {
   rock: HTMLImageElement | null;
   zombie: HTMLImageElement | null;
   zombieWalking: HTMLImageElement | null;
+}
+
+export enum RendererEffectType {
+  HueRotate,
+  Move,
+  Opacity,
+}
+
+export type RendererEffect =
+  | {
+      type: RendererEffectType.HueRotate;
+      degree: number;
+    }
+  | {
+      type: RendererEffectType.Move;
+      duration: number;
+      startedAt: number;
+      to: Position;
+    }
+  | {
+      type: RendererEffectType.Opacity;
+      value: number;
+    };
+
+export class RendererItem {
+  data: HTMLImageElement;
+  effects: RendererEffect[];
+  height: number;
+  position: Position;
+  width: number;
+
+  constructor(
+    data: HTMLImageElement,
+    effects: RendererEffect[],
+    height: number,
+    position: Position,
+    width: number,
+  ) {
+    this.data = data;
+    this.effects = effects;
+    this.height = height;
+    this.position = position;
+    this.width = width;
+  }
+
+  public getEffect<T extends RendererEffectType>(type: T) {
+    const effect = this.effects.find((effect) => effect.type === type);
+
+    if (effect === undefined) {
+      throw new Error("Unable to find effect of this type");
+    }
+
+    return effect as Extract<RendererEffect, { type: T }>;
+  }
+
+  public hasEffect(type: RendererEffectType): boolean {
+    return this.effects.some((effect) => effect.type === type);
+  }
 }
 
 const assets: RendererAssets = {
@@ -80,8 +129,8 @@ export class Renderer {
   private canvas2: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private ctx2: CanvasRenderingContext2D;
+  private items: RendererItem[] = [];
   private req: number | null = null;
-  private simulator: ZombieSurvival | null = null;
 
   public constructor(
     boardHeight: number,
@@ -128,25 +177,18 @@ export class Renderer {
       this.req = null;
     }
 
-    this.simulator = simulator;
+    this.register(simulator);
     this.draw();
   }
 
   private draw() {
-    if (this.simulator === null) {
-      return;
-    }
-
-    const entities = this.simulator.getAllEntities();
-
     this.ctx.clearRect(0, 0, this.w, this.h);
-    this.drawBg();
 
-    for (const entity of entities) {
-      this.drawEntity(entity);
+    for (const item of this.items) {
+      this.drawItem(item);
     }
 
-    if (this.hasEntitiesToAnimate()) {
+    if (this.shouldAnimate()) {
       this.req = window.requestAnimationFrame(() => {
         this.req = null;
         this.draw();
@@ -154,66 +196,30 @@ export class Renderer {
     }
   }
 
-  private drawBg() {
-    if (assets.bg === null) {
-      return;
+  private drawItem(item: RendererItem) {
+    if (item.hasEffect(RendererEffectType.Opacity)) {
+      const effect = item.getEffect(RendererEffectType.Opacity);
+      this.ctx.globalAlpha = effect.value / 100;
     }
 
-    const canvasRatio = this.w / this.h;
-    const bgRatio = assets.bg.width / assets.bg.height;
+    let x = item.position.x;
+    let y = item.position.y;
 
-    let drawWidth, drawHeight, offsetX, offsetY;
+    if (item.hasEffect(RendererEffectType.Move)) {
+      const effect = item.getEffect(RendererEffectType.Move);
+      const timePassed = Date.now() - effect.startedAt;
+      const delta = timePassed / effect.duration;
 
-    if (bgRatio > canvasRatio) {
-      drawWidth = this.h * bgRatio;
-      drawHeight = this.h;
-      offsetX = (this.w - drawWidth) / 2;
-      offsetY = 0;
-    } else {
-      drawWidth = this.w;
-      drawHeight = this.w / bgRatio;
-      offsetX = 0;
-      offsetY = (this.h - drawHeight) / 2;
+      x += (effect.to.x - x) * delta;
+      y += (effect.to.y - y) * delta;
     }
 
-    this.ctx.globalAlpha = 0.5;
-    this.ctx.drawImage(assets.bg, offsetX, offsetY, drawWidth, drawHeight);
-    this.ctx.globalAlpha = 1.0;
-  }
-
-  private drawEntity(entity: Entity) {
-    if (entity.dead()) {
-      return;
-    }
-
-    const entityImage = this.getEntityImage(entity);
-
-    if (entityImage === null) {
-      return;
-    }
-
-    const entityPosition = entity.getPosition();
-    let x = entityPosition.x;
-    let y = entityPosition.y;
-
-    if (entity.hasChange(ChangeType.Walking)) {
-      const change = entity.getChange(ChangeType.Walking);
-      const timePassed = Date.now() - change.startedAt;
-      const delta = timePassed / change.duration;
-      const { to, from } = change;
-
-      x = from.x + (to.x - from.x) * delta;
-      y = from.y + (to.y - from.y) * delta;
-    }
-
-    x *= this.cellSize;
-    y *= this.cellSize;
-
-    if (entity.hasChange(ChangeType.Hit)) {
+    if (item.hasEffect(RendererEffectType.HueRotate)) {
+      const effect = item.getEffect(RendererEffectType.HueRotate);
       this.ctx2.clearRect(0, 0, this.cellSize, this.cellSize);
 
-      this.ctx2.filter = "hue-rotate(300deg)";
-      this.ctx2.drawImage(entityImage, 0, 0, this.cellSize, this.cellSize);
+      this.ctx2.filter = `hue-rotate(${effect.degree}deg)`;
+      this.ctx2.drawImage(item.data, 0, 0, this.cellSize, this.cellSize);
       this.ctx2.filter = "none";
 
       this.ctx2.globalCompositeOperation = "destination-in";
@@ -221,10 +227,11 @@ export class Renderer {
       this.ctx2.globalCompositeOperation = "source-over";
 
       this.ctx.drawImage(this.canvas2, x, y, this.cellSize, this.cellSize);
-      return;
+    } else {
+      this.ctx.drawImage(item.data, x, y, item.width, item.height);
     }
 
-    this.ctx.drawImage(entityImage, x, y, this.cellSize, this.cellSize);
+    this.ctx.globalAlpha = 1;
   }
 
   private getEntityImage(entity: Entity): HTMLImageElement | null {
@@ -248,12 +255,122 @@ export class Renderer {
     }
   }
 
-  private hasEntitiesToAnimate(): boolean {
-    if (this.simulator === null) {
-      return false;
+  private register(simulator: ZombieSurvival) {
+    this.items = [];
+    this.registerBg();
+
+    const entities = simulator.getAllEntities();
+
+    for (const entity of entities) {
+      this.registerEntity(entity);
+    }
+  }
+
+  private registerBg() {
+    if (assets.bg === null) {
+      return;
     }
 
-    const entities = this.simulator.getAllEntities();
-    return entities.some((entity) => entity.animating());
+    const canvasRatio = this.w / this.h;
+    const bgRatio = assets.bg.width / assets.bg.height;
+    let drawWidth, drawHeight, offsetX, offsetY;
+
+    if (bgRatio > canvasRatio) {
+      drawWidth = this.h * bgRatio;
+      drawHeight = this.h;
+      offsetX = (this.w - drawWidth) / 2;
+      offsetY = 0;
+    } else {
+      drawWidth = this.w;
+      drawHeight = this.w / bgRatio;
+      offsetX = 0;
+      offsetY = (this.h - drawHeight) / 2;
+    }
+
+    this.items.push(
+      new RendererItem(
+        assets.bg,
+        [
+          {
+            type: RendererEffectType.Opacity,
+            value: 50,
+          },
+        ],
+        drawHeight,
+        {
+          x: offsetX,
+          y: offsetY,
+        },
+        drawWidth,
+      ),
+    );
+  }
+
+  private registerEntity(entity: Entity) {
+    const entityImage = this.getEntityImage(entity);
+
+    if (entityImage === null || entity.dead()) {
+      return;
+    }
+
+    const effects: RendererEffect[] = [];
+
+    const position: Position = {
+      x: entity.getPosition().x * this.cellSize,
+      y: entity.getPosition().y * this.cellSize,
+    };
+
+    if (entity.hasChange(ChangeType.Hit)) {
+      effects.push({
+        type: RendererEffectType.HueRotate,
+        degree: 300,
+      });
+    }
+
+    if (entity.hasChange(ChangeType.Walking)) {
+      const change = entity.getChange(ChangeType.Walking);
+      const { to, from } = change;
+
+      position.x = from.x * this.cellSize;
+      position.y = from.y * this.cellSize;
+
+      effects.push({
+        type: RendererEffectType.Move,
+        duration: REPLAY_SPEED,
+        startedAt: Date.now(),
+        to: {
+          x: to.x * this.cellSize,
+          y: to.y * this.cellSize,
+        },
+      });
+    }
+
+    this.items.push(
+      new RendererItem(
+        entityImage,
+        effects,
+        this.cellSize,
+        position,
+        this.cellSize,
+      ),
+    );
+  }
+
+  private shouldAnimate(): boolean {
+    for (const item of this.items) {
+      if (item.effects.length === 0) {
+        continue;
+      }
+
+      for (const effect of item.effects) {
+        if (effect.type === RendererEffectType.Move) {
+          if (Date.now() < effect.startedAt + effect.duration) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
   }
 }

@@ -18,8 +18,6 @@ export interface KilledChange {
 
 export interface WalkingChange {
   type: ChangeType.Walking;
-  duration: number;
-  startedAt: number;
   from: Position;
   to: Position;
 }
