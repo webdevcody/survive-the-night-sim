@@ -32,14 +32,9 @@ export function getCellImage(cell: string) {
   if (cell === "L") {
     return (
       <img
-        src="/entities/block.svg"
-        alt="Block"
+        src="/entities/landmine.svg"
+        alt="Landmine"
         className="h-full w-full"
-        style={{
-          position: "relative",
-          top: "0px",
-          left: "0px",
-        }}
       />
     );
   }

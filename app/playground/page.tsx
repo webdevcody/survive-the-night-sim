@@ -146,8 +146,11 @@ export default function PlaygroundPage() {
 
     // Remove players and blocks from the map
     const cleanedMap = map.map((row) =>
-      row.map((cell) => (cell === "P" || cell === "B" ? " " : cell)),
+      row.map((cell) =>
+        cell === "P" || cell === "B" || cell === "L" ? " " : cell,
+      ),
     );
+
     setMap(cleanedMap);
     window.localStorage.setItem(STORAGE_MAP_KEY, JSON.stringify(cleanedMap));
   }
@@ -318,49 +321,52 @@ export default function PlaygroundPage() {
                         row.map((cell, x) => (
                           <div
                             key={`${x}-${y}`}
-                            className={`${
-                              cell === " " ||
-                              cell === "Z" ||
-                              cell === "R" ||
-                              cell === "P" ||
-                              cell === "B"
-                                ? "z-10 cursor-pointer hover:border-2 hover:border-dashed hover:border-slate-300"
-                                : ""
-                            } border border-transparent`}
+                            className="z-10 cursor-pointer border border-transparent hover:border-2 hover:border-dashed hover:border-slate-300"
                             onClick={() => {
                               const newMap = userPlaying
                                 ? [...userSolution]
                                 : [...map];
+
                               if (userPlaying) {
-                                // Count existing players and blocks
                                 const playerCount = newMap
                                   .flat()
                                   .filter((c) => c === "P").length;
                                 const blockCount = newMap
                                   .flat()
                                   .filter((c) => c === "B").length;
+                                const landmineCount = newMap
+                                  .flat()
+                                  .filter((c) => c === "L").length;
 
-                                // Toggle logic for play mode
                                 if (cell === " ") {
                                   if (playerCount === 0) {
                                     newMap[y][x] = "P";
                                   } else if (blockCount < 2) {
                                     newMap[y][x] = "B";
+                                  } else if (landmineCount === 0) {
+                                    newMap[y][x] = "L";
                                   }
                                 } else if (cell === "P") {
                                   newMap[y][x] = " ";
                                 } else if (cell === "B") {
                                   newMap[y][x] = " ";
+                                } else if (cell === "L") {
+                                  newMap[y][x] = " ";
                                 }
+
                                 userPlaying
                                   ? setUserSolution(newMap)
                                   : handleChangeMap(newMap);
                               } else {
-                                // Toggle between empty, zombie, and rock for edit mode
-                                if (cell === " ") newMap[y][x] = "Z";
-                                else if (cell === "Z") newMap[y][x] = "R";
-                                else newMap[y][x] = " ";
+                                if (cell === " ") {
+                                  newMap[y][x] = "Z";
+                                } else if (cell === "Z") {
+                                  newMap[y][x] = "R";
+                                } else {
+                                  newMap[y][x] = " ";
+                                }
                               }
+
                               userPlaying
                                 ? setUserSolution(newMap)
                                 : handleChangeMap(newMap);

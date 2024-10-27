@@ -14,6 +14,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/convex/_generated/api";
 import { ZombieSurvival } from "@/simulators/zombie-survival";
 
+type PlacementMode = "player" | "block" | "landmine";
+
 export default function PlayLevelPage({
   params,
 }: {
@@ -24,10 +26,9 @@ export default function PlayLevelPage({
   const [playerMap, setPlayerMap] = useState<string[][]>([]);
   const [isSimulating, setIsSimulating] = useState(false);
   const [gameResult, setGameResult] = useState<"WON" | "LOST" | null>(null);
-  const [placementMode, setPlacementMode] = useState<"player" | "block">(
-    "player",
-  );
+  const [placementMode, setPlacementMode] = useState<PlacementMode>("player");
   const [blockCount, setBlockCount] = useState(0);
+  const [landmineCount, setLandmineCount] = useState(0);
   const flags = useQuery(api.flags.getFlags);
   const [mode, setMode] = useState<"play" | "test">("play");
 
@@ -83,6 +84,7 @@ export default function PlayLevelPage({
     setIsSimulating(false);
     setGameResult(null);
     setBlockCount(0);
+    setLandmineCount(0);
     setPlayerMap(map.grid.map((row) => [...row]));
     setPlacementMode("player");
   };
@@ -92,16 +94,16 @@ export default function PlayLevelPage({
 
     const newMap = [...playerMap];
     if (placementMode === "player") {
-      // Remove existing player if any
-      for (let i = 0; i < newMap.length; i++) {
-        for (let j = 0; j < newMap[i].length; j++) {
-          if (newMap[i][j] === "P") {
-            newMap[i][j] = " ";
+      if (newMap[y][x] === " ") {
+        // Remove existing player if any
+        for (let i = 0; i < newMap.length; i++) {
+          for (let j = 0; j < newMap[i].length; j++) {
+            if (newMap[i][j] === "P") {
+              newMap[i][j] = " ";
+            }
           }
         }
-      }
-      // Place new player
-      if (newMap[y][x] === " ") {
+
         newMap[y][x] = "P";
       }
     } else if (placementMode === "block") {
@@ -115,13 +117,24 @@ export default function PlayLevelPage({
           setBlockCount(blockCount + 1);
         }
       }
+    } else if (placementMode === "landmine") {
+      // Place new landmine
+      if (newMap[y][x] === "L") {
+        newMap[y][x] = " ";
+        setLandmineCount(landmineCount - 1);
+      } else if (landmineCount < 2) {
+        if (newMap[y][x] === " ") {
+          newMap[y][x] = "L";
+          setLandmineCount(landmineCount + 1);
+        }
+      }
     }
     setPlayerMap(newMap);
   };
 
-  const handlePlacementModeChange = async (mode: "player" | "block") => {
+  function handlePlacementModeChange(mode: PlacementMode) {
     setPlacementMode(mode);
-  };
+  }
 
   const runSimulation = () => {
     if (!ZombieSurvival.mapHasPlayer(playerMap)) {
@@ -153,6 +166,7 @@ export default function PlayLevelPage({
   const handleClearMap = () => {
     setPlayerMap(map.grid.map((row) => [...row]));
     setBlockCount(0);
+    setLandmineCount(0);
     setPlacementMode("player");
   };
 
@@ -197,6 +211,13 @@ export default function PlayLevelPage({
               className="h-10"
             >
               Place Block ({2 - blockCount} left)
+            </Button>
+            <Button
+              onClick={() => handlePlacementModeChange("landmine")}
+              variant={placementMode === "landmine" ? "default" : "outline"}
+              className="h-10"
+            >
+              Place Landmine ({1 - landmineCount} left)
             </Button>
           </div>
           <div className="mb-8 flex flex-col items-center">
