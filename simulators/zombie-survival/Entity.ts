@@ -4,6 +4,7 @@ import { randomId } from "./lib/randomId";
 
 export enum EntityType {
   Box,
+  Landmine,
   Player,
   Rock,
   Zombie,
@@ -40,6 +41,10 @@ export class Entity {
 
   public dead(): boolean {
     return this.health === 0;
+  }
+
+  public die(): void {
+    this.health = 0;
   }
 
   public eq(entity: Entity): boolean {
@@ -105,6 +110,8 @@ export class Entity {
 
     if (this.type === EntityType.Box) {
       letter = "B";
+    } else if (this.type === EntityType.Landmine) {
+      letter = "L";
     } else if (this.type === EntityType.Player) {
       letter = "P";
     } else if (this.type === EntityType.Rock) {

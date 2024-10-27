@@ -2,6 +2,7 @@ import { ChangeType } from "./Change";
 import { Entity } from "./Entity";
 import { Position, samePosition } from "./Position";
 import { Box } from "./entities/Box";
+import { Landmine } from "./entities/Landmine";
 import { Player } from "./entities/Player";
 import { Rock } from "./entities/Rock";
 import { Zombie } from "./entities/Zombie";
@@ -93,6 +94,10 @@ export class ZombieSurvival {
         switch (code.toLowerCase()) {
           case "b": {
             this.entities.push(new Box({ x, y }));
+            break;
+          }
+          case "l": {
+            this.entities.push(new Landmine({ x, y }));
             break;
           }
           case "p": {

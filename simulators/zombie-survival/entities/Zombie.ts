@@ -57,10 +57,11 @@ export class Zombie extends Entity {
 
     if (entity !== null) {
       if (entity.getType() !== EntityType.Zombie) {
+        if (entity.getType() === EntityType.Landmine) {
+          this.die();
+        }
+
         entity.hit();
-      } else if (entity.getType() === EntityType.Zombie) {
-        // we can't move into another zombie
-        return;
       }
 
       return;
