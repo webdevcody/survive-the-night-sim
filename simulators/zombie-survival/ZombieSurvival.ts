@@ -199,19 +199,19 @@ export class ZombieSurvival {
     this.player.clearChanges();
     this.player.shoot();
 
-    for (let i = 0; i < this.zombies.length; i++) {
+    for (let i = 0; i < this.zombies.length && !this.player.dead(); i++) {
       const zombie = this.zombies[i];
-
-      if (this.player.dead()) {
-        break;
-      }
-
       const initialPosition = zombie.getPosition();
+      const initialZombieHealth = initialHealth[i];
 
       zombie.clearChanges();
       zombie.walk();
 
-      if (initialHealth[i] !== zombie.getHealth()) {
+      if (initialZombieHealth !== 0 && zombie.getHealth() === 0) {
+        zombie.addChange({ type: ChangeType.Killed });
+      }
+
+      if (initialZombieHealth !== zombie.getHealth()) {
         zombie.addChange({ type: ChangeType.Hit });
       }
 

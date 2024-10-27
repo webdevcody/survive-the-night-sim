@@ -80,6 +80,10 @@ export class Entity {
     return this.changes.some((change) => change.type === type);
   }
 
+  public hasChanges(): boolean {
+    return this.changes.length !== 0;
+  }
+
   public hit() {
     if (!this.destructible) {
       return;

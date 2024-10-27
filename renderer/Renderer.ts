@@ -134,7 +134,9 @@ export class Renderer {
         return assets.rock;
       }
       case EntityType.Zombie: {
-        if (entity.hasChange(ChangeType.Walking)) {
+        if (entity.hasChange(ChangeType.Killed)) {
+          return assets.zombieDead;
+        } else if (entity.hasChange(ChangeType.Walking)) {
           return assets.zombieWalking;
         } else {
           return assets.zombie;
@@ -191,7 +193,7 @@ export class Renderer {
   private registerEntity(entity: Entity) {
     const entityImage = this.getEntityImage(entity);
 
-    if (entityImage === null || entity.dead()) {
+    if (entityImage === null || (entity.dead() && !entity.hasChanges())) {
       return;
     }
 
