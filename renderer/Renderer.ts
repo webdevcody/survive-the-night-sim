@@ -127,6 +127,9 @@ export class Renderer {
       case EntityType.Box: {
         return assets.box;
       }
+      case EntityType.Landmine: {
+        return assets.landmine;
+      }
       case EntityType.Player: {
         return assets.player;
       }

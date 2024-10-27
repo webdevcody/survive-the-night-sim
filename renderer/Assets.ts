@@ -3,6 +3,7 @@ export interface RendererAssets {
   loaded: boolean;
   bg: HTMLImageElement | null;
   box: HTMLImageElement | null;
+  landmine: HTMLImageElement | null;
   player: HTMLImageElement | null;
   rock: HTMLImageElement | null;
   zombie: HTMLImageElement | null;
@@ -15,6 +16,7 @@ export const assets: RendererAssets = {
   loaded: false,
   bg: null,
   box: null,
+  landmine: null,
   player: null,
   rock: null,
   zombie: null,
@@ -29,10 +31,11 @@ export async function loadAssets() {
 
   assets.loading = true;
 
-  const [bg, box, player, rock, zombie, zombieDead, zombieWalking] =
+  const [bg, box, landmine, player, rock, zombie, zombieDead, zombieWalking] =
     await Promise.all([
       loadAssetImage("/map.webp"),
       loadAssetImage("/entities/box.svg"),
+      loadAssetImage("/entities/landmine.svg"),
       loadAssetImage("/entities/player-attacking.svg"),
       loadAssetImage("/entities/rock.svg"),
       loadAssetImage("/entities/zombie-idle.svg"),
@@ -43,6 +46,7 @@ export async function loadAssets() {
   assets.loaded = true;
   assets.bg = bg;
   assets.box = box;
+  assets.landmine = landmine;
   assets.player = player;
   assets.rock = rock;
   assets.zombie = zombie;
