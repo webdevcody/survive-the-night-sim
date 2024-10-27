@@ -4,39 +4,32 @@ export function getCellImage(cell: string) {
   if (cell === "Z") {
     return (
       <img
-        src="/entities/zombie_alive_1.svg"
+        src="/entities/zombie-idle.svg"
         alt="Zombie"
-        className="h-full w-full"
-        style={{
-          width: "100%",
-          height: "100%",
-          position: "relative",
-          top: "-20px",
-          left: "16px",
-        }}
+        className="relative -top-5 left-0 h-full w-full"
       />
     );
   }
   if (cell === "P") {
     return (
       <img
-        src="/entities/player_alive_1.svg"
+        src="/entities/player-idle.svg"
         alt="Player"
-        className="h-full w-full"
-        style={{
-          position: "relative",
-          top: "-20px",
-          left: "4px",
-        }}
+        className="relative -top-5 left-0 h-full w-full"
       />
     );
   }
   if (cell === "R") {
     return (
-      <img src="/entities/rocks.svg" alt="Block" className="h-full w-full" />
+      <img src="/entities/rock.svg" alt="Block" className="h-full w-full" />
     );
   }
   if (cell === "B") {
+    return (
+      <img src="/entities/box.svg" alt="Block" className="h-full w-full" />
+    );
+  }
+  if (cell === "L") {
     return (
       <img
         src="/entities/block.svg"
@@ -71,7 +64,7 @@ export function Map({ map, size = 64 }: { map: string[][]; size?: number }) {
                   width: `${size}px`,
                   height: `${size}px`,
                 }}
-                className={`flex items-center justify-center border border-gray-700 bg-transparent text-2xl dark:border-gray-300`}
+                className="flex items-center justify-center border border-gray-700 bg-transparent text-2xl dark:border-gray-300"
               >
                 {getCellImage(cell)}
               </div>
