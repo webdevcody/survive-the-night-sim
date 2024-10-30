@@ -120,8 +120,7 @@ export const authenticatedMutation = customMutation(
 );
 
 export const deleteUserById = authenticatedMutation({
-  handler: async (ctx, args) => {
-
+  handler: async (ctx) => {
     const userId = ctx.userId;
     if (userId === null) {
       throw new ConvexError(SIGN_IN_ERROR_MESSAGE);
@@ -132,25 +131,28 @@ export const deleteUserById = authenticatedMutation({
       .filter((q) => q.eq(q.field("userId"), userId))
       .collect();
 
-    const promises: Promise<void>[] = [];  
+    const promises: Promise<void>[] = [];
 
     for (const result of userResults) {
       promises.push(ctx.db.delete(result._id));
     }
 
-    const maps = await ctx.db
-      .query("maps")
-      .filter((q) => q.eq(q.field("submittedBy"), userId))
+    const authAccounts = await ctx.db
+      .query("authAccounts")
+      .filter((q) => q.eq(q.field("userId"), userId))
       .collect();
-    for (const map of maps) {
-      promises.push(ctx.db.patch(map._id, { submittedBy: undefined }));
-    }
 
-    const authAccounts = await ctx.db.query("authAccounts").filter(q => q.eq(q.field("userId"), userId)).collect();
-
-    // Iterate over the queried documents and delete each one
     for (const account of authAccounts) {
       promises.push(ctx.db.delete(account._id));
+    }
+
+    const authSessions = await ctx.db
+      .query("authSessions")
+      .filter((q) => q.eq(q.field("userId"), userId))
+      .collect();
+
+    for (const session of authSessions) {
+      promises.push(ctx.db.delete(session._id));
     }
 
     const admin = await ctx.db
@@ -164,6 +166,6 @@ export const deleteUserById = authenticatedMutation({
 
     promises.push(ctx.db.delete(userId));
 
-    await Promise.all(promises);  
+    await Promise.all(promises);
   },
 });
