@@ -23,6 +23,7 @@ export type ModelHandler = (
   promptTokens?: number;
   outputTokens?: number;
   totalTokensUsed?: number;
+  totalRunCost?: number;
 }>;
 
 const MAX_RETRIES = 1;
@@ -47,7 +48,7 @@ export async function runModel(
   promptTokens?: number;
   outputTokens?: number;
   totalTokensUsed?: number;
-  totalRunCost: number;
+  totalRunCost?: number;
   error?: string;
 }> {
   const userPrompt =
@@ -111,6 +112,7 @@ export async function runModel(
       promptTokens: result.promptTokens,
       outputTokens: result.outputTokens,
       totalTokensUsed: result.totalTokensUsed,
+      totalRunCost: result.totalRunCost,
     };
   } catch (error) {
     if (retry === MAX_RETRIES || reasoning === null) {
