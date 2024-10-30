@@ -1,16 +1,5 @@
 "use client";
 
-import { useState } from "react";
-import { useAuthActions } from "@convex-dev/auth/react";
-import {
-  ChevronDownIcon,
-  GitHubLogoIcon,
-  HamburgerMenuIcon,
-} from "@radix-ui/react-icons";
-import { Authenticated, Unauthenticated, useQuery } from "convex/react";
-import dynamic from "next/dynamic";
-import Image from "next/image";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -19,6 +8,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { api } from "@/convex/_generated/api";
+import { useAuthActions } from "@convex-dev/auth/react";
+import {
+  ChevronDownIcon,
+  GitHubLogoIcon,
+  HamburgerMenuIcon,
+} from "@radix-ui/react-icons";
+import { Authenticated, Unauthenticated, useQuery } from "convex/react";
+import { UserCircleIcon } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
 
 const links = [
   { href: "/", label: "Watch" },
@@ -109,11 +109,26 @@ export default function Header() {
             </Button>
           </Link>
         </Unauthenticated>
+        <div className="hidden md:block">
         <Authenticated>
-          <Button className="hidden md:block" onClick={() => void signOut()}>
-            Sign Out
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost">
+                <UserCircleIcon className="h-6 w-6" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem asChild>
+                <Link href="/settings">Settings</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <button onClick={() => void signOut()}>Sign Out</button>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </Authenticated>
+        </div>
+        
         <Button
           className="md:hidden"
           variant="ghost"
@@ -124,7 +139,7 @@ export default function Header() {
       </div>
 
       {isMobileMenuOpen && (
-        <div className="absolute left-0 top-16 w-full border-b bg-white shadow-md dark:bg-slate-950 md:hidden">
+        <div className="absolute left-0 top-16 w-full border-b bg-white shadow-md md:hidden dark:bg-slate-950">
           <nav className="flex flex-col items-start space-y-2 p-4">
             {links.map((link) => (
               <Button key={link.href} variant="ghost" asChild>
@@ -153,6 +168,9 @@ export default function Header() {
               <Button variant="ghost" onClick={() => void signOut()}>
                 Sign Out
               </Button>
+              <Button variant="ghost" asChild>
+                  <Link href="/settings">Settings</Link>
+                </Button>
             </Authenticated>
           </nav>
         </div>
