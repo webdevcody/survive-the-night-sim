@@ -10,6 +10,14 @@ import { Map } from "@/components/Map";
 import { Page, PageTitle } from "@/components/Page";
 import { Visualizer } from "@/components/Visualizer";
 import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/convex/_generated/api";
 import { ZombieSurvival } from "@/simulators/zombie-survival";
@@ -41,6 +49,8 @@ export default function PlayLevelPage({
 
   const userResultMutation = useMutation(api.playerresults.updateUserResult);
   const user = useQuery(api.users.getUserOrNull);
+
+  const levelRankings = useQuery(api.leaderboard.getLevelRankings, { level });
 
   const tries = useQuery(api.playerresults.getPlayerRecordsForAMap, {
     mapId: map?._id,
@@ -194,145 +204,186 @@ export default function PlayLevelPage({
         )}
       </div>
       <PageTitle>Night #{level}</PageTitle>
-
-      {mode === "play" ? (
-        <>
-          <div className="mb-4 flex justify-center gap-4">
-            <Button
-              onClick={() => handlePlacementModeChange("player")}
-              variant={placementMode === "player" ? "default" : "outline"}
-              className="h-10"
-            >
-              Place Player
-            </Button>
-            <Button
-              onClick={() => handlePlacementModeChange("block")}
-              variant={placementMode === "block" ? "default" : "outline"}
-              className="h-10"
-            >
-              Place Block ({2 - blockCount} left)
-            </Button>
-            <Button
-              onClick={() => handlePlacementModeChange("landmine")}
-              variant={placementMode === "landmine" ? "default" : "outline"}
-              className="h-10"
-            >
-              Place Landmine ({1 - landmineCount} left)
-            </Button>
-          </div>
-          <div className="mb-8 flex flex-col items-center">
-            <h2 className="mb-4 text-xl font-semibold">
-              {isSimulating ? "Simulation Result" : "Place Your Player"}
-            </h2>
-            {isSimulating ? (
-              <>
-                <Visualizer
-                  map={playerMap}
-                  autoStart
-                  onReset={handleReset}
-                  onSimulationEnd={handleSimulationEnd}
-                />
-                {gameResult && (
-                  <div
-                    className={`mt-4 text-2xl font-bold ${gameResult === "WON" ? "text-green-500" : "text-red-500"}`}
-                  >
-                    {gameResult === "WON" ? "You Survived!" : "You Died!"}
-                  </div>
-                )}
-              </>
-            ) : (
-              <div className="relative">
-                <Map map={playerMap} />
-                <div
-                  className="absolute inset-0 grid"
-                  style={{
-                    gridTemplateColumns: `repeat(${playerMap[0]?.length || 0}, minmax(0, 1fr))`,
-                    gridTemplateRows: `repeat(${playerMap.length || 0}, minmax(0, 1fr))`,
-                  }}
-                >
-                  {playerMap.map((row, y) =>
-                    row.map((cell, x) => (
-                      <div
-                        key={`${x}-${y}`}
-                        className={` ${cell === " " || cell === "B" ? "z-10 cursor-pointer hover:border-2 hover:border-dashed hover:border-slate-300" : ""} border border-transparent`}
-                        onClick={() => handleCellClick(x, y)}
-                      />
-                    )),
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-          <div className="flex justify-center gap-4">
-            {!isSimulating ? (
-              <>
-                <Button onClick={runSimulation} className="h-10">
-                  Run Simulation
-                </Button>
+      <div className="flex flex-col gap-12 lg:flex-row">
+        <div>
+          {mode === "play" ? (
+            <>
+              <div className="mb-4 flex justify-center gap-4">
                 <Button
-                  onClick={handleClearMap}
-                  variant="outline"
+                  onClick={() => handlePlacementModeChange("player")}
+                  variant={placementMode === "player" ? "default" : "outline"}
                   className="h-10"
                 >
-                  Clear Map
+                  Place Player
                 </Button>
-              </>
-            ) : (
-              <div className="flex items-center gap-x-3">
-                <Button onClick={handleRetryClicked} className="h-10">
-                  Retry
+                <Button
+                  onClick={() => handlePlacementModeChange("block")}
+                  variant={placementMode === "block" ? "default" : "outline"}
+                  className="h-10"
+                >
+                  Place Block ({2 - blockCount} left)
                 </Button>
-                {gameResult && gameResult === "WON" ? (
-                  <Button
-                    onClick={() => {
-                      if (lastLevel && level + 1 <= lastLevel) {
-                        router.push(`/play/${level + 1}`);
-                      } else {
-                        router.push("/play");
-                      }
-                    }}
-                    className="h-10"
-                  >
-                    {lastLevel && level + 1 <= lastLevel
-                      ? "Next Night"
-                      : "Back to Night Selection"}
-                  </Button>
-                ) : null}
+                <Button
+                  onClick={() => handlePlacementModeChange("landmine")}
+                  variant={placementMode === "landmine" ? "default" : "outline"}
+                  className="h-10"
+                >
+                  Place Landmine ({1 - landmineCount} left)
+                </Button>
               </div>
-            )}
-          </div>
-
-          <Authenticated>
-            {tries && tries.attempts && tries.attempts.length > 0 && (
-              <>
-                <div className="mt-4 text-2xl font-semibold">Tries</div>
-                <div className="flex w-full flex-wrap items-center justify-around gap-2">
-                  {tries.attempts.map((attempt, idx) => (
-                    <Button
-                      asChild
-                      className={
-                        attempt?.didWin ? "border-green-500" : "border-red-500"
-                      }
-                      key={attempt?._id}
-                      variant="outline"
-                    >
-                      <Link
-                        key={attempt?._id}
-                        className="flex flex-col items-center gap-y-2"
-                        href={`/play/${level}/${idx + 1}`}
+              <div className="mb-8 flex flex-col items-center">
+                <h2 className="mb-4 text-xl font-semibold">
+                  {isSimulating ? "Simulation Result" : "Place Your Player"}
+                </h2>
+                {isSimulating ? (
+                  <>
+                    <Visualizer
+                      map={playerMap}
+                      autoStart
+                      onReset={handleReset}
+                      onSimulationEnd={handleSimulationEnd}
+                    />
+                    {gameResult && (
+                      <div
+                        className={`mt-4 text-2xl font-bold ${gameResult === "WON" ? "text-green-500" : "text-red-500"}`}
                       >
-                        Attempt #{idx + 1}
-                      </Link>
+                        {gameResult === "WON" ? "You Survived!" : "You Died!"}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="relative">
+                    <Map map={playerMap} />
+                    <div
+                      className="absolute inset-0 grid"
+                      style={{
+                        gridTemplateColumns: `repeat(${playerMap[0]?.length || 0}, minmax(0, 1fr))`,
+                        gridTemplateRows: `repeat(${playerMap.length || 0}, minmax(0, 1fr))`,
+                      }}
+                    >
+                      {playerMap.map((row, y) =>
+                        row.map((cell, x) => (
+                          <div
+                            key={`${x}-${y}`}
+                            className={` ${cell === " " || cell === "B" ? "z-10 cursor-pointer hover:border-2 hover:border-dashed hover:border-slate-300" : ""} border border-transparent`}
+                            onClick={() => handleCellClick(x, y)}
+                          />
+                        )),
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="flex justify-center gap-4">
+                {!isSimulating ? (
+                  <>
+                    <Button onClick={runSimulation} className="h-10">
+                      Run Simulation
                     </Button>
-                  ))}
-                </div>
-              </>
-            )}
-          </Authenticated>
-        </>
-      ) : (
-        <TestMode level={level} map={map.grid} />
-      )}
+                    <Button
+                      onClick={handleClearMap}
+                      variant="outline"
+                      className="h-10"
+                    >
+                      Clear Map
+                    </Button>
+                  </>
+                ) : (
+                  <div className="flex items-center gap-x-3">
+                    <Button onClick={handleRetryClicked} className="h-10">
+                      Retry
+                    </Button>
+                    {gameResult && gameResult === "WON" ? (
+                      <Button
+                        onClick={() => {
+                          if (lastLevel && level + 1 <= lastLevel) {
+                            router.push(`/play/${level + 1}`);
+                          } else {
+                            router.push("/play");
+                          }
+                        }}
+                        className="h-10"
+                      >
+                        {lastLevel && level + 1 <= lastLevel
+                          ? "Next Night"
+                          : "Back to Night Selection"}
+                      </Button>
+                    ) : null}
+                  </div>
+                )}
+              </div>
+
+              <Authenticated>
+                {tries && tries.attempts && tries.attempts.length > 0 && (
+                  <>
+                    <div className="mt-4 text-2xl font-semibold">Tries</div>
+                    <div className="flex w-full flex-wrap items-center justify-around gap-2">
+                      {tries.attempts.map((attempt, idx) => (
+                        <Button
+                          asChild
+                          className={
+                            attempt?.didWin
+                              ? "border-green-500"
+                              : "border-red-500"
+                          }
+                          key={attempt?._id}
+                          variant="outline"
+                        >
+                          <Link
+                            key={attempt?._id}
+                            className="flex flex-col items-center gap-y-2"
+                            href={`/play/${level}/${idx + 1}`}
+                          >
+                            Attempt #{idx + 1}
+                          </Link>
+                        </Button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </Authenticated>
+            </>
+          ) : (
+            <TestMode level={level} map={map.grid} />
+          )}
+        </div>
+        <div className="space-y-8">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold">AI Leaderboard</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Model ID</TableHead>
+                  <TableHead className="text-right">Wins</TableHead>
+                  <TableHead className="text-right">Losses</TableHead>
+                  <TableHead className="text-right">Total Games</TableHead>
+                  <TableHead className="text-right">Win Ratio</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {levelRankings?.map((item) => (
+                  <TableRow key={item._id}>
+                    <TableCell>{item.modelId}</TableCell>
+                    <TableCell className="text-right">{item.wins}</TableCell>
+                    <TableCell className="text-right">{item.losses}</TableCell>
+                    <TableCell className="text-right">
+                      {item.wins + item.losses}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {((item.wins / (item.wins + item.losses)) * 100).toFixed(
+                        2,
+                      )}
+                      %
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      </div>
     </Page>
   );
 }
