@@ -21,33 +21,21 @@ export const getGlobalRankings = query({
   },
 });
 
-export const getAllLevelRankings = query({
-  handler: async ({ db }) => {
-    const res = await db.query("levelRankings").collect();
-
-    const sortedResults = res.sort((a, b) => {
-      if (a.level < b.level) {
-        return -1;
-      }
-      if (a.level > b.level) {
-        return 1;
-      }
-      return 0;
-    });
-
-    return sortedResults;
-  },
-});
-
 export const getLevelRankings = query({
   args: {
-    level: v.number(),
+    level: v.optional(v.number()),
   },
-  handler: async ({ db }, { level }) => {
-    const res = await db
-      .query("levelRankings")
-      .filter((q) => q.eq(q.field("level"), level))
-      .collect();
+  handler: async ({ db }, args) => {
+    let res;
+
+    if (args.level) {
+      res = await db
+        .query("levelRankings")
+        .filter((q) => q.eq(q.field("level"), args.level))
+        .collect();
+    } else {
+      res = await db.query("levelRankings").collect();
+    }
 
     const sortedResults = res.sort((a, b) => {
       if (a.level < b.level) {
