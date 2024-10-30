@@ -34,7 +34,7 @@ const LeaderBoard = () => {
   const globalRanking = useQuery(api.leaderboard.getGlobalRankings) as
     | Ranking[]
     | undefined;
-  const levelRanking = useQuery(api.leaderboard.getLevelRankings) as
+  const levelRanking = useQuery(api.leaderboard.getAllLevelRankings) as
     | Ranking[]
     | undefined;
 
