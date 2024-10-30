@@ -20,6 +20,9 @@ export type ModelHandler = (
   boxCoordinates: number[][];
   playerCoordinates: number[];
   reasoning: string;
+  promptTokens?: number;
+  outputTokens?: number;
+  totalTokensUsed?: number;
 }>;
 
 const MAX_RETRIES = 1;
@@ -41,6 +44,10 @@ export async function runModel(
 ): Promise<{
   solution?: string[][];
   reasoning: string;
+  promptTokens?: number;
+  outputTokens?: number;
+  totalTokensUsed?: number;
+  totalRunCost: number;
   error?: string;
 }> {
   const userPrompt =
@@ -101,6 +108,9 @@ export async function runModel(
     return {
       solution: originalMap,
       reasoning: result.reasoning,
+      promptTokens: result.promptTokens,
+      outputTokens: result.outputTokens,
+      totalTokensUsed: result.totalTokensUsed,
     };
   } catch (error) {
     if (retry === MAX_RETRIES || reasoning === null) {

@@ -38,9 +38,36 @@ export const gpt4o: ModelHandler = async (systemPrompt, userPrompt, config) => {
     throw new Error("Failed to run model GPT-4o");
   }
 
+  const promptTokens = completion.usage?.prompt_tokens;
+  const outputTokens = completion.usage?.completion_tokens;
+  const totalTokensUsed = completion.usage?.total_tokens;
+
+  // https://openai.com/api/pricing/
+  const getPriceForInputToken = (tokenCount?: number) => {
+    if (!tokenCount) {
+      return 0;
+    }
+
+    return (2.5 / 1_000_000) * tokenCount;
+  };
+
+  const getPriceForOutputToken = (tokenCount?: number) => {
+    if (!tokenCount) {
+      return 0;
+    }
+
+    return (10.0 / 1_000_000) * tokenCount;
+  };
+
   return {
     boxCoordinates: response.parsed.boxCoordinates,
     playerCoordinates: response.parsed.playerCoordinates,
     reasoning: response.parsed.reasoning,
+    promptTokens: promptTokens,
+    outputTokens: outputTokens,
+    totalTokensUsed: totalTokensUsed,
+    totalRunCost:
+      getPriceForInputToken(promptTokens) +
+      getPriceForOutputToken(outputTokens),
   };
 };

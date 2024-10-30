@@ -404,16 +404,24 @@ export const testAIModel = action({
       throw new Error("Active prompt not found");
     }
 
-    const { solution, reasoning, error } = await runModel(
-      args.modelId,
-      map.grid,
-      activePrompt.prompt,
-    );
+    const {
+      solution,
+      reasoning,
+      error,
+      promptTokens,
+      outputTokens,
+      totalTokensUsed,
+      totalRunCost,
+    } = await runModel(args.modelId, map.grid, activePrompt.prompt);
 
     return {
       map: solution,
       isWin: error ? false : ZombieSurvival.isWin(solution!),
       reasoning,
+      promptTokens,
+      outputTokens,
+      totalTokensUsed,
+      totalRunCost,
       error,
     };
   },

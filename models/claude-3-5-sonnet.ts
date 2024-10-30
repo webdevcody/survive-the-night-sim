@@ -48,9 +48,37 @@ export const claude35sonnet: ModelHandler = async (
     throw new Error(response.error.message);
   }
 
+  const promptTokens = completion.usage.input_tokens;
+  const outputTokens = completion.usage.output_tokens;
+  const totalTokensUsed =
+    completion.usage.input_tokens + completion.usage.output_tokens;
+
+  // https://docs.anthropic.com/en/docs/about-claude/models
+  const getPriceForInputToken = (tokenCount?: number) => {
+    if (!tokenCount) {
+      return 0;
+    }
+
+    return (3.0 / 1_000_000) * tokenCount;
+  };
+
+  const getPriceForOutputToken = (tokenCount?: number) => {
+    if (!tokenCount) {
+      return 0;
+    }
+
+    return (15.0 / 1_000_000) * tokenCount;
+  };
+
   return {
     boxCoordinates: response.data.boxCoordinates,
     playerCoordinates: response.data.playerCoordinates,
     reasoning: response.data.reasoning,
+    promptTokens: promptTokens,
+    outputTokens: outputTokens,
+    totalTokensUsed: totalTokensUsed,
+    totalRunCost:
+      getPriceForInputToken(promptTokens) +
+      getPriceForOutputToken(outputTokens),
   };
 };

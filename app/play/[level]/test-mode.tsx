@@ -28,6 +28,17 @@ export default function TestMode({ level, map }: TestModeProps) {
   const testAIModel = useAction(api.maps.testAIModel);
   const [aiError, setAiError] = useState<string | null>(null);
   const [aiReasoning, setAiReasoning] = useState<string | null>(null);
+  const [aiPromptTokensUsed, setAiPromptTokensUsed] = useState<number | null>(
+    null,
+  );
+  const [aiOutputTokensUsed, setAiOutputTokensUsed] = useState<number | null>(
+    null,
+  );
+  const [aiTotalTokensUsed, setAiTotalTokensUsed] = useState<number | null>(
+    null,
+  );
+  const [aiTotalRunCost, setAiTotalRunCost] = useState<number | null>(null);
+
   const [showOriginalMap, setShowOriginalMap] = useState(true);
 
   const handleAITest = async () => {
@@ -50,6 +61,10 @@ export default function TestMode({ level, map }: TestModeProps) {
       setPlayerMap(result.map);
       setGameResult(result.isWin ? "WON" : "LOST");
       setAiReasoning(result.reasoning);
+      setAiPromptTokensUsed(result.promptTokens ?? null);
+      setAiOutputTokensUsed(result.outputTokens ?? null);
+      setAiTotalTokensUsed(result.totalTokensUsed ?? null);
+      setAiTotalRunCost(result.totalRunCost);
     } catch (error) {
       console.error("Error testing AI model:", error);
       setAiError(errorMessage(error));
@@ -120,6 +135,20 @@ export default function TestMode({ level, map }: TestModeProps) {
                 <p>{aiReasoning}</p>
               </div>
             )}
+            <div className="p-4">
+              <h3 className="mb-2 font-semibold">Token Usage:</h3>
+              <ul className="space-y-1 text-sm">
+                <li>Prompt Tokens: {aiPromptTokensUsed ?? "Not available"}</li>
+                <li>Output Tokens: {aiOutputTokensUsed ?? "Not available"}</li>
+                <li>Total Tokens: {aiTotalTokensUsed ?? "Not available"}</li>
+                <li>
+                  Total Cost:{" "}
+                  {aiTotalRunCost
+                    ? `$${aiTotalRunCost.toFixed(6)}`
+                    : "Not available"}
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       )}
