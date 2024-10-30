@@ -1,11 +1,11 @@
 "use client";
 
-import { Page, PageTitle } from "@/components/Page";
-import { Button } from "@/components/ui/button";
-import { api } from "@/convex/_generated/api";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useMutation, useQuery } from "convex/react";
 import { redirect, useRouter } from "next/navigation";
+import { Page, PageTitle } from "@/components/Page";
+import { Button } from "@/components/ui/button";
+import { api } from "@/convex/_generated/api";
 
 export default function Settings() {
   const { signOut } = useAuthActions();
@@ -18,8 +18,8 @@ export default function Settings() {
     if (confirm("Are you sure you want to delete your account?")) {
       if (user) {
         await signOut();
-        await deleteAccount({ userId: user._id });
-        
+        await deleteAccount();
+
         router.push("/");
       }
     }

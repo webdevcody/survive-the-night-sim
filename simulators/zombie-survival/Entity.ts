@@ -1,6 +1,5 @@
 import { type Change, ChangeType } from "./Change";
 import { Position } from "./Position";
-import { randomId } from "./lib/randomId";
 
 export enum EntityType {
   Box,
@@ -11,8 +10,6 @@ export enum EntityType {
 }
 
 export class Entity {
-  private id: string = randomId();
-
   protected destructible: boolean;
   protected changes: Change[] = [];
   protected health: number;
@@ -45,10 +42,6 @@ export class Entity {
 
   public die(): void {
     this.health = 0;
-  }
-
-  public eq(entity: Entity): boolean {
-    return this.id === entity.id;
   }
 
   public getChange<T extends ChangeType>(type: T) {
