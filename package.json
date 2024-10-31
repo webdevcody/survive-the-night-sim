@@ -17,6 +17,7 @@
     "@anthropic-ai/sdk": "^0.29.1",
     "@auth/core": "^0.34.2",
     "@convex-dev/auth": "^0.0.71",
+    "@convex-dev/rate-limiter": "^0.2.3",
     "@google/generative-ai": "^0.21.0",
     "@icons-pack/react-simple-icons": "^10.1.0",
     "@mistralai/mistralai": "^1.1.0",

@@ -90,11 +90,19 @@ export default function PlaygroundPage() {
     setPublishing(true);
 
     try {
-      await submitMap({ map });
+      const submitted = await submitMap({ map });
 
-      toast({
-        description: "Map submitted successfully!",
-      });
+      if (submitted == 200) {
+        toast({
+          description: "Map submitted successfully!",
+        });
+      } else if (submitted == 429) {
+        toast({
+          description:
+            "You have exceeded the rate limit for submitting maps. Please try again later.",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       if (errorMessage(error).includes(SIGN_IN_ERROR_MESSAGE)) {
         setOpenSignInModal(true);
@@ -465,17 +473,20 @@ export default function PlaygroundPage() {
                 </>
               ) : (
                 <>
-                  <Button
-                    className="gap-1"
-                    disabled={publishing}
-                    onClick={handlePublish}
-                    type="button"
-                    variant="secondary"
-                  >
-                    <UploadIcon size={16} />
-                    <span>{publishing ? "Submitting..." : "Submit Map"}</span>
-                  </Button>
-
+                  <div className="flex flex-col">
+                    <Button
+                      disabled={publishing}
+                      onClick={handlePublish}
+                      type="button"
+                      variant="secondary"
+                    >
+                      <UploadIcon size={16} />
+                      <span>{publishing ? "Submitting..." : "Submit Map"}</span>
+                    </Button>
+                    <p className="flex justify-end pt-2 text-xs text-gray-600">
+                      *You can only submit 3 maps per minute
+                    </p>
+                  </div>
                   <Button
                     disabled={
                       !(solution === null && !isSimulating && !userPlaying)
