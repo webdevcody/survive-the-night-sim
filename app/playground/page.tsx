@@ -28,7 +28,6 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { AI_MODELS } from "@/convex/constants";
 import { SIGN_IN_ERROR_MESSAGE } from "@/convex/users";
 import { useAITesting } from "@/hooks/useAITesting";
 import { errorMessage } from "@/lib/utils";
