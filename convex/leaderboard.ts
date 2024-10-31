@@ -27,11 +27,11 @@ export const getLevelRankings = query({
   },
   handler: async ({ db }, args) => {
     let res;
-
-    if (args.level) {
+    const level = args.level;
+    if (level) {
       res = await db
         .query("levelRankings")
-        .filter((q) => q.eq(q.field("level"), args.level))
+        .withIndex("by_level", (q) => q.eq("level", level))
         .collect();
     } else {
       res = await db.query("levelRankings").collect();
