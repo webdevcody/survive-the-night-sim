@@ -69,9 +69,40 @@ export const gemini15pro: ModelHandler = async (
   const result = await model.generateContent(userPrompt);
   const parsedResponse = JSON.parse(result.response.text()) as GeminiResponse;
 
+  const promptTokens = result.response.usageMetadata?.promptTokenCount;
+  const outputTokens = result.response.usageMetadata?.candidatesTokenCount;
+  const totalTokensUsed = result.response.usageMetadata?.totalTokenCount;
+
+  // https://ai.google.dev/pricing#1_5pro
+  const getPriceForInputToken = (tokenCount?: number) => {
+    if (!tokenCount) {
+      return 0;
+    }
+    if (tokenCount > 128_000) {
+      return (2.5 / 1_000_000) * tokenCount;
+    }
+    return (1.25 / 1_000_000) * tokenCount;
+  };
+
+  const getPriceForOutputToken = (tokenCount?: number) => {
+    if (!tokenCount) {
+      return 0;
+    }
+    if (tokenCount > 128_000) {
+      return (10.0 / 1_000_000) * tokenCount;
+    }
+    return (5.0 / 1_000_000) * tokenCount;
+  };
+
   return {
     boxCoordinates: parsedResponse.boxCoordinates,
     playerCoordinates: parsedResponse.playerCoordinates,
     reasoning: parsedResponse.reasoning,
+    promptTokens: promptTokens,
+    outputTokens: outputTokens,
+    totalTokensUsed: totalTokensUsed,
+    totalRunCost:
+      getPriceForInputToken(promptTokens) +
+      getPriceForOutputToken(outputTokens),
   };
 };

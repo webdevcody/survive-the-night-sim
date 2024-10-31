@@ -20,6 +20,10 @@ export type ModelHandler = (
   boxCoordinates: number[][];
   playerCoordinates: number[];
   reasoning: string;
+  promptTokens?: number;
+  outputTokens?: number;
+  totalTokensUsed?: number;
+  totalRunCost?: number;
 }>;
 
 const MAX_RETRIES = 1;
@@ -33,16 +37,22 @@ const CONFIG: ModelHandlerConfig = {
   topP: 0.95,
 };
 
+export type RunModelResult = {
+  solution?: string[][];
+  reasoning: string;
+  promptTokens?: number;
+  outputTokens?: number;
+  totalTokensUsed?: number;
+  totalRunCost?: number;
+  error?: string;
+};
+
 export async function runModel(
   modelId: string,
   map: string[][],
   prompt: string,
   retry = 1,
-): Promise<{
-  solution?: string[][];
-  reasoning: string;
-  error?: string;
-}> {
+): Promise<RunModelResult> {
   const userPrompt =
     `Grid: ${JSON.stringify(map)}\n\n` +
     `Valid Locations: ${JSON.stringify(ZombieSurvival.validLocations(map))}`;
@@ -101,6 +111,10 @@ export async function runModel(
     return {
       solution: originalMap,
       reasoning: result.reasoning,
+      promptTokens: result.promptTokens,
+      outputTokens: result.outputTokens,
+      totalTokensUsed: result.totalTokensUsed,
+      totalRunCost: result.totalRunCost,
     };
   } catch (error) {
     if (retry === MAX_RETRIES || reasoning === null) {

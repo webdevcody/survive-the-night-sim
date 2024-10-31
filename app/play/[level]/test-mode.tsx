@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { api } from "@/convex/_generated/api";
 import { AI_MODELS } from "@/convex/constants";
-import { errorMessage } from "@/lib/utils";
+import { useAITesting } from "@/hooks/useAITesting";
 
 interface TestModeProps {
   level: number;
@@ -21,49 +21,30 @@ interface TestModeProps {
 }
 
 export default function TestMode({ level, map }: TestModeProps) {
-  const [playerMap, setPlayerMap] = useState<string[][]>([]);
-  const [isSimulating, setIsSimulating] = useState(false);
-  const [gameResult, setGameResult] = useState<"WON" | "LOST" | null>(null);
   const [selectedModel, setSelectedModel] = useState(AI_MODELS[0].model);
-  const testAIModel = useAction(api.maps.testAIModel);
-  const [aiError, setAiError] = useState<string | null>(null);
-  const [aiReasoning, setAiReasoning] = useState<string | null>(null);
   const [showOriginalMap, setShowOriginalMap] = useState(true);
+  const {
+    isSimulating,
+    gameResult,
+    aiError,
+    aiReasoning,
+    aiPromptTokensUsed,
+    aiOutputTokensUsed,
+    aiTotalTokensUsed,
+    aiTotalRunCost,
+    resultMap,
+    runTest,
+    resetAITest,
+  } = useAITesting({ testingType: "MODEL", level });
 
   const handleAITest = async () => {
-    setIsSimulating(true);
-    setGameResult(null);
-    setAiError(null);
-    setAiReasoning(null);
     setShowOriginalMap(false);
-
-    try {
-      const result = await testAIModel({
-        level,
-        modelId: selectedModel,
-      });
-
-      if (!result.map) {
-        throw new Error("No map found");
-      }
-
-      setPlayerMap(result.map);
-      setGameResult(result.isWin ? "WON" : "LOST");
-      setAiReasoning(result.reasoning);
-    } catch (error) {
-      console.error("Error testing AI model:", error);
-      setAiError(errorMessage(error));
-    } finally {
-      setIsSimulating(false);
-    }
+    await runTest(selectedModel, map);
   };
 
   const handleReset = () => {
     setShowOriginalMap(true);
-    setPlayerMap([]);
-    setGameResult(null);
-    setAiError(null);
-    setAiReasoning(null);
+    resetAITest();
   };
 
   return (
@@ -105,7 +86,7 @@ export default function TestMode({ level, map }: TestModeProps) {
       {aiError && <div className="mt-4 text-red-500">{aiError}</div>}
       {gameResult && (
         <div className="mx-auto mt-4 flex max-w-4xl flex-col items-center gap-8">
-          <Visualizer map={playerMap} autoStart onReset={handleReset} />
+          <Visualizer map={resultMap} autoStart onReset={handleReset} />
           <div className="flex flex-1 flex-col gap-4">
             <div
               className={`text-2xl font-bold ${
@@ -120,6 +101,18 @@ export default function TestMode({ level, map }: TestModeProps) {
                 <p>{aiReasoning}</p>
               </div>
             )}
+            <div className="p-4">
+              <h3 className="mb-2 font-semibold">Token Usage:</h3>
+              <ul className="space-y-1 text-sm">
+                <li>Prompt Tokens: {aiPromptTokensUsed ?? "N/A"}</li>
+                <li>Output Tokens: {aiOutputTokensUsed ?? "N/A"}</li>
+                <li>Total Tokens: {aiTotalTokensUsed ?? "N/A"}</li>
+                <li>
+                  Total Cost:{" "}
+                  {aiTotalRunCost ? `$${aiTotalRunCost.toFixed(6)}` : "N/A"}
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       )}
