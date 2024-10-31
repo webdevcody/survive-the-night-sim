@@ -37,12 +37,7 @@ const CONFIG: ModelHandlerConfig = {
   topP: 0.95,
 };
 
-export async function runModel(
-  modelId: string,
-  map: string[][],
-  prompt: string,
-  retry = 1,
-): Promise<{
+export type RunModelResult = {
   solution?: string[][];
   reasoning: string;
   promptTokens?: number;
@@ -50,7 +45,14 @@ export async function runModel(
   totalTokensUsed?: number;
   totalRunCost?: number;
   error?: string;
-}> {
+};
+
+export async function runModel(
+  modelId: string,
+  map: string[][],
+  prompt: string,
+  retry = 1,
+): Promise<RunModelResult> {
   const userPrompt =
     `Grid: ${JSON.stringify(map)}\n\n` +
     `Valid Locations: ${JSON.stringify(ZombieSurvival.validLocations(map))}`;

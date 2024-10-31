@@ -28,7 +28,9 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { AI_MODELS } from "@/convex/constants";
 import { SIGN_IN_ERROR_MESSAGE } from "@/convex/users";
+import { useAITesting } from "@/hooks/useAITesting";
 import { errorMessage } from "@/lib/utils";
 import { ZombieSurvival } from "@/simulators/zombie-survival";
 
@@ -56,14 +58,25 @@ export default function PlaygroundPage() {
   ]);
   const [model, setModel] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [solution, setSolution] = useState<string[][] | null>(null);
-  const [reasoning, setReasoning] = useState<string | null>(null);
   const [publishing, setPublishing] = useState(false);
-  const [simulating, setSimulating] = useState(false);
   const [userPlaying, setUserPlaying] = useState(false);
   const [userSolution, setUserSolution] = useState<string[][]>([]);
   const [visualizingUserSolution, setVisualizingUserSolution] = useState(false);
   const [openSignInModal, setOpenSignInModal] = useState(false);
+
+  const {
+    isSimulating,
+    gameResult: solution,
+    aiError,
+    aiReasoning,
+    aiPromptTokensUsed,
+    aiOutputTokensUsed,
+    aiTotalTokensUsed,
+    aiTotalRunCost,
+    resultMap,
+    runTest,
+    resetAITest,
+  } = useAITesting({ testingType: "MAP" });
 
   async function handlePublish() {
     if (!ZombieSurvival.mapHasZombies(map)) {
@@ -98,30 +111,12 @@ export default function PlaygroundPage() {
   }
 
   async function handleSimulate() {
-    setError(null);
-    setSolution(null);
-    setReasoning(null);
-
     if (!ZombieSurvival.mapHasZombies(map)) {
       alert("Add some zombies to the map first");
       return;
     }
 
-    setSimulating(true);
-
-    const { error, solution, reasoning } = await testMap({
-      modelId: model,
-      map: map,
-    });
-
-    if (typeof error !== "undefined") {
-      setError(error);
-    } else {
-      setSolution(solution!);
-      setReasoning(reasoning!);
-    }
-
-    setSimulating(false);
+    await runTest(model, map);
   }
 
   function handleChangeMap(value: string[][]) {
@@ -139,8 +134,7 @@ export default function PlaygroundPage() {
   }
 
   function handleEdit() {
-    setSolution(null);
-    setReasoning(null);
+    resetAITest();
     setUserPlaying(false);
     setVisualizingUserSolution(false);
 
@@ -223,7 +217,7 @@ export default function PlaygroundPage() {
     }
   }
 
-  // function handleReset() {
+  // function handleresetAITest() {
   //   handleChangeMap([]);
   //   setSolution(null);
   //   setReasoning(null);
@@ -304,7 +298,7 @@ export default function PlaygroundPage() {
                     autoReplay
                     autoStart
                     controls={false}
-                    map={visualizingUserSolution ? userSolution : solution!}
+                    map={visualizingUserSolution ? userSolution : resultMap}
                   />
                 )}
                 {!visualizing && (
@@ -485,7 +479,7 @@ export default function PlaygroundPage() {
 
                   <Button
                     disabled={
-                      !(solution === null && !simulating && !userPlaying)
+                      !(solution === null && !isSimulating && !userPlaying)
                     }
                     onClick={handleUserPlay}
                     type="button"
@@ -499,10 +493,30 @@ export default function PlaygroundPage() {
                 <p className="text-sm text-red-500">{error}</p>
               )}
               {visualizingUserSolution && <MapStatus map={userSolution} />}
-              {reasoning !== null && (
-                <div className="flex flex-col gap-0">
-                  <MapStatus map={solution!} />
-                  <p className="text-sm">{reasoning}</p>
+              {aiReasoning !== null && (
+                <div className="flex flex-col gap-2">
+                  <MapStatus map={resultMap} />
+                  <p className="text-sm">{aiReasoning}</p>
+
+                  <div className="mt-2 space-y-1 text-xs text-gray-500">
+                    <p>
+                      Prompt Tokens:{" "}
+                      {aiPromptTokensUsed?.toLocaleString() ?? "N/A"}
+                    </p>
+
+                    <p>
+                      Output Tokens:{" "}
+                      {aiOutputTokensUsed?.toLocaleString() ?? "N/A"}
+                    </p>
+                    <p>
+                      Total Tokens:{" "}
+                      {aiTotalTokensUsed?.toLocaleString() ?? "N/A"}
+                    </p>
+                    <p>
+                      Total Cost:{" "}
+                      {aiTotalRunCost ? `$${aiTotalRunCost.toFixed(6)}` : "N/A"}
+                    </p>
+                  </div>
                 </div>
               )}
 
@@ -514,11 +528,11 @@ export default function PlaygroundPage() {
                     <ModelSelector onChange={handleChangeModel} value={model} />
                     <Button
                       className="w-full"
-                      disabled={model === "" || simulating}
+                      disabled={model === "" || isSimulating}
                       onClick={handleSimulate}
                       type="button"
                     >
-                      {simulating ? "Simulating..." : "Play With AI"}
+                      {isSimulating ? "Simulating..." : "Play With AI"}
                     </Button>
                   </div>
                 </>
