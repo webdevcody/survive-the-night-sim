@@ -22,8 +22,20 @@ export const getGlobalRankings = query({
 });
 
 export const getLevelRankings = query({
-  handler: async ({ db }) => {
-    const res = await db.query("levelRankings").collect();
+  args: {
+    level: v.optional(v.number()),
+  },
+  handler: async ({ db }, args) => {
+    let res;
+    const level = args.level;
+    if (level) {
+      res = await db
+        .query("levelRankings")
+        .withIndex("by_level", (q) => q.eq("level", level))
+        .collect();
+    } else {
+      res = await db.query("levelRankings").collect();
+    }
 
     const sortedResults = res.sort((a, b) => {
       if (a.level < b.level) {

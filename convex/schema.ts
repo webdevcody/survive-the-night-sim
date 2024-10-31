@@ -56,7 +56,9 @@ export default defineSchema({
     wins: v.number(),
     promptId: v.optional(v.id("prompts")),
     losses: v.number(),
-  }).index("by_modelId_level_promptId", ["modelId", "level", "promptId"]),
+  })
+    .index("by_modelId_level_promptId", ["modelId", "level", "promptId"])
+    .index("by_level", ["level"]),
   attempts: defineTable({
     grid: v.array(v.array(v.string())),
     didWin: v.boolean(),
