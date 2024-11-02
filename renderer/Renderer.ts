@@ -2,7 +2,7 @@ import { assets, loadAssets } from "./Assets";
 import * as Canvas from "./Canvas";
 import { type RendererEffect, RendererEffectType } from "./Effect";
 import { RendererItem } from "./Item";
-import { REPLAY_SPEED } from "@/constants/visualizer";
+import { DEFAULT_REPLAY_SPEED } from "@/constants/visualizer";
 import {
   type Entity,
   EntityType,
@@ -272,7 +272,7 @@ export class Renderer {
 
       const positionToEffect: RendererEffect = {
         type: RendererEffectType.PositionTo,
-        duration: REPLAY_SPEED,
+        duration: DEFAULT_REPLAY_SPEED,
         startedAt: Date.now(),
         to: {
           x: to.x * this.cellSize,

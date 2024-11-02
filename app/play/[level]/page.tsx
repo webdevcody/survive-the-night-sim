@@ -10,6 +10,7 @@ import { Map } from "@/components/Map";
 import { Page, PageTitle } from "@/components/Page";
 import { Visualizer } from "@/components/Visualizer";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import {
   Table,
   TableBody,
@@ -19,6 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DEFAULT_REPLAY_SPEED } from "@/constants/visualizer";
 import { api } from "@/convex/_generated/api";
 import { ZombieSurvival } from "@/simulators/zombie-survival";
 
@@ -39,6 +41,7 @@ export default function PlayLevelPage({
   const [landmineCount, setLandmineCount] = useState(0);
   const flags = useQuery(api.flags.getFlags);
   const [mode, setMode] = useState<"play" | "test">("play");
+  const [replaySpeed, setReplaySpeed] = useState(DEFAULT_REPLAY_SPEED);
 
   // Initialize playerMap when map data is available
   useEffect(() => {
@@ -242,6 +245,7 @@ export default function PlayLevelPage({
                       autoStart
                       onReset={handleReset}
                       onSimulationEnd={handleSimulationEnd}
+                      replaySpeed={replaySpeed}
                     />
                     {gameResult && (
                       <div
@@ -274,19 +278,34 @@ export default function PlayLevelPage({
                   </div>
                 )}
               </div>
-              <div className="flex justify-center gap-4">
+              <div className="flex flex-col items-center justify-center gap-4">
                 {!isSimulating ? (
                   <>
-                    <Button onClick={runSimulation} className="h-10">
-                      Run Simulation
-                    </Button>
-                    <Button
-                      onClick={handleClearMap}
-                      variant="outline"
-                      className="h-10"
-                    >
-                      Clear Map
-                    </Button>
+                    <div className="flex flex-col items-center gap-2">
+                      <h3>Choose the speed (200ms to 2s)</h3>
+                      <Slider
+                        className="w-2/3"
+                        defaultValue={[DEFAULT_REPLAY_SPEED]}
+                        min={200}
+                        max={2000}
+                        step={100}
+                        onValueChange={(value) => {
+                          setReplaySpeed(value[0]);
+                        }}
+                      />
+                    </div>
+                    <div className="flex justify-center gap-4">
+                      <Button onClick={runSimulation} className="h-10">
+                        Run Simulation
+                      </Button>
+                      <Button
+                        onClick={handleClearMap}
+                        variant="outline"
+                        className="h-10"
+                      >
+                        Clear Map
+                      </Button>
+                    </div>
                   </>
                 ) : (
                   <div className="flex items-center gap-x-3">
