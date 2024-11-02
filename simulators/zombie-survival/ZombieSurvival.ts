@@ -64,6 +64,18 @@ export class ZombieSurvival {
     return map.length === 0 || map[0].length === 0;
   }
 
+  public static nextValidPosition(map: string[][]): Position | null {
+    for (let y = 0; y < map.length; y++) {
+      for (let x = 0; x < map[y].length; x++) {
+        if (map[y][x] === " ") {
+          return { x, y };
+        }
+      }
+    }
+
+    return null;
+  }
+
   public static validLocations(map: string[][]): number[][] {
     return map.flatMap((row, y) =>
       row.reduce((acc, cell, x) => {
