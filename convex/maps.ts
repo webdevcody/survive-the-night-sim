@@ -1,6 +1,7 @@
 import { runModel } from "../models";
 import { ZombieSurvival } from "../simulators/zombie-survival";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { isRateLimitError } from "@convex-dev/rate-limiter";
 import { v } from "convex/values";
 import { api, internal } from "./_generated/api";
 import {
@@ -11,6 +12,7 @@ import {
   query,
 } from "./_generated/server";
 import { Prompt } from "./prompts";
+import { rateLimiter } from "./rateLimits";
 import {
   adminMutationBuilder,
   adminQueryBuilder,
@@ -159,12 +161,25 @@ export const submitMap = authenticatedMutation({
     map: v.array(v.array(v.string())),
   },
   handler: async (ctx, args) => {
-    await ctx.db.insert("maps", {
-      grid: args.map,
-      level: undefined,
-      submittedBy: ctx.userId,
-      isReviewed: false,
-    });
+    try {
+      const status = await rateLimiter.limit(ctx, "submitMap", {
+        key: ctx.userId,
+        throws: true,
+      });
+      if (status.ok) {
+        await ctx.db.insert("maps", {
+          grid: args.map,
+          level: undefined,
+          submittedBy: ctx.userId,
+          isReviewed: false,
+        });
+        return 200;
+      }
+    } catch (e) {
+      if (isRateLimitError(e)) {
+        return 429;
+      }
+    }
   },
 });
 
