@@ -241,13 +241,6 @@ export class Renderer {
       this.cellSize,
     );
 
-    if (entity.hasChange(ChangeType.Hit)) {
-      rendererItem.addEffect({
-        type: RendererEffectType.HueRotate,
-        degree: 300,
-      });
-    }
-
     if (entity.hasChange(ChangeType.Walking)) {
       const change = entity.getChange(ChangeType.Walking);
       const { to, from } = change;
@@ -279,7 +272,7 @@ export class Renderer {
         rendererItem.addEffect({
           type: RendererEffectType.AssetSwap,
           duration: REPLAY_SPEED,
-          every: REPLAY_SPEED / 6,
+          every: REPLAY_SPEED / 4,
           startedAt: Date.now(),
           steps: [
             assets.zombieWalkingFrame2,
