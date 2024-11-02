@@ -1,6 +1,9 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
-import { AUTO_REPLAY_SPEED, REPLAY_SPEED } from "@/constants/visualizer";
+import {
+  AUTO_REPLAY_SPEED,
+  DEFAULT_REPLAY_SPEED,
+} from "@/constants/visualizer";
 import { Renderer } from "@/renderer";
 import { ZombieSurvival } from "@/simulators/zombie-survival";
 
@@ -12,6 +15,7 @@ export function Visualizer({
   map,
   onReset,
   onSimulationEnd,
+  replaySpeed = DEFAULT_REPLAY_SPEED,
 }: {
   autoReplay?: boolean;
   autoStart?: boolean;
@@ -20,6 +24,7 @@ export function Visualizer({
   map: string[][];
   onReset?: () => unknown;
   onSimulationEnd?: (isWin: boolean) => unknown;
+  replaySpeed?: number;
 }) {
   const simulator = React.useRef<ZombieSurvival>(new ZombieSurvival(map));
   const renderer = React.useRef<Renderer | null>(null);
@@ -79,7 +84,7 @@ export function Visualizer({
       if (onSimulationEnd) {
         onSimulationEnd(!simulator.current.getPlayer().dead());
       }
-    }, REPLAY_SPEED);
+    }, replaySpeed);
   }
 
   React.useEffect(() => {
