@@ -297,8 +297,8 @@ export class Renderer {
       ) {
         rendererItem.addEffect({
           type: RendererEffectType.AssetSwap,
-          duration: REPLAY_SPEED,
-          every: REPLAY_SPEED / 4,
+          duration: DEFAULT_REPLAY_SPEED,
+          every: DEFAULT_REPLAY_SPEED / 4,
           startedAt: Date.now(),
           steps: [
             assets.zombieWalkingFrame2,
@@ -315,8 +315,8 @@ export class Renderer {
       ) {
         rendererItem.addEffect({
           type: RendererEffectType.AssetSwap,
-          duration: REPLAY_SPEED,
-          every: REPLAY_SPEED / 4,
+          duration: DEFAULT_REPLAY_SPEED,
+          every: DEFAULT_REPLAY_SPEED / 4,
           startedAt: Date.now(),
           steps: [
             assets.zombieIdleFrame2,
