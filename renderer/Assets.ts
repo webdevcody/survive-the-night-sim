@@ -9,6 +9,7 @@ export interface RendererAssets {
   zombie: HTMLImageElement | null;
   zombieDead: HTMLImageElement | null;
   zombieWalking: HTMLImageElement | null;
+  zombieWalkingStep: HTMLImageElement | null;
 }
 
 export const assets: RendererAssets = {
@@ -22,6 +23,7 @@ export const assets: RendererAssets = {
   zombie: null,
   zombieDead: null,
   zombieWalking: null,
+  zombieWalkingStep: null,
 };
 
 export async function loadAssets() {
@@ -31,17 +33,27 @@ export async function loadAssets() {
 
   assets.loading = true;
 
-  const [bg, box, landmine, player, rock, zombie, zombieDead, zombieWalking] =
-    await Promise.all([
-      loadAssetImage("/map.webp"),
-      loadAssetImage("/entities/box.svg"),
-      loadAssetImage("/entities/landmine.svg"),
-      loadAssetImage("/entities/player-attacking.svg"),
-      loadAssetImage("/entities/rock.svg"),
-      loadAssetImage("/entities/zombie-idle.svg"),
-      loadAssetImage("/entities/zombie-dead.svg"),
-      loadAssetImage("/entities/zombie-walking.svg"),
-    ]);
+  const [
+    bg,
+    box,
+    landmine,
+    player,
+    rock,
+    zombie,
+    zombieDead,
+    zombieWalking,
+    zombieWalkingStep,
+  ] = await Promise.all([
+    loadAssetImage("/map.webp"),
+    loadAssetImage("/entities/box.svg"),
+    loadAssetImage("/entities/landmine.svg"),
+    loadAssetImage("/entities/player-attacking.svg"),
+    loadAssetImage("/entities/rock.svg"),
+    loadAssetImage("/entities/zombie-idle.svg"),
+    loadAssetImage("/entities/zombie-dead.svg"),
+    loadAssetImage("/entities/zombie-walking.svg"),
+    loadAssetImage("/entities/zombie-walking-step.svg"),
+  ]);
 
   assets.loaded = true;
   assets.bg = bg;
@@ -52,6 +64,7 @@ export async function loadAssets() {
   assets.zombie = zombie;
   assets.zombieDead = zombieDead;
   assets.zombieWalking = zombieWalking;
+  assets.zombieWalkingStep = zombieWalkingStep;
 }
 
 export async function loadAssetImage(src: string): Promise<HTMLImageElement> {

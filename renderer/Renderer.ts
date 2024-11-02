@@ -1,5 +1,5 @@
 import { assets, loadAssets } from "./Assets";
-import { type RendererEffect, RendererEffectType } from "./Effect";
+import { RendererEffectType } from "./Effect";
 import { RendererItem } from "./Item";
 import { REPLAY_SPEED } from "@/constants/visualizer";
 import {
@@ -93,8 +93,8 @@ export class Renderer {
     let x = item.position.x;
     let y = item.position.y;
 
-    if (item.hasEffect(RendererEffectType.Move)) {
-      const effect = item.getEffect(RendererEffectType.Move);
+    if (item.hasEffect(RendererEffectType.PositionTo)) {
+      const effect = item.getEffect(RendererEffectType.PositionTo);
       const timePassed = Date.now() - effect.startedAt;
       const delta = timePassed / effect.duration;
 
@@ -102,12 +102,24 @@ export class Renderer {
       y += (effect.to.y - y) * delta;
     }
 
+    let asset = item.data;
+
+    if (item.hasEffect(RendererEffectType.AssetSwap)) {
+      const effect = item.getEffect(RendererEffectType.AssetSwap);
+      const assets = [asset, effect.to];
+      const timePassed = Date.now() - effect.startedAt;
+      const assetIdx = Math.floor((timePassed / effect.every) % assets.length);
+
+      console.log(assetIdx);
+      asset = assets[assetIdx];
+    }
+
     if (item.hasEffect(RendererEffectType.HueRotate)) {
       const effect = item.getEffect(RendererEffectType.HueRotate);
       this.ctx2.clearRect(0, 0, this.cellSize, this.cellSize);
 
       this.ctx2.filter = `hue-rotate(${effect.degree}deg)`;
-      this.ctx2.drawImage(item.data, 0, 0, this.cellSize, this.cellSize);
+      this.ctx2.drawImage(asset, 0, 0, this.cellSize, this.cellSize);
       this.ctx2.filter = "none";
 
       this.ctx2.globalCompositeOperation = "destination-in";
@@ -116,7 +128,7 @@ export class Renderer {
 
       this.ctx.drawImage(this.canvas2, x, y, this.cellSize, this.cellSize);
     } else {
-      this.ctx.drawImage(item.data, x, y, item.width, item.height);
+      this.ctx.drawImage(asset, x, y, item.width, item.height);
     }
 
     this.ctx.globalAlpha = 1;
@@ -200,15 +212,20 @@ export class Renderer {
       return;
     }
 
-    const effects: RendererEffect[] = [];
-
     const position: Position = {
       x: entity.getPosition().x * this.cellSize,
       y: entity.getPosition().y * this.cellSize,
     };
 
+    const rendererItem = new RendererItem(
+      entityImage,
+      this.cellSize,
+      position,
+      this.cellSize,
+    );
+
     if (entity.hasChange(ChangeType.Hit)) {
-      effects.push({
+      rendererItem.addEffect({
         type: RendererEffectType.HueRotate,
         degree: 300,
       });
@@ -221,8 +238,8 @@ export class Renderer {
       position.x = from.x * this.cellSize;
       position.y = from.y * this.cellSize;
 
-      effects.push({
-        type: RendererEffectType.Move,
+      rendererItem.addEffect({
+        type: RendererEffectType.PositionTo,
         duration: REPLAY_SPEED,
         startedAt: Date.now(),
         to: {
@@ -230,16 +247,19 @@ export class Renderer {
           y: to.y * this.cellSize,
         },
       });
+
+      if (assets.zombieWalkingStep !== null) {
+        rendererItem.addEffect({
+          type: RendererEffectType.AssetSwap,
+          duration: REPLAY_SPEED,
+          every: REPLAY_SPEED / 6,
+          startedAt: Date.now(),
+          to: assets.zombieWalkingStep,
+        });
+      }
     }
 
-    this.items.push(
-      new RendererItem(
-        entityImage,
-        this.cellSize,
-        position,
-        this.cellSize,
-      ).addEffect(...effects),
-    );
+    this.items.push(rendererItem);
   }
 
   private shouldAnimate(): boolean {
@@ -249,7 +269,10 @@ export class Renderer {
       }
 
       for (const effect of item.effects) {
-        if (effect.type === RendererEffectType.Move) {
+        if (
+          effect.type === RendererEffectType.AssetSwap ||
+          effect.type === RendererEffectType.PositionTo
+        ) {
           if (Date.now() < effect.startedAt + effect.duration) {
             return true;
           }
