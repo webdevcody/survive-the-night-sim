@@ -1,4 +1,5 @@
 import { assets, loadAssets } from "./Assets";
+import * as Canvas from "./Canvas";
 import { RendererEffectType } from "./Effect";
 import { RendererItem } from "./Item";
 import { REPLAY_SPEED } from "@/constants/visualizer";
@@ -102,35 +103,44 @@ export class Renderer {
       y += (effect.to.y - y) * delta;
     }
 
-    let asset = item.data;
+    let source: HTMLImageElement = item.data;
 
     if (item.hasEffect(RendererEffectType.AssetSwap)) {
       const effect = item.getEffect(RendererEffectType.AssetSwap);
-      const assets = [asset, effect.to];
+      const assets = [item.data, effect.to];
       const timePassed = Date.now() - effect.startedAt;
       const assetIdx = Math.floor((timePassed / effect.every) % assets.length);
 
-      console.log(assetIdx);
-      asset = assets[assetIdx];
+      source = assets[assetIdx];
+    }
+
+    if (item.hasEffect(RendererEffectType.FlipHorizontal)) {
+      this.ctx2.clearRect(0, 0, item.width, item.height);
+      this.ctx2.save();
+      this.ctx2.translate(item.width, 0);
+      this.ctx2.scale(-1, 1);
+      this.ctx2.drawImage(source, 0, 0, item.width, item.height);
+      this.ctx2.restore();
+
+      source = Canvas.toImage(this.canvas2);
     }
 
     if (item.hasEffect(RendererEffectType.HueRotate)) {
       const effect = item.getEffect(RendererEffectType.HueRotate);
-      this.ctx2.clearRect(0, 0, this.cellSize, this.cellSize);
+      this.ctx2.clearRect(0, 0, item.width, item.height);
 
       this.ctx2.filter = `hue-rotate(${effect.degree}deg)`;
-      this.ctx2.drawImage(asset, 0, 0, this.cellSize, this.cellSize);
+      this.ctx2.drawImage(source, 0, 0, item.width, item.height);
       this.ctx2.filter = "none";
 
       this.ctx2.globalCompositeOperation = "destination-in";
-      this.ctx2.fillRect(0, 0, this.cellSize, this.cellSize);
+      this.ctx2.fillRect(0, 0, item.width, item.height);
       this.ctx2.globalCompositeOperation = "source-over";
 
-      this.ctx.drawImage(this.canvas2, x, y, this.cellSize, this.cellSize);
-    } else {
-      this.ctx.drawImage(asset, x, y, item.width, item.height);
+      source = Canvas.toImage(this.canvas2);
     }
 
+    this.ctx.drawImage(source, x, y, item.width, item.height);
     this.ctx.globalAlpha = 1;
   }
 
@@ -197,12 +207,19 @@ export class Renderer {
       y: offsetY,
     };
 
-    this.items.push(
-      new RendererItem(assets.bg, drawHeight, position, drawWidth).addEffect({
-        type: RendererEffectType.Opacity,
-        value: 50,
-      }),
+    const rendererItem = new RendererItem(
+      assets.bg,
+      drawHeight,
+      position,
+      drawWidth,
     );
+
+    rendererItem.addEffect({
+      type: RendererEffectType.Opacity,
+      value: 50,
+    });
+
+    this.items.push(rendererItem);
   }
 
   private registerEntity(entity: Entity) {
@@ -247,6 +264,12 @@ export class Renderer {
           y: to.y * this.cellSize,
         },
       });
+
+      if (from.x < to.x) {
+        rendererItem.addEffect({
+          type: RendererEffectType.FlipHorizontal,
+        });
+      }
 
       if (assets.zombieWalkingStep !== null) {
         rendererItem.addEffect({
