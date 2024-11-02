@@ -172,7 +172,7 @@ export class Renderer {
         } else if (entity.hasChange(ChangeType.Walking)) {
           return assets.zombieWalkingFrame1;
         } else {
-          return assets.zombie;
+          return assets.zombieIdleFrame1;
         }
       }
     }
@@ -304,6 +304,24 @@ export class Renderer {
             assets.zombieWalkingFrame2,
             assets.zombieWalkingFrame3,
             assets.zombieWalkingFrame4,
+          ],
+        });
+      }
+    } else if (entity.getType() === EntityType.Zombie && !entity.dead()) {
+      if (
+        assets.zombieIdleFrame2 !== null &&
+        assets.zombieIdleFrame3 !== null &&
+        assets.zombieIdleFrame4 !== null
+      ) {
+        rendererItem.addEffect({
+          type: RendererEffectType.AssetSwap,
+          duration: REPLAY_SPEED,
+          every: REPLAY_SPEED / 4,
+          startedAt: Date.now(),
+          steps: [
+            assets.zombieIdleFrame2,
+            assets.zombieIdleFrame3,
+            assets.zombieIdleFrame4,
           ],
         });
       }

@@ -6,8 +6,11 @@ export interface RendererAssets {
   landmine: HTMLImageElement | null;
   player: HTMLImageElement | null;
   rock: HTMLImageElement | null;
-  zombie: HTMLImageElement | null;
   zombieDead: HTMLImageElement | null;
+  zombieIdleFrame1: HTMLImageElement | null;
+  zombieIdleFrame2: HTMLImageElement | null;
+  zombieIdleFrame3: HTMLImageElement | null;
+  zombieIdleFrame4: HTMLImageElement | null;
   zombieWalkingFrame1: HTMLImageElement | null;
   zombieWalkingFrame2: HTMLImageElement | null;
   zombieWalkingFrame3: HTMLImageElement | null;
@@ -22,8 +25,11 @@ export const assets: RendererAssets = {
   landmine: null,
   player: null,
   rock: null,
-  zombie: null,
   zombieDead: null,
+  zombieIdleFrame1: null,
+  zombieIdleFrame2: null,
+  zombieIdleFrame3: null,
+  zombieIdleFrame4: null,
   zombieWalkingFrame1: null,
   zombieWalkingFrame2: null,
   zombieWalkingFrame3: null,
@@ -43,8 +49,11 @@ export async function loadAssets() {
     landmine,
     player,
     rock,
-    zombie,
     zombieDead,
+    zombieIdleFrame1,
+    zombieIdleFrame2,
+    zombieIdleFrame3,
+    zombieIdleFrame4,
     zombieWalkingFrame1,
     zombieWalkingFrame2,
     zombieWalkingFrame3,
@@ -55,8 +64,11 @@ export async function loadAssets() {
     loadAssetImage("/entities/landmine.svg"),
     loadAssetImage("/entities/player-attacking.svg"),
     loadAssetImage("/entities/rock.svg"),
-    loadAssetImage("/entities/zombie-idle.svg"),
-    loadAssetImage("/entities/zombie-dead.svg"),
+    loadAssetImage("/entities/zombie-dead.png"),
+    loadAssetImage("/entities/zombie-idle-frame1.png"),
+    loadAssetImage("/entities/zombie-idle-frame2.png"),
+    loadAssetImage("/entities/zombie-idle-frame3.png"),
+    loadAssetImage("/entities/zombie-idle-frame4.png"),
     loadAssetImage("/entities/zombie-walking-frame1.png"),
     loadAssetImage("/entities/zombie-walking-frame2.png"),
     loadAssetImage("/entities/zombie-walking-frame3.png"),
@@ -69,8 +81,11 @@ export async function loadAssets() {
   assets.landmine = landmine;
   assets.player = player;
   assets.rock = rock;
-  assets.zombie = zombie;
   assets.zombieDead = zombieDead;
+  assets.zombieIdleFrame1 = zombieIdleFrame1;
+  assets.zombieIdleFrame2 = zombieIdleFrame2;
+  assets.zombieIdleFrame3 = zombieIdleFrame3;
+  assets.zombieIdleFrame4 = zombieIdleFrame4;
   assets.zombieWalkingFrame1 = zombieWalkingFrame1;
   assets.zombieWalkingFrame2 = zombieWalkingFrame2;
   assets.zombieWalkingFrame3 = zombieWalkingFrame3;
