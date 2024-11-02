@@ -1,4 +1,5 @@
 import { assets, loadAssets } from "./Assets";
+import * as Canvas from "./Canvas";
 import { type RendererEffect, RendererEffectType } from "./Effect";
 import { RendererItem } from "./Item";
 import { DEFAULT_REPLAY_SPEED } from "@/constants/visualizer";
@@ -6,6 +7,7 @@ import {
   type Entity,
   EntityType,
   type Position,
+  Zombie,
   type ZombieSurvival,
 } from "@/simulators/zombie-survival";
 import { ChangeType } from "@/simulators/zombie-survival/Change";
@@ -93,8 +95,8 @@ export class Renderer {
     let x = item.position.x;
     let y = item.position.y;
 
-    if (item.hasEffect(RendererEffectType.Move)) {
-      const effect = item.getEffect(RendererEffectType.Move);
+    if (item.hasEffect(RendererEffectType.PositionTo)) {
+      const effect = item.getEffect(RendererEffectType.PositionTo);
       const timePassed = Date.now() - effect.startedAt;
       const delta = timePassed / effect.duration;
 
@@ -102,23 +104,51 @@ export class Renderer {
       y += (effect.to.y - y) * delta;
     }
 
+    if (typeof item.data === "string") {
+      this.ctx.fillStyle = item.data;
+      this.ctx.fillRect(x, y, item.width, item.height);
+      this.ctx.globalAlpha = 1;
+      return;
+    }
+
+    let source: HTMLImageElement = item.data;
+
+    if (item.hasEffect(RendererEffectType.AssetSwap)) {
+      const effect = item.getEffect(RendererEffectType.AssetSwap);
+      const assets = [item.data, ...effect.steps];
+      const timePassed = Date.now() - effect.startedAt;
+      const assetIdx = Math.floor((timePassed / effect.every) % assets.length);
+
+      source = assets[assetIdx];
+    }
+
+    if (item.hasEffect(RendererEffectType.FlipHorizontal)) {
+      this.ctx2.clearRect(0, 0, item.width, item.height);
+      this.ctx2.save();
+      this.ctx2.translate(item.width, 0);
+      this.ctx2.scale(-1, 1);
+      this.ctx2.drawImage(source, 0, 0, item.width, item.height);
+      this.ctx2.restore();
+
+      source = Canvas.toImage(this.canvas2);
+    }
+
     if (item.hasEffect(RendererEffectType.HueRotate)) {
       const effect = item.getEffect(RendererEffectType.HueRotate);
-      this.ctx2.clearRect(0, 0, this.cellSize, this.cellSize);
+      this.ctx2.clearRect(0, 0, item.width, item.height);
 
       this.ctx2.filter = `hue-rotate(${effect.degree}deg)`;
-      this.ctx2.drawImage(item.data, 0, 0, this.cellSize, this.cellSize);
+      this.ctx2.drawImage(source, 0, 0, item.width, item.height);
       this.ctx2.filter = "none";
 
       this.ctx2.globalCompositeOperation = "destination-in";
-      this.ctx2.fillRect(0, 0, this.cellSize, this.cellSize);
+      this.ctx2.fillRect(0, 0, item.width, item.height);
       this.ctx2.globalCompositeOperation = "source-over";
 
-      this.ctx.drawImage(this.canvas2, x, y, this.cellSize, this.cellSize);
-    } else {
-      this.ctx.drawImage(item.data, x, y, item.width, item.height);
+      source = Canvas.toImage(this.canvas2);
     }
 
+    this.ctx.drawImage(source, x, y, item.width, item.height);
     this.ctx.globalAlpha = 1;
   }
 
@@ -140,9 +170,9 @@ export class Renderer {
         if (entity.hasChange(ChangeType.Killed)) {
           return assets.zombieDead;
         } else if (entity.hasChange(ChangeType.Walking)) {
-          return assets.zombieWalking;
+          return assets.zombieWalkingFrame1;
         } else {
-          return assets.zombie;
+          return assets.zombieIdleFrame1;
         }
       }
     }
@@ -185,12 +215,19 @@ export class Renderer {
       y: offsetY,
     };
 
-    this.items.push(
-      new RendererItem(assets.bg, drawHeight, position, drawWidth).addEffect({
-        type: RendererEffectType.Opacity,
-        value: 50,
-      }),
+    const rendererItem = new RendererItem(
+      assets.bg,
+      position,
+      drawWidth,
+      drawHeight,
     );
+
+    rendererItem.addEffect({
+      type: RendererEffectType.Opacity,
+      value: 50,
+    });
+
+    this.items.push(rendererItem);
   }
 
   private registerEntity(entity: Entity) {
@@ -200,19 +237,31 @@ export class Renderer {
       return;
     }
 
-    const effects: RendererEffect[] = [];
-
     const position: Position = {
       x: entity.getPosition().x * this.cellSize,
       y: entity.getPosition().y * this.cellSize,
     };
 
-    if (entity.hasChange(ChangeType.Hit)) {
-      effects.push({
-        type: RendererEffectType.HueRotate,
-        degree: 300,
-      });
-    }
+    const healthBarItem = new RendererItem(
+      "#F00",
+      position,
+      (entity.getHealth() / Zombie.Health) * this.cellSize,
+      2,
+    );
+
+    const healthBarBgItem = new RendererItem(
+      "#FFF",
+      position,
+      this.cellSize,
+      2,
+    );
+
+    const rendererItem = new RendererItem(
+      entityImage,
+      position,
+      this.cellSize,
+      this.cellSize,
+    );
 
     if (entity.hasChange(ChangeType.Walking)) {
       const change = entity.getChange(ChangeType.Walking);
@@ -221,25 +270,69 @@ export class Renderer {
       position.x = from.x * this.cellSize;
       position.y = from.y * this.cellSize;
 
-      effects.push({
-        type: RendererEffectType.Move,
+      const positionToEffect: RendererEffect = {
+        type: RendererEffectType.PositionTo,
         duration: DEFAULT_REPLAY_SPEED,
         startedAt: Date.now(),
         to: {
           x: to.x * this.cellSize,
           y: to.y * this.cellSize,
         },
-      });
+      };
+
+      healthBarItem.addEffect(positionToEffect);
+      healthBarBgItem.addEffect(positionToEffect);
+      rendererItem.addEffect(positionToEffect);
+
+      if (from.x >= to.x) {
+        rendererItem.addEffect({
+          type: RendererEffectType.FlipHorizontal,
+        });
+      }
+
+      if (
+        assets.zombieWalkingFrame2 !== null &&
+        assets.zombieWalkingFrame3 !== null &&
+        assets.zombieWalkingFrame4 !== null
+      ) {
+        rendererItem.addEffect({
+          type: RendererEffectType.AssetSwap,
+          duration: REPLAY_SPEED,
+          every: REPLAY_SPEED / 4,
+          startedAt: Date.now(),
+          steps: [
+            assets.zombieWalkingFrame2,
+            assets.zombieWalkingFrame3,
+            assets.zombieWalkingFrame4,
+          ],
+        });
+      }
+    } else if (entity.getType() === EntityType.Zombie && !entity.dead()) {
+      if (
+        assets.zombieIdleFrame2 !== null &&
+        assets.zombieIdleFrame3 !== null &&
+        assets.zombieIdleFrame4 !== null
+      ) {
+        rendererItem.addEffect({
+          type: RendererEffectType.AssetSwap,
+          duration: REPLAY_SPEED,
+          every: REPLAY_SPEED / 4,
+          startedAt: Date.now(),
+          steps: [
+            assets.zombieIdleFrame2,
+            assets.zombieIdleFrame3,
+            assets.zombieIdleFrame4,
+          ],
+        });
+      }
     }
 
-    this.items.push(
-      new RendererItem(
-        entityImage,
-        this.cellSize,
-        position,
-        this.cellSize,
-      ).addEffect(...effects),
-    );
+    this.items.push(rendererItem);
+
+    if (entity.getType() === EntityType.Zombie && !entity.dead()) {
+      this.items.push(healthBarBgItem);
+      this.items.push(healthBarItem);
+    }
   }
 
   private shouldAnimate(): boolean {
@@ -249,7 +342,10 @@ export class Renderer {
       }
 
       for (const effect of item.effects) {
-        if (effect.type === RendererEffectType.Move) {
+        if (
+          effect.type === RendererEffectType.AssetSwap ||
+          effect.type === RendererEffectType.PositionTo
+        ) {
           if (Date.now() < effect.startedAt + effect.duration) {
             return true;
           }

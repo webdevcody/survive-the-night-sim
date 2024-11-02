@@ -1,23 +1,35 @@
 import { type Position } from "@/simulators/zombie-survival";
 
 export enum RendererEffectType {
+  AssetSwap,
+  FlipHorizontal,
   HueRotate,
-  Move,
   Opacity,
+  PositionTo,
 }
 
 export type RendererEffect =
+  | {
+      type: RendererEffectType.AssetSwap;
+      duration: number;
+      every: number;
+      startedAt: number;
+      steps: HTMLImageElement[];
+    }
+  | {
+      type: RendererEffectType.FlipHorizontal;
+    }
   | {
       type: RendererEffectType.HueRotate;
       degree: number;
     }
   | {
-      type: RendererEffectType.Move;
+      type: RendererEffectType.Opacity;
+      value: number;
+    }
+  | {
+      type: RendererEffectType.PositionTo;
       duration: number;
       startedAt: number;
       to: Position;
-    }
-  | {
-      type: RendererEffectType.Opacity;
-      value: number;
     };
