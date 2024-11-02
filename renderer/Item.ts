@@ -2,17 +2,17 @@ import { type RendererEffect, type RendererEffectType } from "./Effect";
 import { type Position } from "@/simulators/zombie-survival";
 
 export class RendererItem {
-  data: HTMLImageElement;
+  data: HTMLImageElement | string;
   effects: RendererEffect[] = [];
   height: number;
   position: Position;
   width: number;
 
   constructor(
-    data: HTMLImageElement,
-    height: number,
+    data: HTMLImageElement | string,
     position: Position,
     width: number,
+    height: number,
   ) {
     this.data = data;
     this.height = height;

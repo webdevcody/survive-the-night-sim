@@ -1,12 +1,13 @@
 import { assets, loadAssets } from "./Assets";
 import * as Canvas from "./Canvas";
-import { RendererEffectType } from "./Effect";
+import { type RendererEffect, RendererEffectType } from "./Effect";
 import { RendererItem } from "./Item";
 import { REPLAY_SPEED } from "@/constants/visualizer";
 import {
   type Entity,
   EntityType,
   type Position,
+  Zombie,
   type ZombieSurvival,
 } from "@/simulators/zombie-survival";
 import { ChangeType } from "@/simulators/zombie-survival/Change";
@@ -101,6 +102,13 @@ export class Renderer {
 
       x += (effect.to.x - x) * delta;
       y += (effect.to.y - y) * delta;
+    }
+
+    if (typeof item.data === "string") {
+      this.ctx.fillStyle = item.data;
+      this.ctx.fillRect(x, y, item.width, item.height);
+      this.ctx.globalAlpha = 1;
+      return;
     }
 
     let source: HTMLImageElement = item.data;
@@ -209,9 +217,9 @@ export class Renderer {
 
     const rendererItem = new RendererItem(
       assets.bg,
-      drawHeight,
       position,
       drawWidth,
+      drawHeight,
     );
 
     rendererItem.addEffect({
@@ -234,10 +242,24 @@ export class Renderer {
       y: entity.getPosition().y * this.cellSize,
     };
 
+    const healthBarItem = new RendererItem(
+      "#F00",
+      position,
+      (entity.getHealth() / Zombie.Health) * this.cellSize,
+      2,
+    );
+
+    const healthBarBgItem = new RendererItem(
+      "#FFF",
+      position,
+      this.cellSize,
+      2,
+    );
+
     const rendererItem = new RendererItem(
       entityImage,
-      this.cellSize,
       position,
+      this.cellSize,
       this.cellSize,
     );
 
@@ -248,7 +270,7 @@ export class Renderer {
       position.x = from.x * this.cellSize;
       position.y = from.y * this.cellSize;
 
-      rendererItem.addEffect({
+      const positionToEffect: RendererEffect = {
         type: RendererEffectType.PositionTo,
         duration: REPLAY_SPEED,
         startedAt: Date.now(),
@@ -256,7 +278,11 @@ export class Renderer {
           x: to.x * this.cellSize,
           y: to.y * this.cellSize,
         },
-      });
+      };
+
+      healthBarItem.addEffect(positionToEffect);
+      healthBarBgItem.addEffect(positionToEffect);
+      rendererItem.addEffect(positionToEffect);
 
       if (from.x >= to.x) {
         rendererItem.addEffect({
@@ -284,6 +310,11 @@ export class Renderer {
     }
 
     this.items.push(rendererItem);
+
+    if (entity.getType() === EntityType.Zombie && !entity.dead()) {
+      this.items.push(healthBarBgItem);
+      this.items.push(healthBarItem);
+    }
   }
 
   private shouldAnimate(): boolean {
