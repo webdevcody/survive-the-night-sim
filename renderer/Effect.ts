@@ -14,7 +14,7 @@ export type RendererEffect =
       duration: number;
       every: number;
       startedAt: number;
-      to: HTMLImageElement;
+      steps: HTMLImageElement[];
     }
   | {
       type: RendererEffectType.FlipHorizontal;

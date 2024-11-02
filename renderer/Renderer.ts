@@ -107,7 +107,7 @@ export class Renderer {
 
     if (item.hasEffect(RendererEffectType.AssetSwap)) {
       const effect = item.getEffect(RendererEffectType.AssetSwap);
-      const assets = [item.data, effect.to];
+      const assets = [item.data, ...effect.steps];
       const timePassed = Date.now() - effect.startedAt;
       const assetIdx = Math.floor((timePassed / effect.every) % assets.length);
 
@@ -162,7 +162,7 @@ export class Renderer {
         if (entity.hasChange(ChangeType.Killed)) {
           return assets.zombieDead;
         } else if (entity.hasChange(ChangeType.Walking)) {
-          return assets.zombieWalking;
+          return assets.zombieWalkingFrame1;
         } else {
           return assets.zombie;
         }
@@ -265,19 +265,27 @@ export class Renderer {
         },
       });
 
-      if (from.x < to.x) {
+      if (from.x >= to.x) {
         rendererItem.addEffect({
           type: RendererEffectType.FlipHorizontal,
         });
       }
 
-      if (assets.zombieWalkingStep !== null) {
+      if (
+        assets.zombieWalkingFrame2 !== null &&
+        assets.zombieWalkingFrame3 !== null &&
+        assets.zombieWalkingFrame4 !== null
+      ) {
         rendererItem.addEffect({
           type: RendererEffectType.AssetSwap,
           duration: REPLAY_SPEED,
           every: REPLAY_SPEED / 6,
           startedAt: Date.now(),
-          to: assets.zombieWalkingStep,
+          steps: [
+            assets.zombieWalkingFrame2,
+            assets.zombieWalkingFrame3,
+            assets.zombieWalkingFrame4,
+          ],
         });
       }
     }

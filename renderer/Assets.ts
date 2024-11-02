@@ -8,8 +8,10 @@ export interface RendererAssets {
   rock: HTMLImageElement | null;
   zombie: HTMLImageElement | null;
   zombieDead: HTMLImageElement | null;
-  zombieWalking: HTMLImageElement | null;
-  zombieWalkingStep: HTMLImageElement | null;
+  zombieWalkingFrame1: HTMLImageElement | null;
+  zombieWalkingFrame2: HTMLImageElement | null;
+  zombieWalkingFrame3: HTMLImageElement | null;
+  zombieWalkingFrame4: HTMLImageElement | null;
 }
 
 export const assets: RendererAssets = {
@@ -22,8 +24,10 @@ export const assets: RendererAssets = {
   rock: null,
   zombie: null,
   zombieDead: null,
-  zombieWalking: null,
-  zombieWalkingStep: null,
+  zombieWalkingFrame1: null,
+  zombieWalkingFrame2: null,
+  zombieWalkingFrame3: null,
+  zombieWalkingFrame4: null,
 };
 
 export async function loadAssets() {
@@ -41,8 +45,10 @@ export async function loadAssets() {
     rock,
     zombie,
     zombieDead,
-    zombieWalking,
-    zombieWalkingStep,
+    zombieWalkingFrame1,
+    zombieWalkingFrame2,
+    zombieWalkingFrame3,
+    zombieWalkingFrame4,
   ] = await Promise.all([
     loadAssetImage("/map.webp"),
     loadAssetImage("/entities/box.svg"),
@@ -51,8 +57,10 @@ export async function loadAssets() {
     loadAssetImage("/entities/rock.svg"),
     loadAssetImage("/entities/zombie-idle.svg"),
     loadAssetImage("/entities/zombie-dead.svg"),
-    loadAssetImage("/entities/zombie-walking.svg"),
-    loadAssetImage("/entities/zombie-walking-step.svg"),
+    loadAssetImage("/entities/zombie-walking-frame1.png"),
+    loadAssetImage("/entities/zombie-walking-frame2.png"),
+    loadAssetImage("/entities/zombie-walking-frame3.png"),
+    loadAssetImage("/entities/zombie-walking-frame4.png"),
   ]);
 
   assets.loaded = true;
@@ -63,8 +71,10 @@ export async function loadAssets() {
   assets.rock = rock;
   assets.zombie = zombie;
   assets.zombieDead = zombieDead;
-  assets.zombieWalking = zombieWalking;
-  assets.zombieWalkingStep = zombieWalkingStep;
+  assets.zombieWalkingFrame1 = zombieWalkingFrame1;
+  assets.zombieWalkingFrame2 = zombieWalkingFrame2;
+  assets.zombieWalkingFrame3 = zombieWalkingFrame3;
+  assets.zombieWalkingFrame4 = zombieWalkingFrame4;
 }
 
 export async function loadAssetImage(src: string): Promise<HTMLImageElement> {
