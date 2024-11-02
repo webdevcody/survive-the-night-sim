@@ -2,7 +2,6 @@ import { assets, loadAssets } from "./Assets";
 import * as Canvas from "./Canvas";
 import { type RendererEffect, RendererEffectType } from "./Effect";
 import { RendererItem } from "./Item";
-import { DEFAULT_REPLAY_SPEED } from "@/constants/visualizer";
 import {
   type Entity,
   EntityType,
@@ -14,6 +13,7 @@ import { ChangeType } from "@/simulators/zombie-survival/Change";
 
 export class Renderer {
   private readonly cellSize: number;
+  private readonly replaySpeed: number;
   private readonly h: number;
   private readonly w: number;
 
@@ -28,8 +28,10 @@ export class Renderer {
     boardWidth: number,
     canvas: HTMLCanvasElement,
     cellSize: number,
+    replaySpeed: number,
   ) {
     this.cellSize = cellSize;
+    this.replaySpeed = replaySpeed;
     this.h = boardHeight * cellSize;
     this.w = boardWidth * cellSize;
 
@@ -272,7 +274,7 @@ export class Renderer {
 
       const positionToEffect: RendererEffect = {
         type: RendererEffectType.PositionTo,
-        duration: DEFAULT_REPLAY_SPEED,
+        duration: this.replaySpeed,
         startedAt: Date.now(),
         to: {
           x: to.x * this.cellSize,
@@ -297,8 +299,8 @@ export class Renderer {
       ) {
         rendererItem.addEffect({
           type: RendererEffectType.AssetSwap,
-          duration: DEFAULT_REPLAY_SPEED,
-          every: DEFAULT_REPLAY_SPEED / 4,
+          duration: this.replaySpeed,
+          every: this.replaySpeed / 4,
           startedAt: Date.now(),
           steps: [
             assets.zombieWalkingFrame2,
@@ -315,8 +317,8 @@ export class Renderer {
       ) {
         rendererItem.addEffect({
           type: RendererEffectType.AssetSwap,
-          duration: DEFAULT_REPLAY_SPEED,
-          every: DEFAULT_REPLAY_SPEED / 4,
+          duration: this.replaySpeed,
+          every: this.replaySpeed / 4,
           startedAt: Date.now(),
           steps: [
             assets.zombieIdleFrame2,

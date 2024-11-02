@@ -41,9 +41,10 @@ export function Visualizer({
         ZombieSurvival.boardWidth(map),
         canvas.current,
         Number.parseInt(cellSize, 10),
+        replaySpeed,
       );
     }
-  }, [canvas]);
+  }, [canvas, cellSize, map, replaySpeed]);
 
   React.useEffect(() => {
     if (autoStart) {
