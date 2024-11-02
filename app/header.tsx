@@ -1,13 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { api } from "@/convex/_generated/api";
+import { useState } from "react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import {
   ChevronDownIcon,
@@ -18,7 +11,14 @@ import { Authenticated, Unauthenticated, useQuery } from "convex/react";
 import { UserCircleIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { api } from "@/convex/_generated/api";
 
 const links = [
   { href: "/", label: "Watch" },
@@ -110,25 +110,25 @@ export default function Header() {
           </Link>
         </Unauthenticated>
         <div className="hidden md:block">
-        <Authenticated>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost">
-                <UserCircleIcon className="h-6 w-6" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem asChild>
-                <Link href="/settings">Settings</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <button onClick={() => void signOut()}>Sign Out</button>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </Authenticated>
+          <Authenticated>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost">
+                  <UserCircleIcon className="h-6 w-6" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem asChild>
+                  <Link href="/settings">Settings</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <button onClick={() => void signOut()}>Sign Out</button>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </Authenticated>
         </div>
-        
+
         <Button
           className="md:hidden"
           variant="ghost"
@@ -139,7 +139,7 @@ export default function Header() {
       </div>
 
       {isMobileMenuOpen && (
-        <div className="absolute left-0 top-16 w-full border-b bg-white shadow-md md:hidden dark:bg-slate-950">
+        <div className="absolute left-0 top-16 z-50 w-full border-b bg-white shadow-md dark:bg-slate-950 md:hidden">
           <nav className="flex flex-col items-start space-y-2 p-4">
             {links.map((link) => (
               <Button key={link.href} variant="ghost" asChild>
@@ -169,8 +169,8 @@ export default function Header() {
                 Sign Out
               </Button>
               <Button variant="ghost" asChild>
-                  <Link href="/settings">Settings</Link>
-                </Button>
+                <Link href="/settings">Settings</Link>
+              </Button>
             </Authenticated>
           </nav>
         </div>
