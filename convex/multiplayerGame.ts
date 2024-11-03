@@ -1,3 +1,4 @@
+import { runMutiplayerModel } from "../models/multiplayer";
 import { ZombieSurvival } from "../simulators/zombie-survival";
 import { v } from "convex/values";
 import { api, internal } from "./_generated/api";
@@ -75,14 +76,10 @@ export const runMultiplayerGameTurn = internalAction({
       throw new Error("Multiplayer game not found");
     }
 
-    console.log(multiplayerGame.boardState);
-
     const map = new ZombieSurvival(multiplayerGame.boardState);
 
     if (turn === "Z") {
       map.moveAllZombies();
-      console.log("ZOMBIES MOVED");
-      console.log(map.getState());
       await ctx.runMutation(
         internal.multiplayerGame.updateMultiplayerGameBoardState,
         {
@@ -93,6 +90,11 @@ export const runMultiplayerGameTurn = internalAction({
     } else if (turn === HARD_CODED_PLAYER_TOKEN) {
       // TODO: based on who's turn it is, lookup the LLM model
       // run the LLM model over the player's location
+      const results = await runMutiplayerModel(
+        HARD_CODED_MODEL_ID,
+        map.getState(),
+        HARD_CODED_PLAYER_TOKEN,
+      );
       // the LLM model should return the next move and which zombie it should shoot
       // update the board state with the new player location
     }

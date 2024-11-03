@@ -1,4 +1,5 @@
 import { ChangeType } from "./Change";
+import { allDirections, move } from "./Direction";
 import { Entity } from "./Entity";
 import { Position, samePosition } from "./Position";
 import { Box } from "./entities/Box";
@@ -144,6 +145,40 @@ export class ZombieSurvival {
     }
 
     return null;
+  }
+
+  public static getPlayerByToken(
+    map: string[][],
+    playerToken: string,
+  ): Player | null {
+    return map
+      .flat()
+      .find((cell) => cell === playerToken) as unknown as Player | null;
+  }
+
+  public static validMoveLocations(
+    map: string[][],
+    entity: Entity,
+  ): number[][] {
+    const position = entity.getPosition();
+    const validMoves: number[][] = [];
+
+    for (const direction of allDirections) {
+      const newPosition = move(position, direction);
+
+      if (
+        newPosition.x >= 0 &&
+        newPosition.x < map[0].length &&
+        newPosition.y >= 0 &&
+        newPosition.y < map.length
+      ) {
+        if (map[newPosition.y][newPosition.x] === " ") {
+          validMoves.push([newPosition.y, newPosition.x]);
+        }
+      }
+    }
+
+    return validMoves;
   }
 
   public static validLocations(map: string[][]): number[][] {
