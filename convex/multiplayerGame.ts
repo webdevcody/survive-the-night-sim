@@ -1,5 +1,5 @@
 import { runMutiplayerModel } from "../models/multiplayer";
-import { ZombieSurvival } from "../simulators/zombie-survival";
+import { ZombieSurvival } from "../simulator";
 import { v } from "convex/values";
 import { api, internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";

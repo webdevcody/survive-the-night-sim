@@ -1,6 +1,6 @@
 import { gpt4o } from "./gpt-4o";
 import { errorMessage } from "@/lib/utils";
-import { ZombieSurvival } from "@/simulators/zombie-survival";
+import { ZombieSurvival } from "@/simulator";
 
 // TODO: rewrite this prompt to work for multiplayer
 const SYSTEM_PROMPT = `Your task is to play a game.  We will give you a 2d array of characters that represent the game board.  Before the game starts, you have these two tasks:

@@ -31,7 +31,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { SIGN_IN_ERROR_MESSAGE } from "@/convex/users";
 import { useAITesting } from "@/hooks/useAITesting";
 import { errorMessage } from "@/lib/utils";
-import { ZombieSurvival } from "@/simulators/zombie-survival";
+import { ZombieSurvival } from "@/simulator";
 
 const STORAGE_MAP_KEY = "playground-map";
 const STORAGE_MODEL_KEY = "playground-model";

@@ -20,6 +20,6 @@
     "isolatedModules": true,
     "noEmit": true
   },
-  "include": ["./**/*", "../simulators/**/*"],
+  "include": ["./**/*", "../simulator/**/*"],
   "exclude": ["./_generated"]
 }

@@ -6,7 +6,7 @@ import { Page, PageTitle } from "@/components/Page";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { Renderer } from "@/renderer";
-import { ZombieSurvival } from "@/simulators/zombie-survival";
+import { ZombieSurvival } from "@/simulator";
 
 export default function Multiplayer({
   params,

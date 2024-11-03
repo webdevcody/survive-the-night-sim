@@ -3,6 +3,7 @@ export * from "./entities/Landmine";
 export * from "./entities/Player";
 export * from "./entities/Rock";
 export * from "./entities/Zombie";
+export * from "./Change";
 export * from "./Direction";
 export * from "./Entity";
 export * from "./Position";

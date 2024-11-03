@@ -3,13 +3,12 @@ import * as Canvas from "./Canvas";
 import { type RendererEffect, RendererEffectType } from "./Effect";
 import { RendererItem } from "./Item";
 import {
+  ChangeType,
   type Entity,
   EntityType,
   type Position,
   Zombie,
-  type ZombieSurvival,
-} from "@/simulators/zombie-survival";
-import { ChangeType } from "@/simulators/zombie-survival/Change";
+} from "@/simulator";
 
 export class Renderer {
   private readonly cellSize: number;

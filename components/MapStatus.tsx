@@ -1,4 +1,4 @@
-import { ZombieSurvival } from "@/simulators/zombie-survival";
+import { ZombieSurvival } from "@/simulator";
 
 export function MapStatus({ map }: { map: string[][] }) {
   const isWin = ZombieSurvival.isWin(map);

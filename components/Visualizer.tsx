@@ -5,7 +5,7 @@ import {
   DEFAULT_REPLAY_SPEED,
 } from "@/constants/visualizer";
 import { Renderer } from "@/renderer";
-import { ZombieSurvival } from "@/simulators/zombie-survival";
+import { ZombieSurvival } from "@/simulator";
 
 export function Visualizer({
   autoReplay = false,

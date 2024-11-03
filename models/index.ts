@@ -1,5 +1,5 @@
 import { errorMessage } from "../lib/utils";
-import { ZombieSurvival } from "../simulators/zombie-survival";
+import { ZombieSurvival } from "../simulator";
 import { claude35sonnet } from "./claude-3-5-sonnet";
 import { gemini15pro } from "./gemini-1.5-pro";
 import { gpt4o } from "./gpt-4o";

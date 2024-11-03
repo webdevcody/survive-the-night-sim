@@ -1,5 +1,5 @@
 import { runModel } from "../models";
-import { ZombieSurvival } from "../simulators/zombie-survival";
+import { ZombieSurvival } from "../simulator";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { isRateLimitError } from "@convex-dev/rate-limiter";
 import { v } from "convex/values";
