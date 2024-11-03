@@ -59,17 +59,19 @@ export class Renderer {
 
     ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
     ctx2.scale(window.devicePixelRatio, window.devicePixelRatio);
-
-    void loadAssets();
   }
 
-  public render(simulator: ZombieSurvival) {
+  public async initialize() {
+    return loadAssets();
+  }
+
+  public render(entities: Entity[]) {
     if (this.req !== null) {
       window.cancelAnimationFrame(this.req);
       this.req = null;
     }
 
-    this.register(simulator);
+    this.register(entities);
     this.draw();
   }
 
@@ -180,11 +182,9 @@ export class Renderer {
     }
   }
 
-  private register(simulator: ZombieSurvival) {
+  private register(entities: Entity[]) {
     this.items = [];
     this.registerBg();
-
-    const entities = simulator.getAllEntities();
 
     for (const entity of entities) {
       this.registerEntity(entity);

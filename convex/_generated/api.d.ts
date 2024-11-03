@@ -21,6 +21,7 @@ import type * as init from "../init.js";
 import type * as leaderboard from "../leaderboard.js";
 import type * as maps from "../maps.js";
 import type * as models from "../models.js";
+import type * as multiplayerGame from "../multiplayerGame.js";
 import type * as playerresults from "../playerresults.js";
 import type * as prompts from "../prompts.js";
 import type * as rateLimits from "../rateLimits.js";
@@ -53,6 +54,7 @@ declare const fullApi: ApiFromModules<{
   leaderboard: typeof leaderboard;
   maps: typeof maps;
   models: typeof models;
+  multiplayerGame: typeof multiplayerGame;
   playerresults: typeof playerresults;
   prompts: typeof prompts;
   rateLimits: typeof rateLimits;

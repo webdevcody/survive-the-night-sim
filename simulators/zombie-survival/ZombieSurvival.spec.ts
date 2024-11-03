@@ -427,3 +427,15 @@ test("player kills closest zombie", () => {
 
   expect(game.finished()).toBeTruthy();
 });
+
+test("the game state should persist numbered players", () => {
+  const game = new ZombieSurvival([
+    ["Z", " "],
+    [" ", "1"],
+  ]);
+
+  expect(game.getState()).toStrictEqual([
+    ["Z", " "],
+    [" ", "1"],
+  ]);
+});

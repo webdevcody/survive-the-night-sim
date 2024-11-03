@@ -77,4 +77,13 @@ export default defineSchema({
     prompt: v.string(),
     isActive: v.boolean(),
   }).index("by_active", ["isActive"]),
+  multiplayerGame: defineTable({
+    boardState: v.array(v.array(v.string())),
+    playerMap: v.array(
+      v.object({
+        modelId: v.id("models"),
+        playerToken: v.string(),
+      }),
+    ),
+  }),
 });

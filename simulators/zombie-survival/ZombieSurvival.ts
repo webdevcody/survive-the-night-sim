@@ -12,8 +12,78 @@ export class ZombieSurvival {
   public readonly boardHeight: number;
   public readonly boardWidth: number;
   private entities: Entity[];
-  private player: Player;
+  private player: Player | null;
   private zombies: Zombie[];
+
+  public constructor(config: string[][]) {
+    if (ZombieSurvival.mapIsEmpty(config)) {
+      throw new Error("Config is empty");
+    }
+
+    this.boardWidth = config[0].length;
+    this.boardHeight = config.length;
+    this.entities = [];
+    this.zombies = [];
+
+    let player: Player | null = null;
+
+    for (let y = 0; y < this.boardHeight; y++) {
+      for (let x = 0; x < this.boardWidth; x++) {
+        const code = config[y][x];
+
+        switch (code.toLowerCase()) {
+          case "b": {
+            this.entities.push(new Box({ x, y }));
+            break;
+          }
+          case "l": {
+            this.entities.push(new Landmine({ x, y }));
+            break;
+          }
+          case "r": {
+            this.entities.push(new Rock({ x, y }));
+            break;
+          }
+          case "z": {
+            this.zombies.push(new Zombie(this, { x, y }));
+            break;
+          }
+          case "1": {
+            player = new Player(
+              this,
+              {
+                x,
+                y,
+              },
+              code.toLocaleLowerCase(),
+            );
+            break;
+          }
+          case "p": {
+            if (player !== null) {
+              throw new Error("Config contains multiple players");
+            }
+
+            player = new Player(this, {
+              x,
+              y,
+            });
+            break;
+          }
+        }
+      }
+    }
+
+    // if (player === null) {
+    //   throw new Error("Config has no player");
+    // }
+
+    this.player = player;
+
+    if (this.zombies.length === 0) {
+      throw new Error("Config has no zombies");
+    }
+  }
 
   public static boardHeight(map: string[][]): number {
     return map.length;
@@ -43,7 +113,7 @@ export class ZombieSurvival {
       game.step();
     }
 
-    return !game.getPlayer().dead();
+    return game.getPlayer() === null || !game.getPlayer()?.dead();
   }
 
   public static mapHasMultiplePlayers(map: string[][]): boolean {
@@ -87,81 +157,32 @@ export class ZombieSurvival {
     );
   }
 
-  public constructor(config: string[][]) {
-    if (ZombieSurvival.mapIsEmpty(config)) {
-      throw new Error("Config is empty");
-    }
-
-    this.boardWidth = config[0].length;
-    this.boardHeight = config.length;
-    this.entities = [];
-    this.zombies = [];
-
-    let player: Player | null = null;
-
-    for (let y = 0; y < this.boardHeight; y++) {
-      for (let x = 0; x < this.boardWidth; x++) {
-        const code = config[y][x];
-
-        switch (code.toLowerCase()) {
-          case "b": {
-            this.entities.push(new Box({ x, y }));
-            break;
-          }
-          case "l": {
-            this.entities.push(new Landmine({ x, y }));
-            break;
-          }
-          case "p": {
-            if (player !== null) {
-              throw new Error("Config contains multiple players");
-            }
-
-            player = new Player(this, { x, y });
-            break;
-          }
-          case "r": {
-            this.entities.push(new Rock({ x, y }));
-            break;
-          }
-          case "z": {
-            this.zombies.push(new Zombie(this, { x, y }));
-            break;
-          }
-        }
-      }
-    }
-
-    if (player === null) {
-      throw new Error("Config has no player");
-    }
-
-    this.player = player;
-
-    if (this.zombies.length === 0) {
-      throw new Error("Config has no zombies");
-    }
-  }
-
   public finished(): boolean {
-    return this.player.dead() || this.zombies.every((zombie) => zombie.dead());
+    return (
+      !this.player ||
+      this.player.dead() ||
+      this.zombies.every((zombie) => zombie.dead())
+    );
   }
 
   public getAllEntities(): Entity[] {
-    return [this.entities, this.zombies, this.player].flat();
+    return [this.entities, this.zombies, this.player]
+      .flat()
+      .filter(Boolean) as Entity[];
   }
 
   public getAllAliveEntities(): Entity[] {
     return [this.entities, this.zombies, this.player]
       .flat()
-      .filter((entity) => !entity.dead());
+      .filter(Boolean)
+      .filter((entity) => entity && !entity.dead()) as Entity[];
   }
 
   public getEntities(): Entity[] {
     return this.entities;
   }
 
-  public getPlayer(): Player {
+  public getPlayer(): Player | null {
     return this.player;
   }
 
@@ -210,13 +231,12 @@ export class ZombieSurvival {
     return this;
   }
 
-  public step() {
+  public moveAllZombies() {
     const initialHealth = this.zombies.map((zombie) => zombie.getHealth());
 
-    this.player.clearChanges();
-    this.player.shoot();
+    const isPlayerDead = this.player === null || this.player.dead();
 
-    for (let i = 0; i < this.zombies.length && !this.player.dead(); i++) {
+    for (let i = 0; i < this.zombies.length && !isPlayerDead; i++) {
       const zombie = this.zombies[i];
       const initialPosition = zombie.getPosition();
       const initialZombieHealth = initialHealth[i];
@@ -242,5 +262,11 @@ export class ZombieSurvival {
         });
       }
     }
+  }
+
+  public step() {
+    this.player?.clearChanges();
+    this.player?.shoot();
+    this.moveAllZombies();
   }
 }
