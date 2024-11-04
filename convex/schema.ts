@@ -77,7 +77,7 @@ export default defineSchema({
     prompt: v.string(),
     isActive: v.boolean(),
   }).index("by_active", ["isActive"]),
-  multiplayerGame: defineTable({
+  multiplayerGames: defineTable({
     boardState: v.array(v.array(v.string())),
     playerMap: v.array(
       v.object({
