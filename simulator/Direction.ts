@@ -14,6 +14,26 @@ export const allDirections = [
   Direction.Up,
 ];
 
+export function fromDirectionString(direction: string): Direction {
+  switch (direction) {
+    case "DOWN": {
+      return Direction.Down;
+    }
+    case "LEFT": {
+      return Direction.Left;
+    }
+    case "RIGHT": {
+      return Direction.Right;
+    }
+    case "UP": {
+      return Direction.Up;
+    }
+    default: {
+      throw new Error(`Can't parse direction: ${direction}`);
+    }
+  }
+}
+
 export function directionToString(direction: Direction): string {
   switch (direction) {
     case Direction.Down: {

@@ -1,35 +1,24 @@
 import { gpt4o } from "./gpt-4o";
-import { AI_MODELS } from "@/convex/constants";
+import { ModelSlug } from "@/convex/constants";
 import { errorMessage } from "@/lib/utils";
 import { ZombieSurvival } from "@/simulator";
 
-// TODO: rewrite this prompt to work for multiplayer
-const SYSTEM_PROMPT = `Your task is to play a game.  We will give you a 2d array of characters that represent the game board.  Before the game starts, you have these two tasks:
-
-1. Place two blocks ("B") in locations which maximize the player's survival.
-2. Place the player ("P") in a location which maximize the player's survival.
-
-# Placing Rules
-- You can not place blocks in locations already used by zombies or rocks.
-- You can not place the player in a location already used by a zombie or rock.
-- You can not place a block over the player or another block.
-- You must place both blocks and the player before starting the game.
+const SYSTEM_PROMPT = `Your task is to play a game.  We will give you a 2d array of characters that represent the game board.
 
 # Grid Descriptions
 The 2d Grid is made up of characters, where each character has a meaning.
 " " represents an empty space.
-"Z" represents a zombie.
+"Z" represents a zombie.  "Z:2" represents a zombie with 2 health.
 "R" represents rocks which zombies can not pass through and path finding will not allow them to go through.
-"P" represents the player, who cannot move. The player's goal is to throw popsicle at zombies before they reach them.
+"1", "2", "3", "4", "5", "6" represents the players who can move around and throw popsicles at zombies.
 "B" represents blocks that can be placed before the round begins to hinder the zombies.
 
 # Game Rules
 - The game is turn based.
-- At the start of the turn, the player (P) throws a popsicle at the closest zombie (using euclidean distance).
-- Popsicle deal 1 damage to zombies.
+- At the start of your turn, you can throw a popsicle at any one zombie on the map
+- You can also move DOWN, LEFT, RIGHT, UP, STAY only if the spot they are trying to move into is empty
 - A zombie is removed from the game when its health reaches 0.
-- When all zombies are removed, the player wins.
-- If a zombie reaches a player, the player loses.
+- When all players die, the game ends
 
 # Zombie Rules
 - Zombies have 2 health.
@@ -41,27 +30,21 @@ The 2d Grid is made up of characters, where each character has a meaning.
 - Zombies always try to move towards the playing using BFS algorithm.
 
 # Player Rules
-- Players can not move.
-- Players throw one lollipops at the closest zombie at the start of each turn.
-
-# Placement Strategies
-
-- often it's good to wall off between the zombies and players if possible, this will slow the zombies down.
-- You should never put a player directly next to a zombie.
-- You should try to put blocks directly next to players
-- If the player is behind a choke point, blocking the path to the player is the best option.
+- Players can move horizontally or vertically.
+- Players can't move into occupied spaces or outside the grid.
+- Players can throw one popsickle at a zombie each turn.
+- Players should move away from zombies.
+- Players should probably shoot at the closest zombie
 
 # Output Format
 
 - Respond only with valid JSON. Do not write an introduction or summary.
-- Assume a single paragraph explaining your placement strategy is always represented as REASONING.
 - Assume a position on the 2d grid is always represented as [ROW, COL].
 - Your output should be a JSON object with the following format:
 
 {
-  "boxCoordinates": [[ROW, COL], [ROW, COL]],
-  "playerCoordinates": [ROW, COL],
-  "reasoning": "REASONING"
+  "moveDirection": "DOWN" | "LEFT" | "RIGHT" | "UP" | "STAY",
+  "zombieToShoot": [ROW, COL]
 }
 `;
 
@@ -76,8 +59,8 @@ export type MultiplayerModelHandler = (
   userPrompt: string,
   config: ModelHandlerConfig,
 ) => Promise<{
-  moveLocation: number[];
-  reasoning: string;
+  moveDirection: string;
+  zombieToShoot: number[];
 }>;
 
 const MAX_RETRIES = 1;
@@ -90,45 +73,44 @@ const CONFIG: ModelHandlerConfig = {
 
 export type RunModelResult = {
   error?: string;
-  reasoning: string;
-  solution?: string[][];
+  moveDirection?: string;
+  zombieToShoot?: number[];
+  reasoning?: string;
 };
 
 export async function runMultiplayerModel(
-  modelId: string,
+  modelSlug: ModelSlug,
   map: string[][],
   playerToken: string,
   retry = 1,
 ): Promise<RunModelResult> {
-  const validMoveLocations = ZombieSurvival.validPlayerMoveLocations(
-    map,
-    playerToken,
-  );
+  const validDirections = [
+    ...ZombieSurvival.validMoveDirections(map, playerToken),
+    "STAY",
+  ];
 
   const userPrompt =
     `Grid: ${JSON.stringify(map)}\n\n` +
-    `Valid Move Locations: ${JSON.stringify(validMoveLocations)}`;
+    `Your Player Token: ${playerToken}\n\n` +
+    `Valid Move Locations: ${JSON.stringify(validDirections)}`;
 
   let result;
   let reasoning: string | null = null;
 
   try {
-    switch (modelId) {
-      case AI_MODELS[1].name: {
+    switch (modelSlug) {
+      case "gpt-4o": {
         result = await gpt4o(SYSTEM_PROMPT, userPrompt, CONFIG);
         break;
       }
       default: {
-        throw new Error(`Tried running unknown model '${modelId}'`);
+        throw new Error(`Tried running unknown model '${modelSlug}'`);
       }
     }
 
-    reasoning = result.reasoning;
-    const originalMap = ZombieSurvival.cloneMap(map);
-
     return {
-      reasoning: result.reasoning,
-      solution: originalMap,
+      moveDirection: result.moveDirection,
+      zombieToShoot: result.zombieToShoot,
     };
   } catch (error) {
     if (retry === MAX_RETRIES || reasoning === null) {
@@ -138,6 +120,6 @@ export async function runMultiplayerModel(
       };
     }
 
-    return await runMultiplayerModel(modelId, map, playerToken, retry + 1);
+    return await runMultiplayerModel(modelSlug, map, playerToken, retry + 1);
   }
 }

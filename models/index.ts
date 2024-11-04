@@ -63,23 +63,23 @@ export async function runModel(
 
   try {
     switch (modelId) {
-      case AI_MODELS[0].name: {
+      case AI_MODELS["gemini-1.5-pro"].slug: {
         result = await gemini15pro(prompt, userPrompt, CONFIG);
         break;
       }
-      case AI_MODELS[1].name: {
+      case AI_MODELS["gpt-4o"].slug: {
         result = await gpt4o(prompt, userPrompt, CONFIG);
         break;
       }
-      case AI_MODELS[2].name: {
+      case AI_MODELS["claude-3.5-sonnet"].slug: {
         result = await claude35sonnet(prompt, userPrompt, CONFIG);
         break;
       }
-      case AI_MODELS[3].name: {
+      case AI_MODELS["perplexity-llama-3.1"].slug: {
         result = await perplexityLlama31(prompt, userPrompt, CONFIG);
         break;
       }
-      case AI_MODELS[4].name: {
+      case AI_MODELS["mistral-large-2"].slug: {
         result = await mistralLarge2(prompt, userPrompt, CONFIG);
         break;
       }

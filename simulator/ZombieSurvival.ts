@@ -1,5 +1,5 @@
 import { entityAt } from "../lib/entityAt";
-import { allDirections, move } from "./Direction";
+import { Direction, allDirections, move } from "./Direction";
 import { type Entity } from "./Entity";
 import { type Position } from "./Position";
 import { Box } from "./entities/Box";
@@ -34,7 +34,7 @@ export class ZombieSurvival {
       for (let x = 0; x < this.boardWidth; x++) {
         const code = map[y][x];
 
-        switch (code.toLowerCase()) {
+        switch (code.toLowerCase().substring(0, 1)) {
           case "b": {
             this.entities.push(new Box({ x, y }));
             break;
@@ -48,7 +48,12 @@ export class ZombieSurvival {
             break;
           }
           case "z": {
-            this.zombies.push(new Zombie(this, { x, y }));
+            const [, health] = code.split(":");
+            if (health) {
+              this.zombies.push(new Zombie(this, { x, y }, parseInt(health)));
+            } else {
+              this.zombies.push(new Zombie(this, { x, y }));
+            }
             break;
           }
           case "p": {
@@ -100,7 +105,7 @@ export class ZombieSurvival {
       throw new Error("Single player map has no player");
     }
 
-    if (this.zombies.length === 0) {
+    if (!this.multiplayer && this.zombies.length === 0) {
       throw new Error("Map has no zombies");
     }
   }
@@ -118,8 +123,8 @@ export class ZombieSurvival {
   }
 
   public static entityPosition(map: string[][], token: string): Position {
-    for (let y = 0; y < map.length - 1; y++) {
-      for (let x = 0; x < map[y].length - 1; x++) {
+    for (let y = 0; y < map.length; y++) {
+      for (let x = 0; x < map[y].length; x++) {
         if (map[y][x] === token) {
           return { x, y };
         }
@@ -179,12 +184,12 @@ export class ZombieSurvival {
     );
   }
 
-  public static validPlayerMoveLocations(
+  public static validMoveDirections(
     map: string[][],
     playerToken: string,
-  ): number[][] {
+  ): string[] {
     const position = ZombieSurvival.entityPosition(map, playerToken);
-    const validMoves: number[][] = [];
+    const validDirections: string[] = [];
 
     for (const direction of allDirections) {
       const newPosition = move(position, direction);
@@ -196,12 +201,25 @@ export class ZombieSurvival {
         newPosition.y < map.length
       ) {
         if (map[newPosition.y][newPosition.x] === " ") {
-          validMoves.push([newPosition.y, newPosition.x]);
+          switch (direction) {
+            case 0:
+              validDirections.push("DOWN");
+              break;
+            case 1:
+              validDirections.push("LEFT");
+              break;
+            case 2:
+              validDirections.push("RIGHT");
+              break;
+            case 3:
+              validDirections.push("UP");
+              break;
+          }
         }
       }
     }
 
-    return validMoves;
+    return validDirections;
   }
 
   public finished(): boolean {
@@ -209,6 +227,25 @@ export class ZombieSurvival {
       this.players.every((player) => player.dead()) ||
       this.zombies.every((zombie) => zombie.dead())
     );
+  }
+
+  public getClosestPlayer(position: Position): Player | undefined {
+    let closestPlayer: Player | undefined;
+    let closestDistance = Infinity;
+
+    for (const player of this.players) {
+      const distance = Math.sqrt(
+        (player.getPosition().x - position.x) ** 2 +
+          (player.getPosition().y - position.y) ** 2,
+      );
+
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestPlayer = player;
+      }
+    }
+
+    return closestPlayer;
   }
 
   public getAllEntities(): Entity[] {
@@ -235,6 +272,14 @@ export class ZombieSurvival {
     }
 
     throw new Error(`Tried getting non-existing player '${token}'`);
+  }
+
+  public getZombieAt(position: Position): Zombie | undefined {
+    return this.zombies.find(
+      (zombie) =>
+        zombie.getPosition().x === position.x &&
+        zombie.getPosition().y === position.y,
+    );
   }
 
   public getState(): string[][] {
@@ -287,5 +332,24 @@ export class ZombieSurvival {
     for (let i = 0; i < this.zombies.length && !this.finished(); i++) {
       this.zombies[i].walk();
     }
+  }
+
+  public isValidPosition(position: Position): boolean {
+    return (
+      position.x >= 0 &&
+      position.x < this.boardWidth &&
+      position.y >= 0 &&
+      position.y < this.boardHeight
+    );
+  }
+
+  public isPositionEmpty(position: Position): boolean {
+    return (
+      this.getAllEntities().find(
+        (entity) =>
+          entity.getPosition().x === position.x &&
+          entity.getPosition().y === position.y,
+      ) === undefined
+    );
   }
 }

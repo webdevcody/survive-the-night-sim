@@ -2,7 +2,7 @@ import { v } from "convex/values";
 import { api, internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
 import { internalMutation, mutation, query } from "./_generated/server";
-import { AI_MODEL_IDS } from "./constants";
+import { AI_MODEL_SLUGS, ModelSlug } from "./constants";
 
 export const testModel = mutation({
   args: {
@@ -31,7 +31,7 @@ export const startNewGame = internalMutation({
     modelId: v.string(),
   },
   handler: async (ctx, args) => {
-    if (!AI_MODEL_IDS.includes(args.modelId)) {
+    if (!AI_MODEL_SLUGS.includes(args.modelId as ModelSlug)) {
       throw new Error("Invalid model ID");
     }
 

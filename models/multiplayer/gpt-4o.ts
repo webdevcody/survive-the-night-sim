@@ -4,7 +4,8 @@ import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 
 const responseSchema = z.object({
-  moveLocation: z.array(z.number()),
+  moveDirection: z.string(),
+  zombieToShoot: z.array(z.number()),
 });
 
 export const gpt4o: MultiplayerModelHandler = async (
@@ -41,7 +42,7 @@ export const gpt4o: MultiplayerModelHandler = async (
   }
 
   return {
-    moveLocation: response.parsed.moveLocation,
-    reasoning: "because",
+    moveDirection: response.parsed.moveDirection,
+    zombieToShoot: response.parsed.zombieToShoot,
   };
 };

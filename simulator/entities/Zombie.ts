@@ -10,13 +10,18 @@ export class Zombie extends Entity {
 
   private game: ZombieSurvival;
 
-  public constructor(game: ZombieSurvival, position: Position) {
+  public constructor(
+    game: ZombieSurvival,
+    position: Position,
+    health?: number,
+  ) {
     super(EntityType.Zombie, Zombie.Destructible, Zombie.Health, position);
     this.game = game;
+    this.health = health ?? Zombie.Health;
   }
 
   public getToken(): string {
-    return "Z";
+    return "Z" + ":" + this.health;
   }
 
   public walk(direction: Direction | null = null) {
@@ -41,7 +46,12 @@ export class Zombie extends Entity {
   }
 
   private findPath(): Direction[] {
-    const player = this.game.getPlayer();
+    const player = this.game.getClosestPlayer(this.position);
+
+    if (player === undefined) {
+      throw new Error("No player found");
+    }
+
     const initialPosition = this.getPosition();
 
     const queue: Array<{ x: number; y: number; path: Direction[] }> = [

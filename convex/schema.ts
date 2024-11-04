@@ -85,7 +85,7 @@ export default defineSchema({
     boardState: v.array(v.array(v.string())),
     playerMap: v.array(
       v.object({
-        modelId: v.id("models"),
+        modelSlug: v.string(),
         playerToken: v.string(),
       }),
     ),
