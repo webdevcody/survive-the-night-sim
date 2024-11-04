@@ -4,6 +4,7 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { isRateLimitError } from "@convex-dev/rate-limiter";
 import { v } from "convex/values";
 import { api, internal } from "./_generated/api";
+import { Doc } from "./_generated/dataModel";
 import {
   action,
   internalAction,
@@ -11,7 +12,6 @@ import {
   mutation,
   query,
 } from "./_generated/server";
-import { Prompt } from "./prompts";
 import { rateLimiter } from "./rateLimits";
 import {
   adminMutationBuilder,
@@ -216,8 +216,7 @@ export const getUnreviewedMaps = adminQueryBuilder({
 });
 
 export const getMaps = query({
-  args: {},
-  handler: async (ctx, args) => {
+  handler: async (ctx) => {
     return await ctx.db
       .query("maps")
       .withIndex("by_isReviewed_level", (q) => q.eq("isReviewed", true))
@@ -355,17 +354,12 @@ export const playMapAction = internalAction({
       return;
     }
 
-    const activePromptQuery = await ctx.runQuery(api.prompts.getActivePrompt);
-    const activePrompt = activePromptQuery && activePromptQuery.prompt;
-
-    if (!activePrompt) {
-      throw new Error("Active prompt not found");
-    }
+    const activePrompt = await ctx.runQuery(api.prompts.getActivePrompt);
 
     const { solution, reasoning, error } = await runModel(
       args.modelId,
       map.grid,
-      activePrompt,
+      activePrompt.prompt,
     );
 
     await ctx.runMutation(internal.results.updateResult, {
@@ -385,17 +379,14 @@ export const testMap = action({
   },
   handler: async (ctx, args) => {
     const isAdmin = await ctx.runQuery(api.users.isAdmin);
-    const activePrompt: Prompt = await ctx.runQuery(
-      api.prompts.getActivePrompt,
-    );
 
     if (!isAdmin) {
       throw new Error("Test map is available only for admin");
     }
 
-    if (!activePrompt) {
-      throw new Error("Active prompt not found");
-    }
+    const activePrompt: Doc<"prompts"> = await ctx.runQuery(
+      api.prompts.getActivePrompt,
+    );
 
     return await runModel(args.modelId, args.map, activePrompt.prompt);
   },
@@ -420,13 +411,7 @@ export const testAIModel = action({
       throw new Error("Map not found");
     }
 
-    const activePrompt: Prompt = await ctx.runQuery(
-      api.prompts.getActivePrompt,
-    );
-
-    if (!activePrompt) {
-      throw new Error("Active prompt not found");
-    }
+    const activePrompt = await ctx.runQuery(api.prompts.getActivePrompt);
 
     const {
       solution,

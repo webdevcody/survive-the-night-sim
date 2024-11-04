@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils";
 
 export default function PlayPage() {
   const isAdmin = useQuery(api.users.isAdmin);
-  const maps = useQuery(api.maps.getMaps, {});
+  const maps = useQuery(api.maps.getMaps);
   const userMapResults = useQuery(api.playerresults.getUserMapStatus);
   const mapCountResults = useQuery(api.playerresults.getMapsWins);
   const adminDeleteMapMutation = useMutation(api.maps.deleteMap);
@@ -51,17 +51,11 @@ export default function PlayPage() {
       const res = new Map<string, boolean>();
       const ctr = new Map<string, number>();
 
-      for (const result of userMapResults as {
-        mapId: string;
-        hasWon: boolean;
-      }[]) {
+      for (const result of userMapResults) {
         res.set(result.mapId, result.hasWon);
       }
 
-      for (const result of mapCountResults as {
-        mapId: string;
-        count: number;
-      }[]) {
+      for (const result of mapCountResults) {
         ctr.set(result.mapId, result.count);
       }
 

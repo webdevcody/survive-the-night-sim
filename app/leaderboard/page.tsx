@@ -14,16 +14,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { api } from "@/convex/_generated/api";
 
-// Define the types for the data
-interface Ranking {
-  _id: string;
-  modelId: string;
-  level?: string;
-  wins: number;
-  losses: number;
-}
-
-interface Stats {
+interface LeaderBoardStats {
   wins: number;
   losses: number;
   total: number;
@@ -31,34 +22,22 @@ interface Stats {
 }
 
 const LeaderBoard = () => {
-  const globalRanking = useQuery(api.leaderboard.getGlobalRankings) as
-    | Ranking[]
-    | undefined;
-  const levelRanking = useQuery(api.leaderboard.getLevelRankings, {}) as
-    | Ranking[]
-    | undefined;
+  const globalRanking = useQuery(api.leaderboard.getGlobalRankings);
+  const levelRanking = useQuery(api.leaderboard.getLevelRankings, {});
+  const pivotedLevelData: Record<string, Record<string, LeaderBoardStats>> = {};
 
-  // Transform the levelRanking data into a pivot table structure
-  const pivotLevelData = (levelRanking: Ranking[] | undefined) => {
-    const levels: Record<string, Record<string, Stats>> = {};
+  levelRanking?.forEach((item) => {
+    if (!pivotedLevelData[item.level]) {
+      pivotedLevelData[item.level] = {};
+    }
 
-    levelRanking?.forEach((item) => {
-      if (!levels[item.level!]) {
-        levels[item.level!] = {};
-      }
-
-      levels[item.level!][item.modelId] = {
-        wins: item.wins,
-        losses: item.losses,
-        total: item.wins + item.losses,
-        ratio: item.wins / (item.wins + item.losses),
-      };
-    });
-
-    return levels;
-  };
-
-  const pivotedLevelData = pivotLevelData(levelRanking);
+    pivotedLevelData[item.level][item.modelId] = {
+      wins: item.wins,
+      losses: item.losses,
+      total: item.wins + item.losses,
+      ratio: item.wins / (item.wins + item.losses),
+    };
+  });
 
   // Get all unique model IDs to dynamically create columns
   const allModels = Array.from(

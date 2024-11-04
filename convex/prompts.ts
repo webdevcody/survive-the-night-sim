@@ -1,5 +1,4 @@
 import { v } from "convex/values";
-import { Id } from "./_generated/dataModel";
 import { internalMutation, query } from "./_generated/server";
 import { adminMutationBuilder } from "./users";
 
@@ -63,17 +62,8 @@ The 2d Grid is made up of characters, where each character has a meaning.
   "reasoning": "REASONING"
 }`;
 
-export type Prompt = {
-  _id: Id<"prompts">;
-  _creationTime: number;
-  promptName: string;
-  prompt: string;
-  isActive: boolean;
-};
-
 export const getActivePrompt = query({
-  args: {},
-  handler: async (ctx): Promise<Prompt> => {
+  handler: async (ctx) => {
     const prompt = await ctx.db.query("prompts").withIndex("by_active").first();
     if (!prompt) {
       throw new Error("No active prompt found");
@@ -84,25 +74,16 @@ export const getActivePrompt = query({
 
 export const getPromptById = query({
   args: {
-    promptId: v.string(),
+    promptId: v.id("prompts"),
   },
-  handler: async (ctx, args): Promise<Prompt | null> => {
-    const prompt = await ctx.db
-      .query("prompts")
-      .filter((q) => q.eq(q.field("_id"), args.promptId))
-      .first();
-    return prompt;
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.promptId);
   },
 });
 
 export const getAllPrompts = query({
-  args: {},
-  handler: async (ctx): Promise<Prompt[]> => {
-    const prompts = await ctx.db
-      .query("prompts")
-      .withIndex("by_active")
-      .collect();
-    return prompts;
+  handler: async (ctx) => {
+    return await ctx.db.query("prompts").withIndex("by_active").collect();
   },
 });
 
@@ -174,7 +155,6 @@ export const enablePrompt = adminMutationBuilder({
 });
 
 export const seedPrompts = internalMutation({
-  args: {},
   handler: async (ctx) => {
     // Insert the default prompt into the "prompts" collection and set it as active
     await ctx.db.insert("prompts", {

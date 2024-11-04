@@ -8,11 +8,12 @@ import { Page } from "@/components/Page";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 
 export default function EditPromptPage({
   params,
 }: {
-  params: { promptId: string };
+  params: { promptId: Id<"prompts"> };
 }) {
   const prompt = useQuery(api.prompts.getPromptById, {
     promptId: params.promptId,

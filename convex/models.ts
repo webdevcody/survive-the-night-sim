@@ -52,7 +52,7 @@ export const getActiveModelByName = query({
   handler: async (ctx, args) => {
     const record = await ctx.db
       .query("models")
-      .filter((q) => q.eq(q.field("slug"), args.name))
+      .withIndex("by_slug", (q) => q.eq("slug", args.name))
       .first();
 
     if (record === null) {

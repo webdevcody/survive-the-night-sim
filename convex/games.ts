@@ -15,9 +15,12 @@ export const testModel = mutation({
       throw new Error("Test page is not enabled");
     }
 
-    const gameId = (await ctx.runMutation(internal.games.startNewGame, {
-      modelId: args.modelId,
-    })) as Id<"games">;
+    const gameId: Id<"games"> = await ctx.runMutation(
+      internal.games.startNewGame,
+      {
+        modelId: args.modelId,
+      },
+    );
 
     return gameId;
   },

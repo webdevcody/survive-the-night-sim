@@ -187,9 +187,7 @@ export class ZombieSurvival {
   }
 
   public getAllEntities(): Entity[] {
-    return [this.entities, this.zombies, this.players]
-      .flat()
-      .filter(Boolean) as Entity[];
+    return [this.entities, this.zombies, this.players].flat();
   }
 
   public getEntities(): Entity[] {
