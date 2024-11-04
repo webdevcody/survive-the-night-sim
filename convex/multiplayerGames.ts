@@ -11,6 +11,7 @@ const TURN_DELAY = 5000;
 
 export const startMultiplayerGame = internalMutation({
   handler: async (ctx) => {
+    // TODO: need to figure out how to get id from the table by name instead
     const modelId = "ks7dm9g4t91bm8cy3z2544br0h72se9x" as Id<"models">;
     // const modelId = await ctx.runQuery(api.models.getActiveModelByName, {
     //   name: AI_MODELS[1].name,
