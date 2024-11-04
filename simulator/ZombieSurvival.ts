@@ -66,7 +66,7 @@ export class ZombieSurvival {
       }
     }
 
-    if (ZombieSurvival.mapHasPlayer(map) && this.players.length === 0) {
+    if (!ZombieSurvival.mapIsMultiplayer(map) && this.players.length === 0) {
       throw new Error("Map has no player");
     }
 
@@ -101,12 +101,12 @@ export class ZombieSurvival {
     throw new Error(`Entity position for token '${token}' not found`);
   }
 
-  public static isWin(config: string[][]): boolean {
-    if (ZombieSurvival.mapIsEmpty(config)) {
+  public static isWin(map: string[][]): boolean {
+    if (ZombieSurvival.mapIsEmpty(map)) {
       return false;
     }
 
-    const game = new ZombieSurvival(config);
+    const game = new ZombieSurvival(map);
 
     while (!game.finished()) {
       game.step();
@@ -131,6 +131,10 @@ export class ZombieSurvival {
 
   public static mapIsEmpty(map: string[][]): boolean {
     return map.length === 0 || map[0].length === 0;
+  }
+
+  public static mapIsMultiplayer(map: string[][]): boolean {
+    return map.flat().some((it) => ["1", "2", "3", "4", "5", "6"].includes(it));
   }
 
   public static nextValidPosition(map: string[][]): Position | null {

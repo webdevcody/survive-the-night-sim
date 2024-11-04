@@ -1,9 +1,9 @@
 import { expect, test } from "vitest";
 import { ZombieSurvival } from "./ZombieSurvival";
 
-test("fails on invalid config", () => {
-  expect(() => new ZombieSurvival([])).toThrowError("Config is empty");
-  expect(() => new ZombieSurvival([[]])).toThrowError("Config is empty");
+test("fails on invalid map", () => {
+  expect(() => new ZombieSurvival([])).toThrowError("Map is empty");
+  expect(() => new ZombieSurvival([[]])).toThrowError("Map is empty");
 
   expect(
     () =>
@@ -18,7 +18,7 @@ test("fails on invalid config", () => {
         [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
         [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
       ]),
-  ).toThrowError("Config has no player");
+  ).toThrowError("Map has no player");
 
   expect(
     () =>
@@ -33,7 +33,7 @@ test("fails on invalid config", () => {
         [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
         [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
       ]),
-  ).toThrowError("Config contains multiple players");
+  ).toThrowError("Map contains multiple players");
 
   expect(
     () =>
@@ -48,10 +48,10 @@ test("fails on invalid config", () => {
         [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
         [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
       ]),
-  ).toThrowError("Config has no zombies");
+  ).toThrowError("Map has no zombies");
 });
 
-test("fails on impossible to beat config", () => {
+test("fails on impossible to beat map", () => {
   const game = new ZombieSurvival([
     [" ", " ", " ", " ", "R", " ", " ", " ", " ", " "],
     [" ", " ", " ", "P", "R", " ", " ", " ", " ", " "],
