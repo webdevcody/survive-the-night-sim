@@ -148,6 +148,10 @@ export class ZombieSurvival {
     return game.getPlayer() === null || !game.getPlayer()?.dead();
   }
 
+  public static mapHasToken(map: string[][], token: string): boolean {
+    return map.flat().includes(token);
+  }
+
   public static mapHasMultiplePlayers(map: string[][]): boolean {
     return (
       map.map((row) => row.filter((cell) => cell === "P")).flat().length > 1
