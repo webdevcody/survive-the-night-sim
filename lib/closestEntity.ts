@@ -1,4 +1,4 @@
-import { Entity } from "../Entity";
+import { type Entity } from "@/simulator";
 
 export interface ClosestEntityScore {
   distance: number;

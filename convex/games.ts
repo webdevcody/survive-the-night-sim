@@ -2,7 +2,7 @@ import { v } from "convex/values";
 import { api, internal } from "./_generated/api";
 import { Id } from "./_generated/dataModel";
 import { internalMutation, mutation, query } from "./_generated/server";
-import { AI_MODEL_IDS } from "./constants";
+import { AI_MODEL_SLUGS, ModelSlug } from "./constants";
 
 export const testModel = mutation({
   args: {
@@ -11,22 +11,27 @@ export const testModel = mutation({
   handler: async (ctx, args) => {
     const flags = await ctx.runQuery(api.flags.getFlags);
 
-    if (!flags?.showTestPage) {
+    if (!flags.showTestPage) {
       throw new Error("Test page is not enabled");
     }
 
-    const gameId = (await ctx.runMutation(internal.games.startNewGame, {
-      modelId: args.modelId,
-    })) as Id<"games">;
+    const gameId: Id<"games"> = await ctx.runMutation(
+      internal.games.startNewGame,
+      {
+        modelId: args.modelId,
+      },
+    );
 
     return gameId;
   },
 });
 
 export const startNewGame = internalMutation({
-  args: { modelId: v.string() },
+  args: {
+    modelId: v.string(),
+  },
   handler: async (ctx, args) => {
-    if (!AI_MODEL_IDS.includes(args.modelId)) {
+    if (!AI_MODEL_SLUGS.includes(args.modelId as ModelSlug)) {
       throw new Error("Invalid model ID");
     }
 
@@ -56,7 +61,9 @@ export const startNewGame = internalMutation({
 });
 
 export const getGame = query({
-  args: { gameId: v.id("games") },
+  args: {
+    gameId: v.id("games"),
+  },
   handler: async ({ db }, args) => {
     return db.get(args.gameId);
   },

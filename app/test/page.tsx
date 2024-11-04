@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { useRouter } from "next/navigation";
 import { ModelSelector } from "@/components/ModelSelector";
@@ -10,7 +10,7 @@ import { api } from "@/convex/_generated/api";
 
 export default function TestPage() {
   const testModel = useMutation(api.games.testModel);
-  const [model, setModel] = React.useState("");
+  const [model, setModel] = useState("");
   const router = useRouter();
   const activeModels = useQuery(api.models.getActiveModels);
 
@@ -39,9 +39,7 @@ export default function TestPage() {
 
             await Promise.all(
               activeModels.map((model) => {
-                return testModel({
-                  modelId: model.slug,
-                });
+                return testModel({ modelId: model.slug });
               }),
             );
 

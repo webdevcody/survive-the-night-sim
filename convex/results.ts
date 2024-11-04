@@ -8,7 +8,9 @@ export type ResultWithGame = Awaited<
 >[number];
 
 export const getResults = query({
-  args: { gameId: v.id("games") },
+  args: {
+    gameId: v.id("games"),
+  },
   handler: async ({ db }, args) => {
     const results = await db
       .query("results")

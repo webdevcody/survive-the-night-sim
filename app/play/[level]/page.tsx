@@ -22,7 +22,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DEFAULT_REPLAY_SPEED } from "@/constants/visualizer";
 import { api } from "@/convex/_generated/api";
-import { ZombieSurvival } from "@/simulators/zombie-survival";
+import { ZombieSurvival } from "@/simulator";
 
 type PlacementMode = "player" | "block" | "landmine";
 

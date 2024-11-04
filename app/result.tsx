@@ -12,7 +12,7 @@ export default function Result({ result }: { result: ResultWithGame }) {
     <Card className="flex flex-col gap-8 rounded-xl border p-4 sm:flex-row">
       {result.status === "completed" && (
         <Visualizer
-          cellSize="32"
+          cellSize={32}
           autoReplay
           autoStart
           controls={false}

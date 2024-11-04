@@ -1,4 +1,4 @@
-import { type Position } from "@/simulators/zombie-survival";
+import { type Position } from "@/simulator";
 
 export enum RendererEffectType {
   AssetSwap,

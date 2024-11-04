@@ -1,5 +1,4 @@
-import { Entity } from "../Entity";
-import { Position } from "../Position";
+import { Entity, Position } from "@/simulator";
 
 export function entityAt(
   entities: Entity[],

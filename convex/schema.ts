@@ -28,7 +28,9 @@ export default defineSchema({
     slug: v.string(),
     active: v.boolean(),
     name: v.string(),
-  }).index("by_active", ["active"]),
+  })
+    .index("by_active", ["active"])
+    .index("by_slug", ["slug"]),
   results: defineTable({
     gameId: v.id("games"),
     level: v.number(),
@@ -68,7 +70,9 @@ export default defineSchema({
     mapId: v.id("maps"),
     attempts: v.array(v.id("attempts")),
     hasWon: v.boolean(),
-  }).index("by_mapId_userId", ["mapId", "userId"]),
+  })
+    .index("by_mapId_userId", ["mapId", "userId"])
+    .index("by_userId", ["userId"]),
   admins: defineTable({
     userId: v.id("users"),
   }).index("by_userId", ["userId"]),
@@ -77,4 +81,13 @@ export default defineSchema({
     prompt: v.string(),
     isActive: v.boolean(),
   }).index("by_active", ["isActive"]),
+  multiplayerGames: defineTable({
+    boardState: v.array(v.array(v.string())),
+    playerMap: v.array(
+      v.object({
+        modelSlug: v.string(),
+        playerToken: v.string(),
+      }),
+    ),
+  }),
 });

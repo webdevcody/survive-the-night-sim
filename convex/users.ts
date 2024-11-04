@@ -4,11 +4,10 @@ import {
   customMutation,
   customQuery,
 } from "convex-helpers/server/customFunctions";
-import { ConvexError, v } from "convex/values";
+import { ConvexError } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
 export const viewer = query({
-  args: {},
   handler: async (ctx) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) {
@@ -23,7 +22,6 @@ export const viewer = query({
 });
 
 export const getUserOrNull = query({
-  args: {},
   handler: async (ctx) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) {
@@ -128,7 +126,7 @@ export const deleteUserById = authenticatedMutation({
 
     const userResults = await ctx.db
       .query("userResults")
-      .filter((q) => q.eq(q.field("userId"), userId))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .collect();
 
     const promises: Promise<void>[] = [];

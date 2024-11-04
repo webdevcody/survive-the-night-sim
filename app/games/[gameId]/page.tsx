@@ -6,12 +6,17 @@ import { Page } from "@/components/Page";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 
-export default function GamePage({ params }: { params: { gameId: string } }) {
+export default function GamePage({
+  params,
+}: {
+  params: { gameId: Id<"games"> };
+}) {
   const game = useQuery(api.games.getGame, {
-    gameId: params.gameId as Id<"games">,
+    gameId: params.gameId,
   });
+
   const results = useQuery(api.results.getResults, {
-    gameId: params.gameId as Id<"games">,
+    gameId: params.gameId,
   });
 
   return (

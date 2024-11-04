@@ -1,4 +1,4 @@
-import { assets, loadAssets } from "./Assets";
+import { assets } from "./Assets";
 import * as Canvas from "./Canvas";
 import { type RendererEffect, RendererEffectType } from "./Effect";
 import { RendererItem } from "./Item";
@@ -6,10 +6,11 @@ import {
   type Entity,
   EntityType,
   type Position,
+  VisualEventType,
   Zombie,
-  type ZombieSurvival,
-} from "@/simulators/zombie-survival";
-import { ChangeType } from "@/simulators/zombie-survival/Change";
+} from "@/simulator";
+
+const ANIMATABLE_DEAD_ENTITIES = [EntityType.Zombie];
 
 export class Renderer {
   private readonly cellSize: number;
@@ -20,12 +21,13 @@ export class Renderer {
   private canvas2: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private ctx2: CanvasRenderingContext2D;
+  private initialized = false;
   private items: RendererItem[] = [];
   private req: number | null = null;
 
   public constructor(
-    boardHeight: number,
     boardWidth: number,
+    boardHeight: number,
     canvas: HTMLCanvasElement,
     cellSize: number,
     replaySpeed: number,
@@ -59,17 +61,35 @@ export class Renderer {
 
     ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
     ctx2.scale(window.devicePixelRatio, window.devicePixelRatio);
-
-    void loadAssets();
   }
 
-  public render(simulator: ZombieSurvival) {
+  public isInitialized() {
+    return this.initialized;
+  }
+
+  public async initialize() {
+    if (this.initialized) {
+      return;
+    }
+
+    if (!assets.loaded) {
+      await new Promise<void>((resolve) => {
+        assets.addEventListener("loaded", () => {
+          resolve();
+        });
+      });
+    }
+
+    this.initialized = true;
+  }
+
+  public render(entities: Entity[]) {
     if (this.req !== null) {
       window.cancelAnimationFrame(this.req);
       this.req = null;
     }
 
-    this.register(simulator);
+    this.register(entities);
     this.draw();
   }
 
@@ -169,9 +189,9 @@ export class Renderer {
         return assets.rock;
       }
       case EntityType.Zombie: {
-        if (entity.hasChange(ChangeType.Killed)) {
+        if (entity.hasVisualEvent(VisualEventType.Destructured)) {
           return assets.zombieDead;
-        } else if (entity.hasChange(ChangeType.Walking)) {
+        } else if (entity.hasVisualEvent(VisualEventType.Moving)) {
           return assets.zombieWalkingFrame1;
         } else {
           return assets.zombieIdleFrame1;
@@ -180,11 +200,9 @@ export class Renderer {
     }
   }
 
-  private register(simulator: ZombieSurvival) {
+  private register(entities: Entity[]) {
     this.items = [];
     this.registerBg();
-
-    const entities = simulator.getAllEntities();
 
     for (const entity of entities) {
       this.registerEntity(entity);
@@ -235,7 +253,15 @@ export class Renderer {
   private registerEntity(entity: Entity) {
     const entityImage = this.getEntityImage(entity);
 
-    if (entityImage === null || (entity.dead() && !entity.hasChanges())) {
+    if (entityImage === null) {
+      return;
+    }
+
+    const animatableAfterDeath =
+      entity.hasVisualEvents() &&
+      ANIMATABLE_DEAD_ENTITIES.includes(entity.getType());
+
+    if (entity.dead() && !animatableAfterDeath) {
       return;
     }
 
@@ -244,20 +270,6 @@ export class Renderer {
       y: entity.getPosition().y * this.cellSize,
     };
 
-    const healthBarItem = new RendererItem(
-      "#F00",
-      position,
-      (entity.getHealth() / Zombie.Health) * this.cellSize,
-      2,
-    );
-
-    const healthBarBgItem = new RendererItem(
-      "#FFF",
-      position,
-      this.cellSize,
-      2,
-    );
-
     const rendererItem = new RendererItem(
       entityImage,
       position,
@@ -265,9 +277,9 @@ export class Renderer {
       this.cellSize,
     );
 
-    if (entity.hasChange(ChangeType.Walking)) {
-      const change = entity.getChange(ChangeType.Walking);
-      const { to, from } = change;
+    if (entity.hasVisualEvent(VisualEventType.Moving)) {
+      const visualEvent = entity.getVisualEvent(VisualEventType.Moving);
+      const { to, from } = visualEvent;
 
       position.x = from.x * this.cellSize;
       position.y = from.y * this.cellSize;
@@ -282,8 +294,6 @@ export class Renderer {
         },
       };
 
-      healthBarItem.addEffect(positionToEffect);
-      healthBarBgItem.addEffect(positionToEffect);
       rendererItem.addEffect(positionToEffect);
 
       if (from.x >= to.x) {
@@ -291,7 +301,12 @@ export class Renderer {
           type: RendererEffectType.FlipHorizontal,
         });
       }
+    }
 
+    if (
+      entity.getType() === EntityType.Zombie &&
+      entity.hasVisualEvent(VisualEventType.Moving)
+    ) {
       if (
         assets.zombieWalkingFrame2 !== null &&
         assets.zombieWalkingFrame3 !== null &&
@@ -332,6 +347,44 @@ export class Renderer {
     this.items.push(rendererItem);
 
     if (entity.getType() === EntityType.Zombie && !entity.dead()) {
+      const healthBarItem = new RendererItem(
+        "#F00",
+        {
+          x: position.x + this.cellSize * 0.1,
+          y: position.y,
+        },
+        (entity.getHealth() / Zombie.Health) * (this.cellSize * 0.8),
+        2,
+      );
+
+      const healthBarBgItem = new RendererItem(
+        "#FFF",
+        {
+          x: position.x + this.cellSize * 0.1,
+          y: position.y,
+        },
+        this.cellSize * 0.8,
+        2,
+      );
+
+      if (entity.hasVisualEvent(VisualEventType.Moving)) {
+        const visualEvent = entity.getVisualEvent(VisualEventType.Moving);
+        const { to } = visualEvent;
+
+        const positionToEffect: RendererEffect = {
+          type: RendererEffectType.PositionTo,
+          duration: this.replaySpeed,
+          startedAt: Date.now(),
+          to: {
+            x: to.x * this.cellSize + this.cellSize * 0.1,
+            y: to.y * this.cellSize,
+          },
+        };
+
+        healthBarItem.addEffect(positionToEffect);
+        healthBarBgItem.addEffect(positionToEffect);
+      }
+
       this.items.push(healthBarBgItem);
       this.items.push(healthBarItem);
     }

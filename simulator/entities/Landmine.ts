@@ -1,5 +1,5 @@
 import { Entity, EntityType } from "../Entity";
-import { Position } from "../Position";
+import { type Position } from "../Position";
 
 export class Landmine extends Entity {
   public static Destructible = true;
@@ -12,5 +12,9 @@ export class Landmine extends Entity {
       Landmine.Health,
       position,
     );
+  }
+
+  public getToken(): string {
+    return "L";
   }
 }

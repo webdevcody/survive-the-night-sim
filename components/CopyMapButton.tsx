@@ -1,11 +1,11 @@
 "use client";
 
-import * as React from "react";
+import { useEffect, useRef, useState } from "react";
 import { ClipboardCopyIcon, SmileIcon } from "lucide-react";
 
 export function CopyMapButton({ map }: { map: string[][] }) {
-  const timeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [copied, setCopied] = React.useState(false);
+  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [copied, setCopied] = useState(false);
 
   async function handleClick() {
     await navigator.clipboard.writeText(JSON.stringify(map));
@@ -17,7 +17,7 @@ export function CopyMapButton({ map }: { map: string[][] }) {
     }, 2000);
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
       if (timeout.current !== null) {
         clearTimeout(timeout.current);

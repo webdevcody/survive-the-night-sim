@@ -1,5 +1,5 @@
 import { type RendererEffect, type RendererEffectType } from "./Effect";
-import { type Position } from "@/simulators/zombie-survival";
+import { type Position } from "@/simulator";
 
 export class RendererItem {
   data: HTMLImageElement | string;
