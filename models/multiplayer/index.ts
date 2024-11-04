@@ -1,4 +1,5 @@
 import { gpt4o } from "./gpt-4o";
+import { AI_MODELS } from "@/convex/constants";
 import { errorMessage } from "@/lib/utils";
 import { ZombieSurvival } from "@/simulator";
 
@@ -70,7 +71,7 @@ export interface ModelHandlerConfig {
   topP: number;
 }
 
-export type MutiplayerModelHandler = (
+export type MultiplayerModelHandler = (
   systemPrompt: string,
   userPrompt: string,
   config: ModelHandlerConfig,
@@ -88,41 +89,32 @@ const CONFIG: ModelHandlerConfig = {
 };
 
 export type RunModelResult = {
-  solution?: string[][];
-  reasoning: string;
-  promptTokens?: number;
-  outputTokens?: number;
-  totalTokensUsed?: number;
-  totalRunCost?: number;
   error?: string;
+  reasoning: string;
+  solution?: string[][];
 };
 
-export async function runMutiplayerModel(
+export async function runMultiplayerModel(
   modelId: string,
   map: string[][],
   playerToken: string,
   retry = 1,
 ): Promise<RunModelResult> {
-  const playerToMove = ZombieSurvival.getPlayerByToken(map, playerToken);
-
-  if (!playerToMove) {
-    throw new Error(`Player token '${playerToken}' not found`);
-  }
+  const validMoveLocations = ZombieSurvival.validMoveLocations(
+    map,
+    playerToken,
+  );
 
   const userPrompt =
     `Grid: ${JSON.stringify(map)}\n\n` +
-    `Valid Move Locations: ${JSON.stringify(
-      ZombieSurvival.validMoveLocations(map, playerToMove),
-    )}`;
+    `Valid Move Locations: ${JSON.stringify(validMoveLocations)}`;
 
   let result;
   let reasoning: string | null = null;
 
   try {
     switch (modelId) {
-      // TODO: do not hard code this
-      case "m1757gn800qrc8s4jpdcshbgah72s9e7": {
-        // gpt-4o
+      case AI_MODELS[1].name: {
         result = await gpt4o(SYSTEM_PROMPT, userPrompt, CONFIG);
         break;
       }
@@ -132,21 +124,20 @@ export async function runMutiplayerModel(
     }
 
     reasoning = result.reasoning;
-
     const originalMap = ZombieSurvival.cloneMap(map);
 
     return {
-      solution: originalMap,
       reasoning: result.reasoning,
+      solution: originalMap,
     };
   } catch (error) {
     if (retry === MAX_RETRIES || reasoning === null) {
       return {
-        reasoning: reasoning ?? "Internal error",
         error: errorMessage(error),
+        reasoning: reasoning ?? "Internal error",
       };
     }
 
-    return await runMutiplayerModel(modelId, map, playerToken, retry + 1);
+    return await runMultiplayerModel(modelId, map, playerToken, retry + 1);
   }
 }

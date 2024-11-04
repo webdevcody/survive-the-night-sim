@@ -1,4 +1,4 @@
-import { type MutiplayerModelHandler } from ".";
+import { type MultiplayerModelHandler } from ".";
 import OpenAI from "openai";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
@@ -7,7 +7,7 @@ const responseSchema = z.object({
   moveLocation: z.array(z.number()),
 });
 
-export const gpt4o: MutiplayerModelHandler = async (
+export const gpt4o: MultiplayerModelHandler = async (
   systemPrompt,
   userPrompt,
   config,
