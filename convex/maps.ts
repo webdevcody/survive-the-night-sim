@@ -287,7 +287,9 @@ export const deleteMap = adminMutationBuilder({
 });
 
 export const getMapByLevel = query({
-  args: { level: v.number() },
+  args: {
+    level: v.number(),
+  },
   handler: async (ctx, args) => {
     return await ctx.db
       .query("maps")

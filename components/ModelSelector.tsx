@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useEffect } from "react";
 import { useQuery } from "convex/react";
 import {
   Select,
@@ -18,7 +18,7 @@ export function ModelSelector({
 }) {
   const models = useQuery(api.models.getActiveModels);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (models !== undefined && models.length !== 0 && value === "") {
       onChange(models[0].slug);
     }

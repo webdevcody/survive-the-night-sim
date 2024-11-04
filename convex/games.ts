@@ -11,7 +11,7 @@ export const testModel = mutation({
   handler: async (ctx, args) => {
     const flags = await ctx.runQuery(api.flags.getFlags);
 
-    if (!flags?.showTestPage) {
+    if (!flags.showTestPage) {
       throw new Error("Test page is not enabled");
     }
 
@@ -27,7 +27,9 @@ export const testModel = mutation({
 });
 
 export const startNewGame = internalMutation({
-  args: { modelId: v.string() },
+  args: {
+    modelId: v.string(),
+  },
   handler: async (ctx, args) => {
     if (!AI_MODEL_IDS.includes(args.modelId)) {
       throw new Error("Invalid model ID");
@@ -59,7 +61,9 @@ export const startNewGame = internalMutation({
 });
 
 export const getGame = query({
-  args: { gameId: v.id("games") },
+  args: {
+    gameId: v.id("games"),
+  },
   handler: async ({ db }, args) => {
     return db.get(args.gameId);
   },
