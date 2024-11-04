@@ -270,20 +270,6 @@ export class Renderer {
       y: entity.getPosition().y * this.cellSize,
     };
 
-    const healthBarItem = new RendererItem(
-      "#F00",
-      position,
-      (entity.getHealth() / Zombie.Health) * this.cellSize,
-      2,
-    );
-
-    const healthBarBgItem = new RendererItem(
-      "#FFF",
-      position,
-      this.cellSize,
-      2,
-    );
-
     const rendererItem = new RendererItem(
       entityImage,
       position,
@@ -308,8 +294,6 @@ export class Renderer {
         },
       };
 
-      healthBarItem.addEffect(positionToEffect);
-      healthBarBgItem.addEffect(positionToEffect);
       rendererItem.addEffect(positionToEffect);
 
       if (from.x >= to.x) {
@@ -317,7 +301,12 @@ export class Renderer {
           type: RendererEffectType.FlipHorizontal,
         });
       }
+    }
 
+    if (
+      entity.getType() === EntityType.Zombie &&
+      entity.hasVisualEvent(VisualEventType.Moving)
+    ) {
       if (
         assets.zombieWalkingFrame2 !== null &&
         assets.zombieWalkingFrame3 !== null &&
@@ -358,6 +347,44 @@ export class Renderer {
     this.items.push(rendererItem);
 
     if (entity.getType() === EntityType.Zombie && !entity.dead()) {
+      const healthBarItem = new RendererItem(
+        "#F00",
+        {
+          x: position.x + this.cellSize * 0.1,
+          y: position.y,
+        },
+        (entity.getHealth() / Zombie.Health) * (this.cellSize * 0.8),
+        2,
+      );
+
+      const healthBarBgItem = new RendererItem(
+        "#FFF",
+        {
+          x: position.x + this.cellSize * 0.1,
+          y: position.y,
+        },
+        this.cellSize * 0.8,
+        2,
+      );
+
+      if (entity.hasVisualEvent(VisualEventType.Moving)) {
+        const visualEvent = entity.getVisualEvent(VisualEventType.Moving);
+        const { to } = visualEvent;
+
+        const positionToEffect: RendererEffect = {
+          type: RendererEffectType.PositionTo,
+          duration: this.replaySpeed,
+          startedAt: Date.now(),
+          to: {
+            x: to.x * this.cellSize + this.cellSize * 0.1,
+            y: to.y * this.cellSize,
+          },
+        };
+
+        healthBarItem.addEffect(positionToEffect);
+        healthBarBgItem.addEffect(positionToEffect);
+      }
+
       this.items.push(healthBarBgItem);
       this.items.push(healthBarItem);
     }
