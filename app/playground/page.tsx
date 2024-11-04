@@ -39,7 +39,6 @@ const STORAGE_MODEL_KEY = "playground-model";
 export default function PlaygroundPage() {
   const isAdmin = useQuery(api.users.isAdmin);
   const submitMap = useMutation(api.maps.submitMap);
-  const testMap = useAction(api.maps.testMap);
   const searchParams = useSearchParams();
   const mapId = searchParams.get("map") as Id<"maps"> | null;
   const adminMapMaybe = useQuery(

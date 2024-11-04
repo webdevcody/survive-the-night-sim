@@ -1,51 +1,36 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useQuery } from "convex/react";
 import { Page, PageTitle } from "@/components/Page";
+import { useRenderer } from "@/components/Renderer";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { Renderer } from "@/renderer";
 import { ZombieSurvival } from "@/simulator";
 
-export default function Multiplayer({
+export default function MultiplayerPage({
   params,
 }: {
-  params: { multiplayerGameId: Id<"multiplayerGame"> };
+  params: { multiplayerGameId: Id<"multiplayerGames"> };
 }) {
-  const multiplayerGame = useQuery(api.multiplayerGame.getMultiplayerGame, {
+  const multiplayerGame = useQuery(api.multiplayerGames.getMultiplayerGame, {
     multiplayerGameId: params.multiplayerGameId,
   });
-  const renderer = useRef<Renderer | null>(null);
+
   const canvas = useRef<HTMLCanvasElement | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const renderer = useRenderer(multiplayerGame?.boardState, canvas);
 
   useEffect(() => {
-    if (multiplayerGame && canvas.current !== null) {
-      const map = multiplayerGame.boardState;
-      renderer.current = new Renderer(
-        ZombieSurvival.boardHeight(map),
-        ZombieSurvival.boardWidth(map),
-        canvas.current,
-        Number.parseInt("64", 10),
-        1000,
-      );
-      renderer.current.initialize().then(() => {
-        setIsInitialized(true);
-      });
-    }
-  }, [multiplayerGame]);
-
-  useEffect(() => {
-    if (renderer.current && isInitialized && multiplayerGame) {
+    if (renderer !== null && multiplayerGame) {
       const simulator = new ZombieSurvival(multiplayerGame.boardState);
-      renderer.current?.render(simulator.getAllEntities());
+      renderer.render(simulator.getAllEntities());
     }
-  }, [isInitialized, multiplayerGame]);
+  }, [multiplayerGame, renderer]);
 
   if (!multiplayerGame) {
     return <div>Loading...</div>;
   }
+
   return (
     <Page>
       <PageTitle>Multiplayer</PageTitle>

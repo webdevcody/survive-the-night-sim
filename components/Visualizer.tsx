@@ -1,17 +1,17 @@
 import { useEffect, useRef, useState } from "react";
+import { useRenderer } from "./Renderer";
 import { Button } from "@/components/ui/button";
 import {
   AUTO_REPLAY_SPEED,
   DEFAULT_REPLAY_SPEED,
 } from "@/constants/visualizer";
-import { Renderer } from "@/renderer";
 import { ZombieSurvival } from "@/simulator";
 
 export function Visualizer({
   autoReplay = false,
   autoStart = false,
   controls = true,
-  cellSize = "64",
+  cellSize = 64,
   map,
   onReset,
   onSimulationEnd,
@@ -20,41 +20,29 @@ export function Visualizer({
   autoReplay?: boolean;
   autoStart?: boolean;
   controls?: boolean;
-  cellSize?: string;
+  cellSize?: number;
   map: string[][];
   onReset?: () => unknown;
   onSimulationEnd?: (isWin: boolean) => unknown;
   replaySpeed?: number;
 }) {
   const simulator = useRef<ZombieSurvival>(new ZombieSurvival(map));
-  const renderer = useRef<Renderer | null>(null);
   const interval = useRef<ReturnType<typeof setTimeout> | null>(null);
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const canvas = useRef<HTMLCanvasElement | null>(null);
+  const renderer = useRenderer(map, canvas, cellSize, replaySpeed);
   const visible = useRef(false);
   const [running, setRunning] = useState(false);
 
   useEffect(() => {
-    if (canvas.current !== null) {
-      renderer.current = new Renderer(
-        ZombieSurvival.boardHeight(map),
-        ZombieSurvival.boardWidth(map),
-        canvas.current,
-        Number.parseInt(cellSize, 10),
-        replaySpeed,
-      );
-    }
-  }, [canvas, cellSize, map, replaySpeed]);
-
-  useEffect(() => {
-    if (autoStart) {
+    if (autoStart && renderer !== null) {
       startSimulation();
     }
-  }, [autoStart]);
+  }, [autoStart, renderer]);
 
   function startSimulation() {
     simulator.current = new ZombieSurvival(map);
-    renderer.current?.render(simulator.current.getAllEntities());
+    renderer?.render(simulator.current.getAllEntities());
     setRunning(true);
 
     interval.current = setInterval(() => {
@@ -64,7 +52,7 @@ export function Visualizer({
 
       if (!simulator.current.finished()) {
         simulator.current.step();
-        renderer.current?.render(simulator.current.getAllEntities());
+        renderer?.render(simulator.current.getAllEntities());
         return;
       }
 
@@ -83,7 +71,7 @@ export function Visualizer({
       setRunning(false);
 
       if (onSimulationEnd) {
-        onSimulationEnd(!simulator.current.getPlayer()?.dead());
+        onSimulationEnd(!simulator.current.getPlayer().dead());
       }
     }, replaySpeed);
   }
