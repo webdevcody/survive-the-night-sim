@@ -1,3 +1,4 @@
+import { v } from "convex/values";
 import { api, internal } from "./_generated/api";
 import { internalMutation, query } from "./_generated/server";
 import { AI_MODELS } from "./constants";
@@ -41,6 +42,24 @@ export const seedModels = internalMutation({
     }
 
     await Promise.all(promises);
+  },
+});
+
+export const getActiveModelByName = query({
+  args: {
+    name: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const record = await ctx.db
+      .query("models")
+      .filter((q) => q.eq(q.field("slug"), args.name))
+      .first();
+
+    if (record === null) {
+      throw new Error(`Model with name '${args.name}' was not found`);
+    }
+
+    return record;
   },
 });
 
