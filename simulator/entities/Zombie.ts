@@ -1,9 +1,9 @@
 import { Direction, allDirections, move } from "../Direction";
 import { Entity, EntityType } from "../Entity";
 import { Position } from "../Position";
+import { VisualEventType } from "../VisualEvent";
 import { ZombieSurvival } from "../ZombieSurvival";
-import { entityAt } from "../lib/entityAt";
-import { pathfinder } from "../lib/pathfinder";
+import { entityAt } from "@/lib/entityAt";
 
 export class Zombie extends Entity {
   public static Destructible = true;
@@ -20,7 +20,81 @@ export class Zombie extends Entity {
     return "Z";
   }
 
-  public listMoves(): Direction[] {
+  public walk(direction: Direction | null = null) {
+    if (this.dead()) {
+      return;
+    }
+
+    const nextDirection = direction ?? this.findPath()[0];
+    const entities = this.game.getAllEntities();
+    const newPosition = move(this.position, nextDirection);
+    const entity = entityAt(entities, newPosition);
+
+    if (entity?.getType() === EntityType.Landmine) {
+      this.die();
+    }
+
+    if (entity !== null && entity.getType() !== EntityType.Zombie) {
+      entity.hit();
+    }
+
+    this.walkTo(newPosition);
+  }
+
+  private findPath(): Direction[] {
+    const player = this.game.getPlayer();
+    const initialPosition = this.getPosition();
+
+    const queue: Array<{ x: number; y: number; path: Direction[] }> = [
+      { x: initialPosition.x, y: initialPosition.y, path: [] },
+    ];
+
+    const visited = new Set<string>();
+
+    while (queue.length > 0) {
+      const { x, y, path } = queue.shift()!;
+      const positionKey = `${x},${y}`;
+
+      if (visited.has(positionKey)) {
+        continue;
+      }
+
+      visited.add(positionKey);
+
+      if (player.getPosition().x === x && player.getPosition().y === y) {
+        return path;
+      }
+
+      for (const direction of allDirections) {
+        const position = move({ x, y }, direction);
+
+        if (
+          position.x < 0 ||
+          position.y < 0 ||
+          position.x >= this.game.boardWidth ||
+          position.y >= this.game.boardHeight
+        ) {
+          continue;
+        }
+
+        const entity = entityAt(this.game.getEntities(), position);
+
+        if (entity !== null && !entity.isDestructible()) {
+          continue;
+        }
+
+        queue.push({
+          x: position.x,
+          y: position.y,
+          path: [...path, direction],
+        });
+      }
+    }
+
+    throw new Error("Unable to find path for the next move");
+  }
+
+  private listMoves(): Direction[] {
     const entities = this.game.getAllEntities();
     const result: Direction[] = [];
 
@@ -48,33 +122,14 @@ export class Zombie extends Entity {
     return result;
   }
 
-  public walk(direction: Direction | null = null) {
-    if (this.dead()) {
-      return;
-    }
-
-    let nextDirection = direction ?? pathfinder(this.game, this)[0];
-
-    const entities = this.game.getAllEntities();
-    const newPosition = move(this.position, nextDirection);
-    const entity = entityAt(entities, newPosition);
-
-    if (entity !== null) {
-      if (entity.getType() !== EntityType.Zombie) {
-        if (entity.getType() === EntityType.Landmine) {
-          this.die();
-        }
-
-        entity.hit();
-      }
-
-      return;
-    }
-
-    this.walkTo(newPosition);
-  }
-
-  public walkTo(position: Position) {
+  private walkTo(position: Position) {
+    const initialPosition = { ...this.position };
     this.position = position;
+
+    this.addVisualEvent({
+      type: VisualEventType.Moving,
+      from: initialPosition,
+      to: this.position,
+    });
   }
 }

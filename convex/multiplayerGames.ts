@@ -84,7 +84,7 @@ export const runMultiplayerGameTurn = internalAction({
     const map = new ZombieSurvival(multiplayerGame.boardState);
 
     if (turn === "Z") {
-      map.step({ skipPlayer: true });
+      map.stepZombies();
 
       await ctx.runMutation(
         internal.multiplayerGames.updateMultiplayerGameBoardState,
@@ -103,6 +103,7 @@ export const runMultiplayerGameTurn = internalAction({
       // );
       // the LLM model should return the next move and which zombie it should shoot
       // update the board state with the new player location
+      // map.stepPlayer(playerToken);
 
       return;
     }

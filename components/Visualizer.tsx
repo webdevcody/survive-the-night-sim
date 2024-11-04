@@ -5,7 +5,7 @@ import {
   AUTO_REPLAY_SPEED,
   DEFAULT_REPLAY_SPEED,
 } from "@/constants/visualizer";
-import { ZombieSurvival } from "@/simulator";
+import { ZombieSurvival, type ZombieSurvivalOptions } from "@/simulator";
 
 export function Visualizer({
   autoReplay = false,
@@ -16,6 +16,7 @@ export function Visualizer({
   onReset,
   onSimulationEnd,
   replaySpeed = DEFAULT_REPLAY_SPEED,
+  simulatorOptions,
 }: {
   autoReplay?: boolean;
   autoStart?: boolean;
@@ -25,8 +26,12 @@ export function Visualizer({
   onReset?: () => unknown;
   onSimulationEnd?: (isWin: boolean) => unknown;
   replaySpeed?: number;
+  simulatorOptions?: ZombieSurvivalOptions;
 }) {
-  const simulator = useRef<ZombieSurvival>(new ZombieSurvival(map));
+  const simulator = useRef<ZombieSurvival>(
+    new ZombieSurvival(map, simulatorOptions),
+  );
+
   const interval = useRef<ReturnType<typeof setTimeout> | null>(null);
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const canvas = useRef<HTMLCanvasElement | null>(null);
@@ -42,7 +47,7 @@ export function Visualizer({
 
   useEffect(() => {
     if (renderer !== null) {
-      simulator.current = new ZombieSurvival(map);
+      simulator.current = new ZombieSurvival(map, simulatorOptions);
       renderer?.render(simulator.current.getAllEntities());
     }
   }, [renderer]);
@@ -67,6 +72,10 @@ export function Visualizer({
       if (autoReplay) {
         timeout.current = setTimeout(() => {
           timeout.current = null;
+
+          simulator.current = new ZombieSurvival(map, simulatorOptions);
+          renderer?.render(simulator.current.getAllEntities());
+
           startSimulation();
         }, AUTO_REPLAY_SPEED);
 

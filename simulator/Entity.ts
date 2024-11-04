@@ -1,5 +1,5 @@
-import { type Change, ChangeType } from "./Change";
-import { Position } from "./Position";
+import { type Position } from "./Position";
+import { type VisualEvent, VisualEventType } from "./VisualEvent";
 
 export enum EntityType {
   Box,
@@ -11,10 +11,10 @@ export enum EntityType {
 
 export abstract class Entity {
   protected destructible: boolean;
-  protected changes: Change[] = [];
   protected health: number;
   protected position: Position;
   protected type: EntityType;
+  protected visualEvents: VisualEvent[] = [];
 
   public abstract getToken(): string;
 
@@ -30,12 +30,12 @@ export abstract class Entity {
     this.type = type;
   }
 
-  public addChange(change: Change): void {
-    this.changes.push(change);
+  public addVisualEvent(visualEvent: VisualEvent): void {
+    this.visualEvents.push(visualEvent);
   }
 
-  public clearChanges(): void {
-    this.changes = [];
+  public clearVisualEvents(): void {
+    this.visualEvents = [];
   }
 
   public dead(): boolean {
@@ -46,18 +46,20 @@ export abstract class Entity {
     this.health = 0;
   }
 
-  public getChange<T extends ChangeType>(type: T) {
-    const change = this.changes.find((change) => change.type === type);
+  public getVisualEvent<T extends VisualEventType>(type: T) {
+    const visualEvent = this.visualEvents.find(
+      (visualEvent) => visualEvent.type === type,
+    );
 
-    if (change === undefined) {
-      throw new Error("Unable to find change of this type");
+    if (visualEvent === undefined) {
+      throw new Error("Unable to find visual event of this type");
     }
 
-    return change as Extract<Change, { type: T }>;
+    return visualEvent as Extract<VisualEvent, { type: T }>;
   }
 
-  public getChanges(): Change[] {
-    return this.changes;
+  public getChanges(): VisualEvent[] {
+    return this.visualEvents;
   }
 
   public getPosition(): Position {
@@ -76,12 +78,12 @@ export abstract class Entity {
     return this.type;
   }
 
-  public hasChange(type: ChangeType): boolean {
-    return this.changes.some((change) => change.type === type);
+  public hasVisualEvent(type: VisualEventType): boolean {
+    return this.visualEvents.some((visualEvent) => visualEvent.type === type);
   }
 
-  public hasChanges(): boolean {
-    return this.changes.length !== 0;
+  public hasVisualEvents(): boolean {
+    return this.visualEvents.length !== 0;
   }
 
   public hit() {
@@ -89,7 +91,14 @@ export abstract class Entity {
       return;
     }
 
+    const initialHealth = this.health;
     this.health--;
+
+    if (initialHealth !== 0 && this.health === 0) {
+      this.addVisualEvent({ type: VisualEventType.Destructured });
+    } else if (initialHealth !== this.health) {
+      this.addVisualEvent({ type: VisualEventType.Hit });
+    }
   }
 
   public getHealth(): number {

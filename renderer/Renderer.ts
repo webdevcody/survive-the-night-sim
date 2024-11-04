@@ -3,12 +3,14 @@ import * as Canvas from "./Canvas";
 import { type RendererEffect, RendererEffectType } from "./Effect";
 import { RendererItem } from "./Item";
 import {
-  ChangeType,
   type Entity,
   EntityType,
   type Position,
+  VisualEventType,
   Zombie,
 } from "@/simulator";
+
+const ANIMATABLE_DEAD_ENTITIES = [EntityType.Zombie];
 
 export class Renderer {
   private readonly cellSize: number;
@@ -187,9 +189,9 @@ export class Renderer {
         return assets.rock;
       }
       case EntityType.Zombie: {
-        if (entity.hasChange(ChangeType.Killed)) {
+        if (entity.hasVisualEvent(VisualEventType.Destructured)) {
           return assets.zombieDead;
-        } else if (entity.hasChange(ChangeType.Walking)) {
+        } else if (entity.hasVisualEvent(VisualEventType.Moving)) {
           return assets.zombieWalkingFrame1;
         } else {
           return assets.zombieIdleFrame1;
@@ -251,7 +253,15 @@ export class Renderer {
   private registerEntity(entity: Entity) {
     const entityImage = this.getEntityImage(entity);
 
-    if (entityImage === null || (entity.dead() && !entity.hasChanges())) {
+    if (entityImage === null) {
+      return;
+    }
+
+    const animatableAfterDeath =
+      entity.hasVisualEvents() &&
+      ANIMATABLE_DEAD_ENTITIES.includes(entity.getType());
+
+    if (entity.dead() && !animatableAfterDeath) {
       return;
     }
 
@@ -281,9 +291,9 @@ export class Renderer {
       this.cellSize,
     );
 
-    if (entity.hasChange(ChangeType.Walking)) {
-      const change = entity.getChange(ChangeType.Walking);
-      const { to, from } = change;
+    if (entity.hasVisualEvent(VisualEventType.Moving)) {
+      const visualEvent = entity.getVisualEvent(VisualEventType.Moving);
+      const { to, from } = visualEvent;
 
       position.x = from.x * this.cellSize;
       position.y = from.y * this.cellSize;

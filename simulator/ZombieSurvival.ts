@@ -1,13 +1,16 @@
-import { ChangeType } from "./Change";
 import { allDirections, move } from "./Direction";
 import { Entity } from "./Entity";
-import { Position, samePosition } from "./Position";
+import { Position } from "./Position";
 import { Box } from "./entities/Box";
 import { Landmine } from "./entities/Landmine";
 import { Player } from "./entities/Player";
 import { Rock } from "./entities/Rock";
 import { Zombie } from "./entities/Zombie";
-import { entityAt } from "./lib/entityAt";
+import { entityAt } from "@/lib/entityAt";
+
+export interface ZombieSurvivalOptions {
+  multiplayer?: boolean;
+}
 
 export class ZombieSurvival {
   public readonly boardHeight: number;
@@ -17,7 +20,7 @@ export class ZombieSurvival {
   private players: Player[] = [];
   private zombies: Zombie[] = [];
 
-  public constructor(map: string[][]) {
+  public constructor(map: string[][], options: ZombieSurvivalOptions = {}) {
     if (ZombieSurvival.mapIsEmpty(map)) {
       throw new Error("Map is empty");
     }
@@ -66,7 +69,7 @@ export class ZombieSurvival {
       }
     }
 
-    if (!ZombieSurvival.mapIsMultiplayer(map) && this.players.length === 0) {
+    if (!options.multiplayer && this.players.length === 0) {
       throw new Error("Map has no player");
     }
 
@@ -137,31 +140,25 @@ export class ZombieSurvival {
     return map.flat().some((it) => ["1", "2", "3", "4", "5", "6"].includes(it));
   }
 
-  public static nextValidPosition(map: string[][]): Position | null {
-    for (let y = 0; y < map.length; y++) {
-      for (let x = 0; x < map[y].length; x++) {
-        if (map[y][x] === " ") {
-          return { x, y };
-        }
-      }
-    }
-
-    return null;
-  }
-
-  public static validLocations(map: string[][]): number[][] {
+  public static validLocations(map: string[][]): Array<[number, number]> {
     return map.flatMap((row, y) =>
-      row.reduce((acc, cell, x) => {
-        if (cell === " ") {
-          acc.push([y, x]);
-        }
-        return acc;
-      }, [] as number[][]),
+      row.reduce(
+        (acc, cell, x) => {
+          if (cell === " ") {
+            acc.push([y, x]);
+          }
+          return acc;
+        },
+        [] as Array<[number, number]>,
+      ),
     );
   }
 
-  public static validMoveLocations(map: string[][], token: string): number[][] {
-    const position = ZombieSurvival.entityPosition(map, token);
+  public static validPlayerMoveLocations(
+    map: string[][],
+    playerToken: string,
+  ): number[][] {
+    const position = ZombieSurvival.entityPosition(map, playerToken);
     const validMoves: number[][] = [];
 
     for (const direction of allDirections) {
@@ -199,12 +196,22 @@ export class ZombieSurvival {
     return this.entities;
   }
 
-  public getPlayer(): Player {
-    if (this.multiplayer) {
+  public getPlayer(token: string | null = null): Player {
+    if (!this.multiplayer) {
+      return this.players[0];
+    }
+
+    if (token === null) {
       throw new Error("Tried getting a player for a multiplayer simulator");
     }
 
-    return this.players[0];
+    for (const player of this.players) {
+      if (player.getToken() === token) {
+        return player;
+      }
+    }
+
+    throw new Error(`Tried getting non-existing player '${token}'`);
   }
 
   public getState(): string[][] {
@@ -229,39 +236,33 @@ export class ZombieSurvival {
     return this.zombies;
   }
 
-  public step({ skipPlayer = false }: { skipPlayer?: boolean } = {}): void {
-    const initialHealth = this.zombies.map((zombie) => zombie.getHealth());
+  public resetVisualEvents() {
+    const entities = this.getAllEntities();
 
-    if (!skipPlayer) {
-      this.getPlayer().clearChanges();
-      this.getPlayer().shoot();
+    for (const entity of entities) {
+      entity.clearVisualEvents();
     }
+  }
 
+  public step(): void {
+    this.resetVisualEvents();
+    this.stepPlayers();
+    this.stepZombies();
+  }
+
+  public stepPlayer(token: string): void {
+    this.getPlayer(token).shoot();
+  }
+
+  public stepPlayers(): void {
+    for (const player of this.players) {
+      player.shoot();
+    }
+  }
+
+  public stepZombies(): void {
     for (let i = 0; i < this.zombies.length && !this.finished(); i++) {
-      const zombie = this.zombies[i];
-      const initialPosition = zombie.getPosition();
-      const initialZombieHealth = initialHealth[i];
-
-      zombie.clearChanges();
-      zombie.walk();
-
-      if (initialZombieHealth !== 0 && zombie.getHealth() === 0) {
-        zombie.addChange({ type: ChangeType.Killed });
-      }
-
-      if (initialZombieHealth !== zombie.getHealth()) {
-        zombie.addChange({ type: ChangeType.Hit });
-      }
-
-      const currentPosition = zombie.getPosition();
-
-      if (!samePosition(initialPosition, currentPosition)) {
-        zombie.addChange({
-          type: ChangeType.Walking,
-          from: initialPosition,
-          to: currentPosition,
-        });
-      }
+      this.zombies[i].walk();
     }
   }
 }

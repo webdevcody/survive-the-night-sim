@@ -27,7 +27,11 @@ export default function MultiplayerPage({
     <Page>
       <PageTitle>Multiplayer</PageTitle>
       <div className="flex justify-center">
-        <Visualizer controls={false} map={multiplayerGame.boardState} />
+        <Visualizer
+          controls={false}
+          map={multiplayerGame.boardState}
+          simulatorOptions={{ multiplayer: true }}
+        />
       </div>
     </Page>
   );

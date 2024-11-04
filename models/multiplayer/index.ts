@@ -100,7 +100,7 @@ export async function runMultiplayerModel(
   playerToken: string,
   retry = 1,
 ): Promise<RunModelResult> {
-  const validMoveLocations = ZombieSurvival.validMoveLocations(
+  const validMoveLocations = ZombieSurvival.validPlayerMoveLocations(
     map,
     playerToken,
   );
