@@ -331,22 +331,18 @@ export const playMapAction = internalAction({
 
     if (process.env.FLAG_MOCK_MODELS === "true") {
       const existingMap = ZombieSurvival.cloneMap(map.grid);
-      const playerPosition = ZombieSurvival.nextValidPosition(existingMap);
+      const validLocations = ZombieSurvival.validLocations(existingMap);
 
-      if (playerPosition !== null) {
-        existingMap[playerPosition.y][playerPosition.x] = "P";
+      if (validLocations.length > 0) {
+        existingMap[validLocations[0][0]][validLocations[0][1]] = "P";
       }
 
-      const firstBoxPosition = ZombieSurvival.nextValidPosition(existingMap);
-
-      if (firstBoxPosition !== null) {
-        existingMap[firstBoxPosition.y][firstBoxPosition.x] = "B";
+      if (validLocations.length > 1) {
+        existingMap[validLocations[1][0]][validLocations[1][1]] = "B";
       }
 
-      const secondBoxPosition = ZombieSurvival.nextValidPosition(existingMap);
-
-      if (secondBoxPosition !== null) {
-        existingMap[secondBoxPosition.y][secondBoxPosition.x] = "B";
+      if (validLocations.length > 2) {
+        existingMap[validLocations[2][0]][validLocations[2][1]] = "B";
       }
 
       await ctx.runMutation(internal.results.updateResult, {
