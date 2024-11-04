@@ -7,20 +7,21 @@ export class Player extends Entity {
   public static Destructible = true;
   public static Health = 1;
   public static ShootDistance = Infinity;
-  public playerToken: string = "P";
 
+  public token = "P";
   private game: ZombieSurvival;
 
-  public constructor(
-    game: ZombieSurvival,
-    position: Position,
-    playerToken?: string,
-  ) {
+  public constructor(game: ZombieSurvival, position: Position, token?: string) {
     super(EntityType.Player, Player.Destructible, Player.Health, position);
     this.game = game;
-    if (playerToken) {
-      this.playerToken = playerToken;
+
+    if (token !== undefined) {
+      this.token = token;
     }
+  }
+
+  public getToken(): string {
+    return this.token;
   }
 
   public shoot() {

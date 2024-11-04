@@ -1,6 +1,5 @@
 import { type Change, ChangeType } from "./Change";
 import { Position } from "./Position";
-import { Player } from "./entities/Player";
 
 export enum EntityType {
   Box,
@@ -10,12 +9,14 @@ export enum EntityType {
   Zombie,
 }
 
-export class Entity {
+export abstract class Entity {
   protected destructible: boolean;
   protected changes: Change[] = [];
   protected health: number;
   protected position: Position;
   protected type: EntityType;
+
+  public abstract getToken(): string;
 
   public constructor(
     type: EntityType,
@@ -97,25 +98,5 @@ export class Entity {
 
   public isDestructible(): boolean {
     return this.destructible;
-  }
-
-  // TODO: maybe the entity itself should be refactor to implement the abstract method,
-  // and return the correct LETTER
-  public toConfig(): string {
-    let letter = " ";
-
-    if (this.type === EntityType.Box) {
-      letter = "B";
-    } else if (this.type === EntityType.Landmine) {
-      letter = "L";
-    } else if (this.type === EntityType.Player) {
-      letter = (this as unknown as Player).playerToken; // TODO: this feels hacky
-    } else if (this.type === EntityType.Rock) {
-      letter = "R";
-    } else if (this.type === EntityType.Zombie) {
-      letter = "Z";
-    }
-
-    return letter;
   }
 }

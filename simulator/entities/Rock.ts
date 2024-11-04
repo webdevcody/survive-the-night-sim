@@ -8,4 +8,8 @@ export class Rock extends Entity {
   public constructor(position: Position) {
     super(EntityType.Rock, Rock.Destructible, Rock.Health, position);
   }
+
+  public getToken(): string {
+    return "R";
+  }
 }

@@ -16,6 +16,10 @@ export class Zombie extends Entity {
     this.game = game;
   }
 
+  public getToken(): string {
+    return "Z";
+  }
+
   public listMoves(): Direction[] {
     const entities = this.game.getAllEntities();
     const result: Direction[] = [];

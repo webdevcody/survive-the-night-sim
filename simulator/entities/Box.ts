@@ -8,4 +8,8 @@ export class Box extends Entity {
   public constructor(position: Position) {
     super(EntityType.Box, Box.Destructible, Box.Health, position);
   }
+
+  public getToken(): string {
+    return "B";
+  }
 }

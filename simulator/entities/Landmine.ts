@@ -13,4 +13,8 @@ export class Landmine extends Entity {
       position,
     );
   }
+
+  public getToken(): string {
+    return "L";
+  }
 }
