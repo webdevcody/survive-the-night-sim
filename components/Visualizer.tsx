@@ -40,9 +40,14 @@ export function Visualizer({
     }
   }, [autoStart, renderer]);
 
+  useEffect(() => {
+    if (renderer !== null) {
+      simulator.current = new ZombieSurvival(map);
+      renderer?.render(simulator.current.getAllEntities());
+    }
+  }, [renderer]);
+
   function startSimulation() {
-    simulator.current = new ZombieSurvival(map);
-    renderer?.render(simulator.current.getAllEntities());
     setRunning(true);
 
     interval.current = setInterval(() => {
