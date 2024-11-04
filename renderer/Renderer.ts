@@ -1,4 +1,4 @@
-import { assets, loadAssets } from "./Assets";
+import { assets } from "./Assets";
 import * as Canvas from "./Canvas";
 import { type RendererEffect, RendererEffectType } from "./Effect";
 import { RendererItem } from "./Item";
@@ -19,12 +19,13 @@ export class Renderer {
   private canvas2: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private ctx2: CanvasRenderingContext2D;
+  private initialized = false;
   private items: RendererItem[] = [];
   private req: number | null = null;
 
   public constructor(
-    boardHeight: number,
     boardWidth: number,
+    boardHeight: number,
     canvas: HTMLCanvasElement,
     cellSize: number,
     replaySpeed: number,
@@ -60,8 +61,24 @@ export class Renderer {
     ctx2.scale(window.devicePixelRatio, window.devicePixelRatio);
   }
 
+  public isInitialized() {
+    return this.initialized;
+  }
+
   public async initialize() {
-    return loadAssets();
+    if (this.initialized) {
+      return;
+    }
+
+    if (!assets.loaded) {
+      await new Promise<void>((resolve) => {
+        assets.addEventListener("loaded", () => {
+          resolve();
+        });
+      });
+    }
+
+    this.initialized = true;
   }
 
   public render(entities: Entity[]) {
