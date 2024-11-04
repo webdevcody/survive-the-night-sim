@@ -1,8 +1,7 @@
-import { Direction, allDirections, move } from "../Direction";
+import { type Direction, allDirections, move } from "../Direction";
 import { Entity, EntityType } from "../Entity";
-import { Position } from "../Position";
-import { VisualEventType } from "../VisualEvent";
-import { ZombieSurvival } from "../ZombieSurvival";
+import { type Position } from "../Position";
+import { type ZombieSurvival } from "../ZombieSurvival";
 import { entityAt } from "@/lib/entityAt";
 
 export class Zombie extends Entity {
@@ -38,7 +37,7 @@ export class Zombie extends Entity {
       entity.hit();
     }
 
-    this.walkTo(newPosition);
+    this.moveTo(newPosition);
   }
 
   private findPath(): Direction[] {
@@ -120,16 +119,5 @@ export class Zombie extends Entity {
     }
 
     return result;
-  }
-
-  private walkTo(position: Position) {
-    const initialPosition = { ...this.position };
-    this.position = position;
-
-    this.addVisualEvent({
-      type: VisualEventType.Moving,
-      from: initialPosition,
-      to: this.position,
-    });
   }
 }

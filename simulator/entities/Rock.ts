@@ -1,5 +1,5 @@
 import { Entity, EntityType } from "../Entity";
-import { Position } from "../Position";
+import { type Position } from "../Position";
 
 export class Rock extends Entity {
   public static Destructible = false;

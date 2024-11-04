@@ -108,4 +108,15 @@ export abstract class Entity {
   public isDestructible(): boolean {
     return this.destructible;
   }
+
+  public moveTo(position: Position) {
+    const initialPosition = { ...this.position };
+    this.position = position;
+
+    this.addVisualEvent({
+      type: VisualEventType.Moving,
+      from: initialPosition,
+      to: this.position,
+    });
+  }
 }

@@ -1,6 +1,6 @@
 import { allDirections, move } from "./Direction";
-import { Entity } from "./Entity";
-import { Position } from "./Position";
+import { type Entity } from "./Entity";
+import { type Position } from "./Position";
 import { Box } from "./entities/Box";
 import { Landmine } from "./entities/Landmine";
 import { Player } from "./entities/Player";

@@ -1,6 +1,6 @@
 import { Entity, EntityType } from "../Entity";
-import { Position } from "../Position";
-import { ZombieSurvival } from "../ZombieSurvival";
+import { type Position } from "../Position";
+import { type ZombieSurvival } from "../ZombieSurvival";
 import { closestEntity } from "@/lib/closestEntity";
 
 export class Player extends Entity {
