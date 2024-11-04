@@ -8,15 +8,12 @@ export function pathfinder(
   initialZombie: Zombie,
 ): Direction[] {
   const player = initialGame.getPlayer();
-
-  if (!player) {
-    throw new Error("Player not found");
-  }
-
   const initialPosition = initialZombie.getPosition();
+
   const queue: Array<{ x: number; y: number; path: Direction[] }> = [
     { x: initialPosition.x, y: initialPosition.y, path: [] },
   ];
+
   const visited = new Set<string>();
 
   while (queue.length > 0) {
