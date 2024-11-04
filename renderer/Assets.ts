@@ -17,7 +17,10 @@ export class RendererAssets extends EventTarget {
 
   constructor() {
     super();
-    void this.load();
+
+    if (typeof window !== "undefined") {
+      void this.load();
+    }
   }
 
   private async load() {
