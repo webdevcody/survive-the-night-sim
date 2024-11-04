@@ -1,3 +1,4 @@
+import { entityAt } from "../lib/entityAt";
 import { allDirections, move } from "./Direction";
 import { type Entity } from "./Entity";
 import { type Position } from "./Position";
@@ -6,7 +7,6 @@ import { Landmine } from "./entities/Landmine";
 import { Player } from "./entities/Player";
 import { Rock } from "./entities/Rock";
 import { Zombie } from "./entities/Zombie";
-import { entityAt } from "@/lib/entityAt";
 
 export interface ZombieSurvivalOptions {
   multiplayer?: boolean;
@@ -32,9 +32,9 @@ export class ZombieSurvival {
 
     for (let y = 0; y < this.boardHeight; y++) {
       for (let x = 0; x < this.boardWidth; x++) {
-        const code = map[y][x].toLowerCase();
+        const code = map[y][x];
 
-        switch (code) {
+        switch (code.toLowerCase()) {
           case "b": {
             this.entities.push(new Box({ x, y }));
             break;

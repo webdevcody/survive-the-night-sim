@@ -1,7 +1,7 @@
+import { closestEntity } from "../../lib/closestEntity";
 import { Entity, EntityType } from "../Entity";
 import { type Position } from "../Position";
 import { type ZombieSurvival } from "../ZombieSurvival";
-import { closestEntity } from "@/lib/closestEntity";
 
 export class Player extends Entity {
   public static Destructible = true;

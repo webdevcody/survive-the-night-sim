@@ -18,7 +18,7 @@ test("fails on invalid map", () => {
         [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
         [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
       ]),
-  ).toThrowError("Map has no player");
+  ).toThrowError("Single player map has no player");
 
   expect(
     () =>
@@ -33,7 +33,7 @@ test("fails on invalid map", () => {
         [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
         [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
       ]),
-  ).toThrowError("Map contains multiple players");
+  ).toThrowError("Single player map contains multiple players");
 
   expect(
     () =>
@@ -64,7 +64,9 @@ test("fails on impossible to beat map", () => {
     [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
   ]);
 
-  expect(() => game.step()).toThrowError("Unable to solve game");
+  expect(() => game.step()).toThrowError(
+    "Unable to find path for the next move",
+  );
 });
 
 test("works with different boards sizes", () => {

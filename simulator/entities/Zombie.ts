@@ -1,8 +1,8 @@
+import { entityAt } from "../../lib/entityAt";
 import { type Direction, allDirections, move } from "../Direction";
 import { Entity, EntityType } from "../Entity";
 import { type Position } from "../Position";
 import { type ZombieSurvival } from "../ZombieSurvival";
-import { entityAt } from "@/lib/entityAt";
 
 export class Zombie extends Entity {
   public static Destructible = true;
