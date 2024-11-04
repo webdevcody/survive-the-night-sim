@@ -16,7 +16,7 @@ export class ZombieSurvival {
   public readonly boardHeight: number;
   public readonly boardWidth: number;
   private entities: Entity[] = [];
-  private multiplayer = false;
+  private multiplayer;
   private players: Player[] = [];
   private zombies: Zombie[] = [];
 
@@ -27,12 +27,14 @@ export class ZombieSurvival {
 
     this.boardWidth = map[0].length;
     this.boardHeight = map.length;
+    this.multiplayer = options.multiplayer === true;
+    let isSinglePlayer = false;
 
     for (let y = 0; y < this.boardHeight; y++) {
       for (let x = 0; x < this.boardWidth; x++) {
-        const code = map[y][x];
+        const code = map[y][x].toLowerCase();
 
-        switch (code.toLowerCase()) {
+        switch (code) {
           case "b": {
             this.entities.push(new Box({ x, y }));
             break;
@@ -49,18 +51,43 @@ export class ZombieSurvival {
             this.zombies.push(new Zombie(this, { x, y }));
             break;
           }
+          case "p": {
+            if (this.multiplayer) {
+              throw new Error(
+                "Mixing multiplayer and single player maps is not allowed",
+              );
+            }
+
+            if (this.players.length !== 0) {
+              throw new Error("Single player map contains multiple players");
+            }
+
+            if (!isSinglePlayer) {
+              isSinglePlayer = true;
+            }
+
+            const player = new Player(this, { x, y }, code);
+            this.players.push(player);
+
+            break;
+          }
           case "1":
           case "2":
           case "3":
           case "4":
           case "5":
-          case "6":
-          case "p": {
-            if (this.players.length !== 0) {
-              throw new Error("Map contains multiple players");
+          case "6": {
+            if (isSinglePlayer) {
+              throw new Error(
+                "Mixing multiplayer and single player maps is not allowed",
+              );
             }
 
-            const player = new Player(this, { x, y }, code.toLocaleLowerCase());
+            if (!this.multiplayer) {
+              this.multiplayer = true;
+            }
+
+            const player = new Player(this, { x, y }, code);
             this.players.push(player);
 
             break;
@@ -69,11 +96,9 @@ export class ZombieSurvival {
       }
     }
 
-    if (!options.multiplayer && this.players.length === 0) {
-      throw new Error("Map has no player");
+    if (!this.multiplayer && this.players.length === 0) {
+      throw new Error("Single player map has no player");
     }
-
-    this.multiplayer = this.players.length > 1;
 
     if (this.zombies.length === 0) {
       throw new Error("Map has no zombies");
