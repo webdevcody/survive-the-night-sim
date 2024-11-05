@@ -66,6 +66,10 @@ export abstract class Entity {
     return this.position;
   }
 
+  public getDisplayName(): string {
+    return "";
+  }
+
   public getPositionId(): string {
     return `${this.position.x}.${this.position.y}`;
   }
