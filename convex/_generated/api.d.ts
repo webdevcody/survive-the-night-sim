@@ -1,5 +1,4 @@
 /* eslint-disable */
-
 /**
  * Generated `api` utility.
  *
@@ -8,6 +7,7 @@
  * To regenerate, run `npx convex dev`.
  * @module
  */
+
 import type * as attempts from "../attempts.js";
 import type * as auth from "../auth.js";
 import type * as constants from "../constants.js";
@@ -26,12 +26,12 @@ import type * as rateLimits from "../rateLimits.js";
 import type * as results from "../results.js";
 import type * as scores from "../scores.js";
 import type * as users from "../users.js";
+
 import type {
   ApiFromModules,
   FilterApi,
   FunctionReference,
 } from "convex/server";
-
 /**
  * A utility for referencing Convex functions in your app's API.
  *
@@ -149,5 +149,3 @@ export declare const components: {
     };
   };
 };
-
-/* prettier-ignore-end */
