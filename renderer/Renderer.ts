@@ -44,7 +44,7 @@ export class Renderer {
 
     this.canvas2 = document.createElement("canvas");
 
-    this.ctx = prepareCanvas(canvas, this.h, this.w);
+    this.ctx = prepareCanvas(canvas, this.w, this.h);
     this.ctx2 = prepareCanvas(this.canvas2, this.cellSize, this.cellSize);
   }
 
@@ -172,7 +172,8 @@ export class Renderer {
         return assets.player;
       }
       case EntityType.Rock: {
-        return assets.rock;
+        // return assets.rock;
+        return null;
       }
       case EntityType.Zombie: {
         if (entity.hasVisualEvent(VisualEventType.Destructured)) {

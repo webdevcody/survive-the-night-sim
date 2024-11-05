@@ -56,13 +56,13 @@ export const BITMASK_TO_TILE_INDEX = {
 } as const;
 
 const neighborOffsets = [
+  [0, -1],
+  [1, -1],
+  [1, 0],
   [1, 1],
   [0, 1],
   [-1, 1],
-  [1, 0],
   [-1, 0],
-  [1, -1],
-  [0, -1],
   [-1, -1],
 ] as const;
 
@@ -96,6 +96,7 @@ export async function generateBg(
   map: string[][],
   cellSize = 64,
 ): Promise<HTMLImageElement> {
+  const tileSize = 64;
   const floor = assets.floor;
   const tileMap = assets.tileMap;
 
@@ -129,10 +130,10 @@ export async function generateBg(
 
       ctx.drawImage(
         tileMap,
-        sy * 64,
-        sx * 64,
-        64,
-        64,
+        sx * tileSize,
+        sy * tileSize,
+        tileSize,
+        tileSize,
         x * cellSize,
         y * cellSize,
         cellSize,
