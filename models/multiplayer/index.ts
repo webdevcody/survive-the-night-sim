@@ -89,9 +89,12 @@ export async function runMultiplayerModel(
     "STAY",
   ];
 
+  const zombieLocations = ZombieSurvival.getZombieLocations(map);
+
   const userPrompt =
     `Grid: ${JSON.stringify(map)}\n\n` +
     `Your Player Token: ${playerToken}\n\n` +
+    `Zombie Locations: ${JSON.stringify(zombieLocations)}\n\n` +
     `Valid Move Locations: ${JSON.stringify(validDirections)}`;
 
   let result;

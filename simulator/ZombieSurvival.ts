@@ -148,6 +148,20 @@ export class ZombieSurvival {
     return game.getPlayer() === null || !game.getPlayer()?.dead();
   }
 
+  public static getZombieLocations(map: string[][]): Array<[number, number]> {
+    return map.flatMap((row, y) =>
+      row.reduce(
+        (acc, cell, x) => {
+          if (cell.startsWith("Z")) {
+            acc.push([y, x]);
+          }
+          return acc;
+        },
+        [] as Array<[number, number]>,
+      ),
+    );
+  }
+
   public static mapHasToken(map: string[][], token: string): boolean {
     return map.flat().includes(token);
   }

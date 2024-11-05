@@ -5,18 +5,18 @@ import { api, internal } from "./_generated/api";
 import { internalAction, internalMutation, query } from "./_generated/server";
 import { ModelSlug } from "./constants";
 
-const TURN_DELAY = 5000;
+const TURN_DELAY = 500;
 
 const boardState = `
-Z.Z.Z. . . .B. . . . . . . . ,
-Z.Z. . . . .B. . . . . . . . ,
-Z. . . . .B. . . . . . . . . ,
+ . . . . . .B. . . . . . . . ,
+ . . . . . .B. . . . . . . . ,
+ . . . . .B. . . . . . . . . ,
  . . . .R. . . . .R. . . . . ,
  . . . .R. . . . .R. . . . . ,
  . . . .R. . . . .R. . . . . ,
- . . . . . . . .B. . . . . .Z,
- . . . . . . .B. . . . . .Z.Z,
- . . . . . . .B. . . . .Z.Z.Z,
+ . . . . . . . .B. . . . . . ,
+ . . . . . . .B. . . . . . . ,
+ . . . . . . .B. . . . . . . ,
 `;
 
 export const startMultiplayerGame = internalMutation({
