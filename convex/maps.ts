@@ -1,9 +1,10 @@
 import { runModel } from "../models";
-import { ZombieSurvival } from "../simulators/zombie-survival";
-import { Landmine } from "../simulators/zombie-survival/entities/Landmine";
+import { ZombieSurvival } from "../simulator";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { isRateLimitError } from "@convex-dev/rate-limiter";
 import { v } from "convex/values";
 import { api, internal } from "./_generated/api";
+import { Doc } from "./_generated/dataModel";
 import {
   action,
   internalAction,
@@ -11,7 +12,7 @@ import {
   mutation,
   query,
 } from "./_generated/server";
-import { Prompt } from "./prompts";
+import { rateLimiter } from "./rateLimits";
 import {
   adminMutationBuilder,
   adminQueryBuilder,
@@ -162,14 +163,27 @@ export const submitMap = authenticatedMutation({
     landmines: v.number(),
   },
   handler: async (ctx, args) => {
-    await ctx.db.insert("maps", {
-      grid: args.map,
-      level: undefined,
-      maxBlocks: args.blocks,
-      maxLandmines: args.landmines,
-      submittedBy: ctx.userId,
-      isReviewed: false,
-    });
+    try {
+      const status = await rateLimiter.limit(ctx, "submitMap", {
+        key: ctx.userId,
+        throws: true,
+      });
+      if (status.ok) {
+        await ctx.db.insert("maps", {
+          grid: args.map,
+          level: undefined,
+          maxBlocks: args.blocks,
+          maxLandmines: args.landmines,
+          submittedBy: ctx.userId,
+          isReviewed: false,
+        });
+        return 200;
+      }
+    } catch (e) {
+      if (isRateLimitError(e)) {
+        return 429;
+      }
+    }
   },
 });
 
@@ -210,8 +224,7 @@ export const getUnreviewedMaps = adminQueryBuilder({
 });
 
 export const getMaps = query({
-  args: {},
-  handler: async (ctx, args) => {
+  handler: async (ctx) => {
     return await ctx.db
       .query("maps")
       .withIndex("by_isReviewed_level", (q) => q.eq("isReviewed", true))
@@ -282,7 +295,9 @@ export const deleteMap = adminMutationBuilder({
 });
 
 export const getMapByLevel = query({
-  args: { level: v.number() },
+  args: {
+    level: v.number(),
+  },
   handler: async (ctx, args) => {
     return await ctx.db
       .query("maps")
@@ -325,10 +340,19 @@ export const playMapAction = internalAction({
 
     if (process.env.FLAG_MOCK_MODELS === "true") {
       const existingMap = ZombieSurvival.cloneMap(map.grid);
+      const validLocations = ZombieSurvival.validLocations(existingMap);
 
-      existingMap[0][0] = "P";
-      existingMap[0][1] = "B";
-      existingMap[0][2] = "B";
+      if (validLocations.length > 0) {
+        existingMap[validLocations[0][0]][validLocations[0][1]] = "P";
+      }
+
+      if (validLocations.length > 1) {
+        existingMap[validLocations[1][0]][validLocations[1][1]] = "B";
+      }
+
+      if (validLocations.length > 2) {
+        existingMap[validLocations[2][0]][validLocations[2][1]] = "B";
+      }
 
       await ctx.runMutation(internal.results.updateResult, {
         resultId,
@@ -340,17 +364,12 @@ export const playMapAction = internalAction({
       return;
     }
 
-    const activePromptQuery = await ctx.runQuery(api.prompts.getActivePrompt);
-    const activePrompt = activePromptQuery && activePromptQuery.prompt;
-
-    if (!activePrompt) {
-      throw new Error("Active prompt not found");
-    }
+    const activePrompt = await ctx.runQuery(api.prompts.getActivePrompt);
 
     const { solution, reasoning, error } = await runModel(
       args.modelId,
       map.grid,
-      activePrompt,
+      activePrompt.prompt,
     );
 
     await ctx.runMutation(internal.results.updateResult, {
@@ -370,17 +389,14 @@ export const testMap = action({
   },
   handler: async (ctx, args) => {
     const isAdmin = await ctx.runQuery(api.users.isAdmin);
-    const activePrompt: Prompt = await ctx.runQuery(
-      api.prompts.getActivePrompt,
-    );
 
     if (!isAdmin) {
       throw new Error("Test map is available only for admin");
     }
 
-    if (!activePrompt) {
-      throw new Error("Active prompt not found");
-    }
+    const activePrompt: Doc<"prompts"> = await ctx.runQuery(
+      api.prompts.getActivePrompt,
+    );
 
     return await runModel(args.modelId, args.map, activePrompt.prompt);
   },
@@ -405,13 +421,7 @@ export const testAIModel = action({
       throw new Error("Map not found");
     }
 
-    const activePrompt: Prompt = await ctx.runQuery(
-      api.prompts.getActivePrompt,
-    );
-
-    if (!activePrompt) {
-      throw new Error("Active prompt not found");
-    }
+    const activePrompt = await ctx.runQuery(api.prompts.getActivePrompt);
 
     const {
       solution,

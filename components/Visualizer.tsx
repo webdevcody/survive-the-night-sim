@@ -1,54 +1,58 @@
-import * as React from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRenderer } from "./Renderer";
 import { Button } from "@/components/ui/button";
-import { AUTO_REPLAY_SPEED, REPLAY_SPEED } from "@/constants/visualizer";
-import { Renderer } from "@/renderer";
-import { ZombieSurvival } from "@/simulators/zombie-survival";
+import {
+  AUTO_REPLAY_SPEED,
+  DEFAULT_REPLAY_SPEED,
+} from "@/constants/visualizer";
+import { ZombieSurvival, type ZombieSurvivalOptions } from "@/simulator";
 
 export function Visualizer({
   autoReplay = false,
   autoStart = false,
   controls = true,
-  cellSize = "64",
+  cellSize = 64,
   map,
   onReset,
   onSimulationEnd,
+  replaySpeed = DEFAULT_REPLAY_SPEED,
+  simulatorOptions,
 }: {
   autoReplay?: boolean;
   autoStart?: boolean;
   controls?: boolean;
-  cellSize?: string;
+  cellSize?: number;
   map: string[][];
   onReset?: () => unknown;
   onSimulationEnd?: (isWin: boolean) => unknown;
+  replaySpeed?: number;
+  simulatorOptions?: ZombieSurvivalOptions;
 }) {
-  const simulator = React.useRef<ZombieSurvival>(new ZombieSurvival(map));
-  const renderer = React.useRef<Renderer | null>(null);
-  const interval = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-  const timeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-  const canvas = React.useRef<HTMLCanvasElement | null>(null);
-  const visible = React.useRef(false);
-  const [running, setRunning] = React.useState(false);
+  const simulator = useRef<ZombieSurvival>(
+    new ZombieSurvival(map, simulatorOptions),
+  );
 
-  React.useEffect(() => {
-    if (canvas.current !== null) {
-      renderer.current = new Renderer(
-        ZombieSurvival.boardHeight(map),
-        ZombieSurvival.boardWidth(map),
-        canvas.current,
-        Number.parseInt(cellSize, 10),
-      );
-    }
-  }, [canvas]);
+  const interval = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const canvas = useRef<HTMLCanvasElement | null>(null);
+  const renderer = useRenderer(map, canvas, cellSize, replaySpeed);
+  const visible = useRef(false);
+  const [running, setRunning] = useState(false);
 
-  React.useEffect(() => {
-    if (autoStart) {
+  useEffect(() => {
+    if (autoStart && renderer !== null) {
       startSimulation();
     }
-  }, [autoStart]);
+  }, [autoStart, renderer]);
+
+  useEffect(() => {
+    if (renderer !== null) {
+      simulator.current = new ZombieSurvival(map, simulatorOptions);
+      renderer?.render(simulator.current.getAllEntities());
+    }
+  }, [renderer]);
 
   function startSimulation() {
-    simulator.current = new ZombieSurvival(map);
-    renderer.current?.render(simulator.current);
     setRunning(true);
 
     interval.current = setInterval(() => {
@@ -58,7 +62,7 @@ export function Visualizer({
 
       if (!simulator.current.finished()) {
         simulator.current.step();
-        renderer.current?.render(simulator.current);
+        renderer?.render(simulator.current.getAllEntities());
         return;
       }
 
@@ -68,6 +72,10 @@ export function Visualizer({
       if (autoReplay) {
         timeout.current = setTimeout(() => {
           timeout.current = null;
+
+          simulator.current = new ZombieSurvival(map, simulatorOptions);
+          renderer?.render(simulator.current.getAllEntities());
+
           startSimulation();
         }, AUTO_REPLAY_SPEED);
 
@@ -79,10 +87,10 @@ export function Visualizer({
       if (onSimulationEnd) {
         onSimulationEnd(!simulator.current.getPlayer().dead());
       }
-    }, REPLAY_SPEED);
+    }, replaySpeed);
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (canvas.current === null) {
       return;
     }
@@ -98,7 +106,7 @@ export function Visualizer({
     };
   }, [canvas]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
       if (interval.current) {
         clearInterval(interval.current);

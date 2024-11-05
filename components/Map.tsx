@@ -4,7 +4,7 @@ export function getCellImage(cell: string) {
   if (cell === "Z") {
     return (
       <img
-        src="/entities/zombie-idle.svg"
+        src="/entities/zombie-idle-frame1.png"
         alt="Zombie"
         className="relative -top-5 left-0 h-full w-full"
       />

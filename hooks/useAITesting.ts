@@ -81,7 +81,7 @@ export function useAITesting({ testingType, level }: UseAITestingProps) {
       setAiTotalTokensUsed(result.totalTokensUsed ?? null);
       setAiTotalRunCost(result.totalRunCost ?? null);
 
-      return result as AITestResult;
+      return result;
     } catch (error) {
       console.error("Error testing AI model:", error);
       setAiError(errorMessage(error));

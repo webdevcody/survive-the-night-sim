@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { ReloadIcon } from "@radix-ui/react-icons";
-import { useAction } from "convex/react";
 import { Map } from "@/components/Map";
 import { Visualizer } from "@/components/Visualizer";
 import { Button } from "@/components/ui/button";
@@ -11,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { api } from "@/convex/_generated/api";
 import { AI_MODELS } from "@/convex/constants";
 import { useAITesting } from "@/hooks/useAITesting";
 
@@ -21,7 +19,9 @@ interface TestModeProps {
 }
 
 export default function TestMode({ level, map }: TestModeProps) {
-  const [selectedModel, setSelectedModel] = useState(AI_MODELS[0].model);
+  const [selectedModel, setSelectedModel] = useState<string>(
+    AI_MODELS["gpt-4o"].slug,
+  );
   const [showOriginalMap, setShowOriginalMap] = useState(true);
   const {
     isSimulating,
@@ -60,8 +60,8 @@ export default function TestMode({ level, map }: TestModeProps) {
             <SelectValue placeholder="Select AI model" />
           </SelectTrigger>
           <SelectContent>
-            {AI_MODELS.map((model) => (
-              <SelectItem key={model.model} value={model.model}>
+            {Object.values(AI_MODELS).map((model) => (
+              <SelectItem key={model.slug} value={model.slug}>
                 {model.name}
               </SelectItem>
             ))}

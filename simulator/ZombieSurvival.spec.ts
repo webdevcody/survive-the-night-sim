@@ -1,9 +1,9 @@
 import { expect, test } from "vitest";
 import { ZombieSurvival } from "./ZombieSurvival";
 
-test("fails on invalid config", () => {
-  expect(() => new ZombieSurvival([])).toThrowError("Config is empty");
-  expect(() => new ZombieSurvival([[]])).toThrowError("Config is empty");
+test("fails on invalid map", () => {
+  expect(() => new ZombieSurvival([])).toThrowError("Map is empty");
+  expect(() => new ZombieSurvival([[]])).toThrowError("Map is empty");
 
   expect(
     () =>
@@ -18,7 +18,7 @@ test("fails on invalid config", () => {
         [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
         [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
       ]),
-  ).toThrowError("Config has no player");
+  ).toThrowError("Single player map has no player");
 
   expect(
     () =>
@@ -33,7 +33,7 @@ test("fails on invalid config", () => {
         [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
         [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
       ]),
-  ).toThrowError("Config contains multiple players");
+  ).toThrowError("Single player map contains multiple players");
 
   expect(
     () =>
@@ -48,10 +48,10 @@ test("fails on invalid config", () => {
         [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
         [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
       ]),
-  ).toThrowError("Config has no zombies");
+  ).toThrowError("Map has no zombies");
 });
 
-test("fails on impossible to beat config", () => {
+test("fails on impossible to beat map", () => {
   const game = new ZombieSurvival([
     [" ", " ", " ", " ", "R", " ", " ", " ", " ", " "],
     [" ", " ", " ", "P", "R", " ", " ", " ", " ", " "],
@@ -64,7 +64,9 @@ test("fails on impossible to beat config", () => {
     [" ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
   ]);
 
-  expect(() => game.step()).toThrowError("Unable to solve game");
+  expect(() => game.step()).toThrowError(
+    "Unable to find path for the next move",
+  );
 });
 
 test("works with different boards sizes", () => {
@@ -426,4 +428,16 @@ test("player kills closest zombie", () => {
   ]);
 
   expect(game.finished()).toBeTruthy();
+});
+
+test("the game state should persist numbered players", () => {
+  const game = new ZombieSurvival([
+    ["Z", " "],
+    [" ", "1"],
+  ]);
+
+  expect(game.getState()).toStrictEqual([
+    ["Z", " "],
+    [" ", "1"],
+  ]);
 });

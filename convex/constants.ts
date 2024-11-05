@@ -1,27 +1,29 @@
-export const AI_MODELS = [
-  {
-    model: "gemini-1.5-pro",
-    name: "Google - Gemini 1.5 Pro",
-  },
-  {
-    model: "gpt-4o",
+export const AI_MODELS = {
+  "gpt-4o": {
+    slug: "gpt-4o",
     name: "OpenAI - GPT-4o",
   },
-  {
-    model: "claude-3.5-sonnet",
+  "claude-3.5-sonnet": {
+    slug: "claude-3.5-sonnet",
     name: "Anthropic - Claude 3.5 Sonnet",
   },
-  {
-    model: "perplexity-llama-3.1",
+  "perplexity-llama-3.1": {
+    slug: "perplexity-llama-3.1",
     name: "Perplexity - Llama 3.1",
   },
-  {
-    model: "mistral-large-2",
+  "mistral-large-2": {
+    slug: "mistral-large-2",
     name: "Mistral - Large 2",
   },
-];
+  "gemini-1.5-pro": {
+    slug: "gemini-1.5-pro",
+    name: "Google - Gemini 1.5 Pro",
+  },
+} as const;
 
-export const AI_MODEL_IDS = AI_MODELS.map((model) => model.model);
+export type ModelSlug = (typeof AI_MODELS)[keyof typeof AI_MODELS]["slug"];
+
+export const AI_MODEL_SLUGS = Object.keys(AI_MODELS) as ModelSlug[];
 
 // how long between each level when the AI models start playing.
 // spacing out the levels to make it easier to watch in the games list and reduce ai token usage.

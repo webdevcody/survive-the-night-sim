@@ -60,10 +60,6 @@ export const updateRankings = internalMutation({
   handler: async (ctx, args) => {
     const activePrompt = await ctx.runQuery(api.prompts.getActivePrompt);
 
-    if (!activePrompt) {
-      throw new Error("Active prompt not found");
-    }
-
     const globalRanking = await ctx.db
       .query("globalRankings")
       .withIndex("by_modelId_promptId", (q) =>

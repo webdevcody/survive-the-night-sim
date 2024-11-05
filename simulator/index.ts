@@ -6,4 +6,5 @@ export * from "./entities/Zombie";
 export * from "./Direction";
 export * from "./Entity";
 export * from "./Position";
+export * from "./VisualEvent";
 export * from "./ZombieSurvival";

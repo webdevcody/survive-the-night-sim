@@ -1,5 +1,5 @@
 import { Entity, EntityType } from "../Entity";
-import { Position } from "../Position";
+import { type Position } from "../Position";
 
 export class Box extends Entity {
   public static Destructible = true;
@@ -7,5 +7,9 @@ export class Box extends Entity {
 
   public constructor(position: Position) {
     super(EntityType.Box, Box.Destructible, Box.Health, position);
+  }
+
+  public getToken(): string {
+    return "B";
   }
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { ChevronLeftIcon } from "@radix-ui/react-icons";
 import { useQuery } from "convex/react";
 import Link from "next/link";

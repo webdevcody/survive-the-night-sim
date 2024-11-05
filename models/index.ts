@@ -1,10 +1,11 @@
 import { errorMessage } from "../lib/utils";
-import { ZombieSurvival } from "../simulators/zombie-survival";
+import { ZombieSurvival } from "../simulator";
 import { claude35sonnet } from "./claude-3-5-sonnet";
 import { gemini15pro } from "./gemini-1.5-pro";
 import { gpt4o } from "./gpt-4o";
 import { mistralLarge2 } from "./mistral-large-2";
 import { perplexityLlama31 } from "./perplexity-llama-3.1";
+import { AI_MODELS } from "@/convex/constants";
 
 export interface ModelHandlerConfig {
   maxTokens: number;
@@ -62,23 +63,23 @@ export async function runModel(
 
   try {
     switch (modelId) {
-      case "gemini-1.5-pro": {
+      case AI_MODELS["gemini-1.5-pro"].slug: {
         result = await gemini15pro(prompt, userPrompt, CONFIG);
         break;
       }
-      case "gpt-4o": {
+      case AI_MODELS["gpt-4o"].slug: {
         result = await gpt4o(prompt, userPrompt, CONFIG);
         break;
       }
-      case "claude-3.5-sonnet": {
+      case AI_MODELS["claude-3.5-sonnet"].slug: {
         result = await claude35sonnet(prompt, userPrompt, CONFIG);
         break;
       }
-      case "perplexity-llama-3.1": {
+      case AI_MODELS["perplexity-llama-3.1"].slug: {
         result = await perplexityLlama31(prompt, userPrompt, CONFIG);
         break;
       }
-      case "mistral-large-2": {
+      case AI_MODELS["mistral-large-2"].slug: {
         result = await mistralLarge2(prompt, userPrompt, CONFIG);
         break;
       }

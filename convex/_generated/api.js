@@ -1,4 +1,5 @@
 /* eslint-disable */
+
 /**
  * Generated `api` utility.
  *
@@ -7,8 +8,7 @@
  * To regenerate, run `npx convex dev`.
  * @module
  */
-
-import { anyApi } from "convex/server";
+import { anyApi, componentsGeneric } from "convex/server";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -20,3 +20,6 @@ import { anyApi } from "convex/server";
  */
 export const api = anyApi;
 export const internal = anyApi;
+export const components = componentsGeneric();
+
+/* prettier-ignore-end */
