@@ -2,6 +2,11 @@ import { type ModelHandler } from ".";
 import OpenAI from "openai";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
+import {
+  calculateTotalCost,
+  getPriceForInputToken,
+  getPriceForOutputToken,
+} from "./pricing";
 
 const responseSchema = z.object({
   reasoning: z.string(),
@@ -42,23 +47,6 @@ export const gpt4o: ModelHandler = async (systemPrompt, userPrompt, config) => {
   const outputTokens = completion.usage?.completion_tokens;
   const totalTokensUsed = completion.usage?.total_tokens;
 
-  // https://openai.com/api/pricing/
-  const getPriceForInputToken = (tokenCount?: number) => {
-    if (!tokenCount) {
-      return 0;
-    }
-
-    return (2.5 / 1_000_000) * tokenCount;
-  };
-
-  const getPriceForOutputToken = (tokenCount?: number) => {
-    if (!tokenCount) {
-      return 0;
-    }
-
-    return (10.0 / 1_000_000) * tokenCount;
-  };
-
   return {
     boxCoordinates: response.parsed.boxCoordinates,
     playerCoordinates: response.parsed.playerCoordinates,
@@ -66,8 +54,6 @@ export const gpt4o: ModelHandler = async (systemPrompt, userPrompt, config) => {
     promptTokens: promptTokens,
     outputTokens: outputTokens,
     totalTokensUsed: totalTokensUsed,
-    totalRunCost:
-      getPriceForInputToken(promptTokens) +
-      getPriceForOutputToken(outputTokens),
+    totalRunCost: calculateTotalCost("gpt-4o", promptTokens, outputTokens),
   };
 };

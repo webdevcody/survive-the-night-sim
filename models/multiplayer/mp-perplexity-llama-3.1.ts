@@ -1,7 +1,7 @@
-import { isJSON } from "../lib/utils";
+import { type MultiplayerModelHandler } from ".";
+import { isJSON } from "../../lib/utils";
+import { calculateTotalCost } from "../pricing";
 import { z } from "zod";
-import { ModelHandler } from "./index";
-import { calculateTotalCost } from "./pricing";
 
 const completionSchema = z.object({
   id: z.string(),
@@ -16,12 +16,6 @@ const completionSchema = z.object({
         role: z.string(),
         content: z.string(),
       }),
-      delta: z
-        .object({
-          role: z.string(),
-          content: z.string(),
-        })
-        .optional(),
     }),
   ),
   usage: z.object({
@@ -32,16 +26,11 @@ const completionSchema = z.object({
 });
 
 const responseSchema = z.object({
-  playerCoordinates: z.array(z.number()),
-  boxCoordinates: z.array(z.array(z.number())),
-  reasoning: z.string(),
-  promptTokens: z.number().optional(),
-  outputTokens: z.number().optional(),
-  totalTokensUsed: z.number().optional(),
-  totalRunCost: z.number().optional(),
+  moveDirection: z.string(),
+  zombieToShoot: z.array(z.number()),
 });
 
-export const perplexityLlama31: ModelHandler = async (
+export const perplexityLlama31: MultiplayerModelHandler = async (
   systemPrompt,
   userPrompt,
   config,
@@ -56,22 +45,16 @@ export const perplexityLlama31: ModelHandler = async (
       model: "llama-3.1-sonar-large-128k-online",
       messages: [
         { role: "system", content: systemPrompt },
-        {
-          role: "user",
-          content: userPrompt,
-        },
+        { role: "user", content: userPrompt },
       ],
       max_tokens: config.maxTokens,
       temperature: config.temperature,
       top_p: config.topP,
-      search_domain_filter: ["perplexity.ai"],
-      search_recency_filter: "month",
     }),
   });
 
   if (!completion.ok) {
     const errorData = await completion.json();
-
     throw new Error(
       `HTTP error! status: ${completion.status}, message: ${JSON.stringify(errorData)}`,
     );
@@ -87,32 +70,30 @@ export const perplexityLlama31: ModelHandler = async (
   const content = validatedResponse.data.choices[0].message.content;
   const promptTokens = validatedResponse.data.usage.prompt_tokens;
   const outputTokens = validatedResponse.data.usage.completion_tokens;
-  const totalTokensUsed = validatedResponse.data.usage.total_tokens;
 
+  // Extract JSON from markdown code block if present
   const jsonContent = content.match(/```json([^`]+)```/)?.[1] ?? "";
 
   if (!isJSON(jsonContent)) {
     throw new Error("JSON returned by perplexity is malformed");
   }
 
-  const totalRunCost = calculateTotalCost(
-    "perplexity-llama-3.1",
-    promptTokens,
-    outputTokens,
-  );
-
   const parsedContent = JSON.parse(jsonContent);
-  const response = await responseSchema.safeParseAsync({
-    ...parsedContent,
-    promptTokens,
-    outputTokens,
-    totalTokensUsed,
-    totalRunCost,
-  });
+  const response = await responseSchema.safeParseAsync(parsedContent);
 
   if (!response.success) {
     throw new Error(response.error.message);
   }
 
-  return response.data;
+  const cost = calculateTotalCost(
+    "perplexity-llama-3.1",
+    promptTokens,
+    outputTokens,
+  );
+
+  return {
+    moveDirection: response.data.moveDirection,
+    zombieToShoot: response.data.zombieToShoot,
+    cost,
+  };
 };

@@ -1,15 +1,14 @@
-import { type ModelHandler } from ".";
+import { type MultiplayerModelHandler } from ".";
+import { calculateTotalCost } from "../pricing";
 import { Anthropic } from "@anthropic-ai/sdk";
 import { z } from "zod";
-import { calculateTotalCost } from "./pricing";
 
 const responseSchema = z.object({
-  playerCoordinates: z.array(z.number()),
-  boxCoordinates: z.array(z.array(z.number())),
-  reasoning: z.string(),
+  moveDirection: z.string(),
+  zombieToShoot: z.array(z.number()),
 });
 
-export const claude35sonnet: ModelHandler = async (
+export const claude35sonnet: MultiplayerModelHandler = async (
   systemPrompt,
   userPrompt,
   config,
@@ -33,7 +32,6 @@ export const claude35sonnet: ModelHandler = async (
   });
 
   const content = completion.content[0];
-
   if (content.type !== "text") {
     throw new Error("Unexpected completion type from Claude");
   }
@@ -51,20 +49,10 @@ export const claude35sonnet: ModelHandler = async (
 
   const promptTokens = completion.usage.input_tokens;
   const outputTokens = completion.usage.output_tokens;
-  const totalTokensUsed =
-    completion.usage.input_tokens + completion.usage.output_tokens;
 
   return {
-    boxCoordinates: response.data.boxCoordinates,
-    playerCoordinates: response.data.playerCoordinates,
-    reasoning: response.data.reasoning,
-    promptTokens: promptTokens,
-    outputTokens: outputTokens,
-    totalTokensUsed: totalTokensUsed,
-    totalRunCost: calculateTotalCost(
-      "claude-3.5-sonnet",
-      promptTokens,
-      outputTokens,
-    ),
+    moveDirection: response.data.moveDirection,
+    zombieToShoot: response.data.zombieToShoot,
+    cost: calculateTotalCost("claude-3.5-sonnet", promptTokens, outputTokens),
   };
 };

@@ -86,6 +86,7 @@ export default defineSchema({
   multiplayerGames: defineTable({
     boardState: v.array(v.array(v.string())),
     completedTurns: v.number(),
+    cost: v.optional(v.number()),
     playerMap: v.array(
       v.object({
         modelSlug: v.string(),

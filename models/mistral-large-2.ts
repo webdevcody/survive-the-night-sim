@@ -2,6 +2,7 @@ import { type ModelHandler } from ".";
 import { isJSON } from "../lib/utils";
 import { Mistral } from "@mistralai/mistralai";
 import { z } from "zod";
+import { calculateTotalCost } from "./pricing";
 
 const responseSchema = z.object({
   reasoning: z.string(),
@@ -49,31 +50,16 @@ export const mistralLarge2: ModelHandler = async (
   const outputTokens = completion.usage.completionTokens;
   const totalTokensUsed = completion.usage.totalTokens;
 
-  // https://mistral.ai/technology/
-  const getPriceForInputToken = (tokenCount?: number) => {
-    if (!tokenCount) {
-      return 0;
-    }
-
-    return (2.0 / 1_000_000) * tokenCount;
-  };
-
-  const getPriceForOutputToken = (tokenCount?: number) => {
-    if (!tokenCount) {
-      return 0;
-    }
-
-    return (6.0 / 1_000_000) * tokenCount;
-  };
-
   const response = await responseSchema.safeParseAsync({
     ...JSON.parse(content),
     promptTokens: completion.usage.promptTokens,
     outputTokens: completion.usage.completionTokens,
     totalTokensUsed: completion.usage.totalTokens,
-    totalRunCost:
-      getPriceForInputToken(promptTokens) +
-      getPriceForOutputToken(outputTokens),
+    totalRunCost: calculateTotalCost(
+      "mistral-large-2",
+      promptTokens,
+      outputTokens,
+    ),
   });
 
   if (!response.success) {

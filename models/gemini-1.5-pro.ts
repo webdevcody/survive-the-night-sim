@@ -1,5 +1,6 @@
 import { type ModelHandler } from ".";
 import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
+import { calculateTotalCost } from "./pricing";
 
 interface GeminiResponse {
   boxCoordinates: number[][];
@@ -73,27 +74,6 @@ export const gemini15pro: ModelHandler = async (
   const outputTokens = result.response.usageMetadata?.candidatesTokenCount;
   const totalTokensUsed = result.response.usageMetadata?.totalTokenCount;
 
-  // https://ai.google.dev/pricing#1_5pro
-  const getPriceForInputToken = (tokenCount?: number) => {
-    if (!tokenCount) {
-      return 0;
-    }
-    if (tokenCount > 128_000) {
-      return (2.5 / 1_000_000) * tokenCount;
-    }
-    return (1.25 / 1_000_000) * tokenCount;
-  };
-
-  const getPriceForOutputToken = (tokenCount?: number) => {
-    if (!tokenCount) {
-      return 0;
-    }
-    if (tokenCount > 128_000) {
-      return (10.0 / 1_000_000) * tokenCount;
-    }
-    return (5.0 / 1_000_000) * tokenCount;
-  };
-
   return {
     boxCoordinates: parsedResponse.boxCoordinates,
     playerCoordinates: parsedResponse.playerCoordinates,
@@ -101,8 +81,10 @@ export const gemini15pro: ModelHandler = async (
     promptTokens: promptTokens,
     outputTokens: outputTokens,
     totalTokensUsed: totalTokensUsed,
-    totalRunCost:
-      getPriceForInputToken(promptTokens) +
-      getPriceForOutputToken(outputTokens),
+    totalRunCost: calculateTotalCost(
+      "gemini-1.5-pro",
+      promptTokens,
+      outputTokens,
+    ),
   };
 };

@@ -82,12 +82,23 @@ export const updateMultiplayerGameBoardState = internalMutation({
     multiplayerGameId: v.id("multiplayerGames"),
     boardState: v.array(v.array(v.string())),
     completedTurns: v.number(),
+    cost: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    await ctx.db.patch(args.multiplayerGameId, {
+    const patch: {
+      boardState: string[][];
+      completedTurns: number;
+      cost?: number;
+    } = {
       boardState: args.boardState,
       completedTurns: args.completedTurns,
-    });
+    };
+
+    if (args.cost !== undefined) {
+      patch.cost = args.cost;
+    }
+
+    await ctx.db.patch(args.multiplayerGameId, patch);
   },
 });
 
@@ -113,21 +124,16 @@ export const runMultiplayerGameTurn = internalAction({
     const map = new ZombieSurvival(multiplayerGame.boardState);
 
     if (turn === "Z") {
+      map.stepZombies();
+
       const numPlayers = multiplayerGame.playerMap.length;
-      let zombiesToSpawn = 1;
-      if (numPlayers === 1) {
-        zombiesToSpawn = 1;
-      } else if (numPlayers === 2) {
-        zombiesToSpawn = 2;
-      } else if (numPlayers === 3) {
-        zombiesToSpawn = 2;
-      } else if (numPlayers === 4) {
-        zombiesToSpawn = 3;
-      }
+      const zombiesToSpawn = Math.min(
+        Math.floor(Math.random() * numPlayers) + 1,
+        numPlayers,
+      );
       for (let i = 0; i < zombiesToSpawn; i++) {
         map.spawnRandomZombie();
       }
-      map.stepZombies();
 
       await ctx.runMutation(
         internal.multiplayerGames.updateMultiplayerGameBoardState,
@@ -177,6 +183,8 @@ export const runMultiplayerGameTurn = internalAction({
         turn,
       );
 
+      console.log("cost", results.cost);
+
       if (results.moveDirection && results.moveDirection !== "STAY") {
         const moveDirection = fromDirectionString(results.moveDirection);
         const p = map.getPlayer(turn);
@@ -205,6 +213,7 @@ export const runMultiplayerGameTurn = internalAction({
           multiplayerGameId,
           boardState: map.getState(),
           completedTurns: multiplayerGame.completedTurns,
+          cost: (multiplayerGame.cost ?? 0) + (results.cost ?? 0),
         },
       );
     }
