@@ -37,6 +37,8 @@ export default function PlayLevelPage({
   const [placementMode, setPlacementMode] = useState<PlacementMode>("player");
   const [blockCount, setBlockCount] = useState(0);
   const [landmineCount, setLandmineCount] = useState(0);
+  const [maxBlocks, setMaxBlocks] = useState(0);
+  const [maxLandmines, setMaxLandmines] = useState(0);
   const flags = useQuery(api.flags.getFlags);
   const [mode, setMode] = useState<"play" | "test">("play");
 
@@ -44,6 +46,8 @@ export default function PlayLevelPage({
   useEffect(() => {
     if (map) {
       setPlayerMap(map.grid.map((row) => [...row]));
+      setMaxBlocks(Number(map.maxBlocks) ?? 0);
+      setMaxLandmines(Number(map.maxLandmines) ?? 0);
     }
   }, [map]);
 
@@ -221,14 +225,14 @@ export default function PlayLevelPage({
                   variant={placementMode === "block" ? "default" : "outline"}
                   className="h-10"
                 >
-                  Place Block ({2 - blockCount} left)
+                  Place Block ({maxBlocks - blockCount} left)
                 </Button>
                 <Button
                   onClick={() => handlePlacementModeChange("landmine")}
                   variant={placementMode === "landmine" ? "default" : "outline"}
                   className="h-10"
                 >
-                  Place Landmine ({1 - landmineCount} left)
+                  Place Landmine ({maxLandmines - landmineCount} left)
                 </Button>
               </div>
               <div className="mb-8 flex flex-col items-center">

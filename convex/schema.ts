@@ -14,6 +14,8 @@ export default defineSchema({
   maps: defineTable({
     level: v.optional(v.number()),
     grid: v.array(v.array(v.string())),
+    maxBlocks: v.optional(v.number()),
+    maxLandmines: v.optional(v.number()),
     submittedBy: v.optional(v.id("users")),
     isReviewed: v.boolean(),
   })

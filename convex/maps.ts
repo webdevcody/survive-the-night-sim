@@ -1,5 +1,6 @@
 import { runModel } from "../models";
 import { ZombieSurvival } from "../simulators/zombie-survival";
+import { Landmine } from "../simulators/zombie-survival/entities/Landmine";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import { api, internal } from "./_generated/api";
@@ -157,11 +158,15 @@ export const addMap = mutation({
 export const submitMap = authenticatedMutation({
   args: {
     map: v.array(v.array(v.string())),
+    blocks: v.number(),
+    landmines: v.number(),
   },
   handler: async (ctx, args) => {
     await ctx.db.insert("maps", {
       grid: args.map,
       level: undefined,
+      maxBlocks: args.blocks,
+      maxLandmines: args.landmines,
       submittedBy: ctx.userId,
       isReviewed: false,
     });
@@ -178,11 +183,15 @@ export const seedMaps = internalMutation({
         if (existingMap) {
           ctx.db.patch(existingMap._id, {
             grid: map.grid,
+            maxBlocks: 2,
+            maxLandmines: 2,
           });
         } else {
           ctx.db.insert("maps", {
             level: idx + 1,
             grid: map.grid,
+            maxBlocks: 2,
+            maxLandmines: 2,
             isReviewed: true,
           });
         }

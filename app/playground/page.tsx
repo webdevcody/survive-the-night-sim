@@ -25,6 +25,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -62,6 +64,8 @@ export default function PlaygroundPage() {
   const [userSolution, setUserSolution] = useState<string[][]>([]);
   const [visualizingUserSolution, setVisualizingUserSolution] = useState(false);
   const [openSignInModal, setOpenSignInModal] = useState(false);
+  const [blocks, setBlocks] = useState(2);
+  const [landmines, setLandmines] = useState(2);
 
   const {
     isSimulating,
@@ -90,7 +94,7 @@ export default function PlaygroundPage() {
     setPublishing(true);
 
     try {
-      await submitMap({ map });
+      await submitMap({ map, blocks, landmines });
 
       toast({
         description: "Map submitted successfully!",
@@ -465,6 +469,29 @@ export default function PlaygroundPage() {
                 </>
               ) : (
                 <>
+                  <div className="flex gap-2">
+                    <div>
+                      <Label htmlFor="block">Max Block</Label>
+                      <Input
+                        placeholder="Max Blocks"
+                        type="number"
+                        id="block"
+                        onChange={(e) => setBlocks(Number(e.target.value))}
+                        value={blocks}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="landmine">Max Landmine</Label>
+                      <Input
+                        placeholder="Max Landmines"
+                        type="number"
+                        id="landmine"
+                        onChange={(e) => setLandmines(Number(e.target.value))}
+                        value={landmines}
+                      />
+                    </div>
+                  </div>
+
                   <Button
                     className="gap-1"
                     disabled={publishing}
