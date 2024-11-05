@@ -7,17 +7,28 @@ export class RendererItem {
   height: number;
   position: Position;
   width: number;
+  label?: string;
 
   constructor(
     data: HTMLImageElement | string,
     position: Position,
     width: number,
     height: number,
+    label?: string,
   ) {
     this.data = data;
     this.height = height;
     this.position = position;
     this.width = width;
+    this.label = label;
+  }
+
+  public getDisplayName(): string {
+    return this.label ?? "";
+  }
+
+  public hasDisplayName(): boolean {
+    return this.label !== undefined;
   }
 
   public addEffect(...effects: RendererEffect[]) {

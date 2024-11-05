@@ -29,12 +29,14 @@ export class Renderer {
   private initialized = false;
   private items: RendererItem[] = [];
   private req: number | null = null;
+  private playerLabels?: Record<string, string>;
 
   public constructor(
     map: string[][],
     canvas: HTMLCanvasElement,
     cellSize: number,
     replaySpeed: number,
+    playerLabels?: Record<string, string>,
   ) {
     this.cellSize = cellSize;
     this.map = map;
@@ -46,6 +48,8 @@ export class Renderer {
 
     this.ctx = prepareCanvas(canvas, this.w, this.h);
     this.ctx2 = prepareCanvas(this.canvas2, this.cellSize, this.cellSize);
+
+    this.playerLabels = playerLabels;
   }
 
   public isInitialized() {
@@ -158,6 +162,12 @@ export class Renderer {
 
     this.ctx.drawImage(source, x, y, item.width, item.height);
     this.ctx.globalAlpha = 1;
+
+    if (item.hasDisplayName()) {
+      this.ctx.fillStyle = "#FFF";
+      this.ctx.font = "18px Arial";
+      this.ctx.fillText(item.getDisplayName(), x, y - 10);
+    }
   }
 
   private getEntityImage(entity: Entity): HTMLImageElement | null {
@@ -236,6 +246,7 @@ export class Renderer {
       position,
       this.cellSize,
       this.cellSize,
+      this.playerLabels ? this.playerLabels[entity.getToken()] : undefined,
     );
 
     if (entity.hasVisualEvent(VisualEventType.Moving)) {

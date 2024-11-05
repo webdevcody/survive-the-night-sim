@@ -15,6 +15,7 @@ export function Visualizer({
   map,
   onReset,
   onSimulationEnd,
+  playerLabels,
   replaySpeed = DEFAULT_REPLAY_SPEED,
   simulatorOptions,
 }: {
@@ -25,6 +26,7 @@ export function Visualizer({
   map: string[][];
   onReset?: () => unknown;
   onSimulationEnd?: (isWin: boolean) => unknown;
+  playerLabels?: Record<string, string>;
   replaySpeed?: number;
   simulatorOptions?: ZombieSurvivalOptions;
 }) {
@@ -35,7 +37,13 @@ export function Visualizer({
   const interval = useRef<ReturnType<typeof setTimeout> | null>(null);
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const canvas = useRef<HTMLCanvasElement | null>(null);
-  const renderer = useRenderer(map, canvas, cellSize, replaySpeed);
+  const renderer = useRenderer(
+    map,
+    canvas,
+    cellSize,
+    replaySpeed,
+    playerLabels,
+  );
   const visible = useRef(false);
   const [running, setRunning] = useState(false);
 
@@ -85,7 +93,7 @@ export function Visualizer({
       setRunning(false);
 
       if (onSimulationEnd) {
-        onSimulationEnd(!simulator.current.getPlayer().dead());
+        onSimulationEnd(!simulator.current.getPlayer()?.dead());
       }
     }, replaySpeed);
   }
