@@ -9,11 +9,11 @@ export function prepareCanvas(
     throw new Error("Unable to get 2d context");
   }
 
-  canvas.height = height;
-  canvas.width = width;
+  canvas.height = height * window.devicePixelRatio;
+  canvas.width = width * window.devicePixelRatio;
   canvas.style.height = `${height}px`;
   canvas.style.width = `${width}px`;
 
-  // ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+  ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
   return ctx;
 }
