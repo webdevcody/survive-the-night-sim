@@ -1,4 +1,8 @@
+import { claude35sonnet } from "./claude-3-5-sonnet";
+import { gemini15pro } from "./gemini-1.5-pro";
 import { gpt4o } from "./gpt-4o";
+import { mistralLarge2 } from "./mistral-large-2";
+import { perplexityLlama31 } from "./mp-perplexity-llama-3.1";
 import { ModelSlug } from "@/convex/constants";
 import { errorMessage } from "@/lib/utils";
 import { ZombieSurvival } from "@/simulator";
@@ -109,6 +113,22 @@ export async function runMultiplayerModel(
         result = await gpt4o(SYSTEM_PROMPT, userPrompt, CONFIG);
         break;
       }
+      case "claude-3.5-sonnet": {
+        result = await claude35sonnet(SYSTEM_PROMPT, userPrompt, CONFIG);
+        break;
+      }
+      case "gemini-1.5-pro": {
+        result = await gemini15pro(SYSTEM_PROMPT, userPrompt, CONFIG);
+        break;
+      }
+      case "mistral-large-2": {
+        result = await mistralLarge2(SYSTEM_PROMPT, userPrompt, CONFIG);
+        break;
+      }
+      case "perplexity-llama-3.1": {
+        result = await perplexityLlama31(SYSTEM_PROMPT, userPrompt, CONFIG);
+        break;
+      }
       default: {
         throw new Error(`Tried running unknown model '${modelSlug}'`);
       }
@@ -120,6 +140,7 @@ export async function runMultiplayerModel(
       cost: result.cost,
     };
   } catch (error) {
+    console.error(error);
     if (retry === MAX_RETRIES || reasoning === null) {
       return {
         error: errorMessage(error),
