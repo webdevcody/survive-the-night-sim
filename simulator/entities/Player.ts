@@ -35,7 +35,7 @@ export class Player extends Entity {
   }
 
   public getDisplayName(): string {
-    return "4o-mini";
+    return this.displayName;
   }
 
   public shoot() {
