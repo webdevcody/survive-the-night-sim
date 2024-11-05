@@ -1,6 +1,6 @@
 const imagesMap = new Map<string, HTMLImageElement>();
 
-export function toImage(canvas: HTMLCanvasElement): HTMLImageElement {
+export function canvasToImage(canvas: HTMLCanvasElement): HTMLImageElement {
   const url = canvas.toDataURL();
 
   if (!imagesMap.has(url)) {

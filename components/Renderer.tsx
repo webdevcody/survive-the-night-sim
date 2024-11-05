@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { DEFAULT_REPLAY_SPEED } from "@/constants/visualizer";
 import { Renderer } from "@/renderer";
-import { ZombieSurvival } from "@/simulator";
 
 export function useRenderer(
   map: string[][] | null | undefined,
@@ -12,31 +11,15 @@ export function useRenderer(
   const [renderer, setRenderer] = useState<Renderer | null>(null);
 
   useEffect(() => {
-    if (map === null || map === undefined) {
+    if (map === null || map === undefined || canvas.current === null) {
       return;
     }
 
-    const boardWidth = ZombieSurvival.boardWidth(map);
-    const boardHeight = ZombieSurvival.boardHeight(map);
+    const renderer = new Renderer(map, canvas.current, cellSize, replaySpeed);
 
-    async function handleInitializeRenderer() {
-      if (canvas.current === null) {
-        return;
-      }
-
-      const renderer = new Renderer(
-        boardWidth,
-        boardHeight,
-        canvas.current,
-        cellSize,
-        replaySpeed,
-      );
-
-      await renderer.initialize();
+    void renderer.initialize().then(() => {
       setRenderer(renderer);
-    }
-
-    void handleInitializeRenderer();
+    });
   }, [map, cellSize, replaySpeed]);
 
   return renderer;

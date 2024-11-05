@@ -1,23 +1,28 @@
 import { assets } from "./Assets";
-import * as Canvas from "./Canvas";
+import { generateBg } from "./Background";
 import { type RendererEffect, RendererEffectType } from "./Effect";
 import { RendererItem } from "./Item";
+import { canvasToImage } from "@/lib/canvasToImage";
+import { prepareCanvas } from "@/lib/prepareCanvas";
 import {
   type Entity,
   EntityType,
   type Position,
   VisualEventType,
   Zombie,
+  ZombieSurvival,
 } from "@/simulator";
 
 const ANIMATABLE_DEAD_ENTITIES = [EntityType.Zombie];
 
 export class Renderer {
   private readonly cellSize: number;
+  private readonly map: string[][];
   private readonly replaySpeed: number;
   private readonly h: number;
   private readonly w: number;
 
+  private bgSprite: HTMLImageElement | null = null;
   private canvas2: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private ctx2: CanvasRenderingContext2D;
@@ -26,41 +31,21 @@ export class Renderer {
   private req: number | null = null;
 
   public constructor(
-    boardWidth: number,
-    boardHeight: number,
+    map: string[][],
     canvas: HTMLCanvasElement,
     cellSize: number,
     replaySpeed: number,
   ) {
     this.cellSize = cellSize;
+    this.map = map;
     this.replaySpeed = replaySpeed;
-    this.h = boardHeight * cellSize;
-    this.w = boardWidth * cellSize;
+    this.h = ZombieSurvival.boardHeight(map) * cellSize;
+    this.w = ZombieSurvival.boardWidth(map) * cellSize;
 
     this.canvas2 = document.createElement("canvas");
 
-    const ctx = canvas.getContext("2d");
-    const ctx2 = this.canvas2.getContext("2d");
-
-    if (ctx === null || ctx2 === null) {
-      throw new Error("Unable to get 2d context");
-    }
-
-    this.ctx = ctx;
-    this.ctx2 = ctx2;
-
-    canvas.height = this.h * window.devicePixelRatio;
-    canvas.width = this.w * window.devicePixelRatio;
-    canvas.style.height = `${this.h}px`;
-    canvas.style.width = `${this.w}px`;
-
-    this.canvas2.width = this.cellSize * window.devicePixelRatio;
-    this.canvas2.height = this.cellSize * window.devicePixelRatio;
-    this.canvas2.style.height = `${this.cellSize}px`;
-    this.canvas2.style.width = `${this.cellSize}px`;
-
-    ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
-    ctx2.scale(window.devicePixelRatio, window.devicePixelRatio);
+    this.ctx = prepareCanvas(canvas, this.h, this.w);
+    this.ctx2 = prepareCanvas(this.canvas2, this.cellSize, this.cellSize);
   }
 
   public isInitialized() {
@@ -80,6 +65,7 @@ export class Renderer {
       });
     }
 
+    this.bgSprite = await generateBg(this.map);
     this.initialized = true;
   }
 
@@ -152,7 +138,7 @@ export class Renderer {
       this.ctx2.drawImage(source, 0, 0, item.width, item.height);
       this.ctx2.restore();
 
-      source = Canvas.toImage(this.canvas2);
+      source = canvasToImage(this.canvas2);
     }
 
     if (item.hasEffect(RendererEffectType.HueRotate)) {
@@ -167,7 +153,7 @@ export class Renderer {
       this.ctx2.fillRect(0, 0, item.width, item.height);
       this.ctx2.globalCompositeOperation = "source-over";
 
-      source = Canvas.toImage(this.canvas2);
+      source = canvasToImage(this.canvas2);
     }
 
     this.ctx.drawImage(source, x, y, item.width, item.height);
@@ -200,7 +186,7 @@ export class Renderer {
     }
   }
 
-  private register(entities: Entity[]) {
+  private async register(entities: Entity[]) {
     this.items = [];
     this.registerBg();
 
@@ -209,43 +195,17 @@ export class Renderer {
     }
   }
 
-  private registerBg() {
-    if (assets.bg === null) {
+  private async registerBg() {
+    if (this.bgSprite === null) {
       return;
     }
 
-    const canvasRatio = this.w / this.h;
-    const bgRatio = assets.bg.width / assets.bg.height;
-    let drawWidth, drawHeight, offsetX, offsetY;
-
-    if (bgRatio > canvasRatio) {
-      drawWidth = this.h * bgRatio;
-      drawHeight = this.h;
-      offsetX = (this.w - drawWidth) / 2;
-      offsetY = 0;
-    } else {
-      drawWidth = this.w;
-      drawHeight = this.w / bgRatio;
-      offsetX = 0;
-      offsetY = (this.h - drawHeight) / 2;
-    }
-
-    const position: Position = {
-      x: offsetX,
-      y: offsetY,
-    };
-
     const rendererItem = new RendererItem(
-      assets.bg,
-      position,
-      drawWidth,
-      drawHeight,
+      this.bgSprite,
+      { x: 0, y: 0 },
+      this.w,
+      this.h,
     );
-
-    rendererItem.addEffect({
-      type: RendererEffectType.Opacity,
-      value: 50,
-    });
 
     this.items.push(rendererItem);
   }
