@@ -28,6 +28,7 @@ The 2d Grid is made up of characters, where each character has a meaning.
 - Zombies can't move through rocks.
 - Zombies can't move through each other.
 - Zombies always try to move towards the playing using BFS algorithm.
+- Zombies will spawn near the edges of the map
 
 # Player Rules
 - Players can move horizontally or vertically.
@@ -35,9 +36,9 @@ The 2d Grid is made up of characters, where each character has a meaning.
 - Players can throw one popsickle at a zombie each turn.
 - Players should move away from zombies.
 - Players should probably shoot at the closest zombie
+- Stay away from the edges of the map because zombies spawn there.
 
 # Output Format
-
 - Respond only with valid JSON. Do not write an introduction or summary.
 - Assume a position on the 2d grid is always represented as [ROW, COL].
 - Your output should be a JSON object with the following format:
@@ -61,6 +62,7 @@ export type MultiplayerModelHandler = (
 ) => Promise<{
   moveDirection: string;
   zombieToShoot: number[];
+  cost: number;
 }>;
 
 const MAX_RETRIES = 1;
@@ -76,6 +78,7 @@ export type RunModelResult = {
   moveDirection?: string;
   zombieToShoot?: number[];
   reasoning?: string;
+  cost?: number;
 };
 
 export async function runMultiplayerModel(
@@ -114,6 +117,7 @@ export async function runMultiplayerModel(
     return {
       moveDirection: result.moveDirection,
       zombieToShoot: result.zombieToShoot,
+      cost: result.cost,
     };
   } catch (error) {
     if (retry === MAX_RETRIES || reasoning === null) {

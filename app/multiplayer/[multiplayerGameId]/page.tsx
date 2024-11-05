@@ -34,6 +34,9 @@ export default function MultiplayerPage({
   return (
     <Page>
       <PageTitle>Multiplayer</PageTitle>
+      <div className="mb-4 flex justify-center">
+        <span>Cost: ${multiplayerGame.cost?.toFixed(2)}</span>
+      </div>
       <div className="flex justify-center">
         <Visualizer
           controls={false}

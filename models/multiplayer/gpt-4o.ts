@@ -1,4 +1,5 @@
 import { type MultiplayerModelHandler } from ".";
+import { calculateTotalCost } from "../pricing";
 import OpenAI from "openai";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
@@ -35,6 +36,9 @@ export const gpt4o: MultiplayerModelHandler = async (
 
   const response = completion.choices[0].message;
 
+  const promptTokens = completion.usage?.prompt_tokens;
+  const outputTokens = completion.usage?.completion_tokens;
+
   if (response.refusal) {
     throw new Error(`Refusal: ${response.refusal}`);
   } else if (!response.parsed) {
@@ -44,5 +48,6 @@ export const gpt4o: MultiplayerModelHandler = async (
   return {
     moveDirection: response.parsed.moveDirection,
     zombieToShoot: response.parsed.zombieToShoot,
+    cost: calculateTotalCost("gpt-4o", promptTokens, outputTokens),
   };
 };

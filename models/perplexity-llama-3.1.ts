@@ -1,6 +1,7 @@
 import { isJSON } from "../lib/utils";
 import { z } from "zod";
 import { ModelHandler } from "./index";
+import { calculateTotalCost } from "./pricing";
 
 const completionSchema = z.object({
   id: z.string(),
@@ -94,29 +95,11 @@ export const perplexityLlama31: ModelHandler = async (
     throw new Error("JSON returned by perplexity is malformed");
   }
 
-  // https://docs.perplexity.ai/guides/pricing#perplexity-sonar-models
-  const getPriceForInputToken = (tokenCount?: number) => {
-    if (!tokenCount) {
-      return 0;
-    }
-
-    return (1.0 / 1_000_000) * tokenCount;
-  };
-
-  const getPriceForOutputToken = (tokenCount?: number) => {
-    if (!tokenCount) {
-      return 0;
-    }
-
-    return (1.0 / 1_000_000) * tokenCount;
-  };
-
-  const priceForRequest = 5 / 1_000;
-
-  const totalRunCost =
-    getPriceForInputToken(promptTokens) +
-    getPriceForOutputToken(outputTokens) +
-    priceForRequest;
+  const totalRunCost = calculateTotalCost(
+    "perplexity-llama-3.1",
+    promptTokens,
+    outputTokens,
+  );
 
   const parsedContent = JSON.parse(jsonContent);
   const response = await responseSchema.safeParseAsync({
