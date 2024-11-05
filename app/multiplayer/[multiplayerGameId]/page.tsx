@@ -23,6 +23,14 @@ export default function MultiplayerPage({
     return <div>Game not found.</div>;
   }
 
+  const playerLabels = multiplayerGame.playerMap.reduce(
+    (acc, { playerToken, modelSlug }) => {
+      acc[playerToken] = modelSlug;
+      return acc;
+    },
+    {} as Record<string, string>,
+  );
+
   return (
     <Page>
       <PageTitle>Multiplayer</PageTitle>
@@ -30,6 +38,7 @@ export default function MultiplayerPage({
         <Visualizer
           controls={false}
           map={multiplayerGame.boardState}
+          playerLabels={playerLabels}
           simulatorOptions={{ multiplayer: true }}
         />
       </div>

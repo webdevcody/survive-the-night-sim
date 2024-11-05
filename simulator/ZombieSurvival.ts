@@ -233,6 +233,10 @@ export class ZombieSurvival {
     );
   }
 
+  public allPlayersDead(): boolean {
+    return this.players.every((player) => player.dead());
+  }
+
   public getClosestPlayer(position: Position): Player | undefined {
     let closestPlayer: Player | undefined;
     let closestDistance = Infinity;
@@ -260,7 +264,7 @@ export class ZombieSurvival {
     return this.entities;
   }
 
-  public getPlayer(token: string | null = null): Player {
+  public getPlayer(token: string | null = null): Player | undefined {
     if (!this.multiplayer) {
       return this.players[0];
     }
@@ -275,7 +279,30 @@ export class ZombieSurvival {
       }
     }
 
-    throw new Error(`Tried getting non-existing player '${token}'`);
+    return undefined;
+  }
+
+  public spawnRandomZombie() {
+    for (let i = 0; i < 10; i++) {
+      let x: number;
+      let y: number;
+
+      // Randomly choose which edge to spawn on
+      if (Math.random() < 0.5) {
+        // Spawn on left or right edge
+        x = Math.random() < 0.5 ? 0 : this.boardWidth - 1;
+        y = Math.floor(Math.random() * this.boardHeight);
+      } else {
+        // Spawn on top or bottom edge
+        x = Math.floor(Math.random() * this.boardWidth);
+        y = Math.random() < 0.5 ? 0 : this.boardHeight - 1;
+      }
+
+      if (this.isPositionEmpty({ x, y })) {
+        this.zombies.push(new Zombie(this, { x, y }));
+        return;
+      }
+    }
   }
 
   public getZombieAt(position: Position): Zombie | undefined {
@@ -323,7 +350,7 @@ export class ZombieSurvival {
   }
 
   public stepPlayer(token: string): void {
-    this.getPlayer(token).shoot();
+    this.getPlayer(token)?.shoot();
   }
 
   public stepPlayers(): void {

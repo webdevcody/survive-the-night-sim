@@ -7,20 +7,28 @@ export function useRenderer(
   canvas: React.MutableRefObject<HTMLCanvasElement | null>,
   cellSize: number = 64,
   replaySpeed: number = DEFAULT_REPLAY_SPEED,
+  playerLabels?: Record<string, string>,
 ) {
   const [renderer, setRenderer] = useState<Renderer | null>(null);
 
   useEffect(() => {
-    if (map === null || map === undefined || canvas.current === null) {
+    if (!map || !canvas.current) {
       return;
     }
 
-    const renderer = new Renderer(map, canvas.current, cellSize, replaySpeed);
+    const renderer = new Renderer(
+      map,
+      canvas.current,
+      cellSize,
+      replaySpeed,
+      playerLabels,
+    );
 
     void renderer.initialize().then(() => {
+      console.log("renderer initialized");
       setRenderer(renderer);
     });
-  }, [map, cellSize, replaySpeed]);
+  }, [map, cellSize, replaySpeed, playerLabels]);
 
   return renderer;
 }
