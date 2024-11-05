@@ -172,7 +172,8 @@ export class Renderer {
         return assets.player;
       }
       case EntityType.Rock: {
-        return assets.rock;
+        // return assets.rock;
+        return null;
       }
       case EntityType.Zombie: {
         if (entity.hasVisualEvent(VisualEventType.Destructured)) {

@@ -56,13 +56,13 @@ export const BITMASK_TO_TILE_INDEX = {
 } as const;
 
 const neighborOffsets = [
+  [0, -1],
+  [1, -1],
+  [1, 0],
   [1, 1],
   [0, 1],
   [-1, 1],
-  [1, 0],
   [-1, 0],
-  [1, -1],
-  [0, -1],
   [-1, -1],
 ] as const;
 
@@ -118,10 +118,6 @@ export async function generateBg(
 
   for (let y = 0; y < map.length; y++) {
     for (let x = 0; x < map[y].length; x++) {
-      if (map[y][x] !== "R") {
-        continue;
-      }
-
       const bitMask = getBitMask(map, x, y);
       const tileIdx = BITMASK_TO_TILE_INDEX[bitMask];
 
