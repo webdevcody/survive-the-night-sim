@@ -7,6 +7,10 @@ const nextConfig = {
         source: "/umami.js",
         destination: "http://145.223.79.119:3000/script.js",
       },
+      {
+        source: "/api/send",
+        destination: "http://145.223.79.119:3000/api/send",
+      },
     ];
   },
 };
