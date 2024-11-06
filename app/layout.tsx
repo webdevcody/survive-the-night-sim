@@ -41,7 +41,7 @@ export default function RootLayout({
       {process.env.NEXT_PUBLIC_ENABLE_UNAMI === "true" && (
         <Script
           defer
-          src="http://145.223.79.119:3000/script.js"
+          src="/umami.js"
           data-website-id="9591881c-31c9-4fea-9c33-cf8272fa2b4e"
         />
       )}
