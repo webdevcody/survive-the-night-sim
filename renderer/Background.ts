@@ -70,7 +70,7 @@ export function getBitMask(
   map: string[][],
   x: number,
   y: number,
-  outOfBoundToken = " ",
+  outOfBoundToken = "R",
   cmp = (x: string) => x === "R",
 ) {
   const [topLeft, top, topRight, left, right, bottomLeft, bottom, bottomRight] =
