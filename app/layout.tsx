@@ -41,8 +41,8 @@ export default function RootLayout({
       {process.env.NEXT_PUBLIC_ENABLE_UNAMI === "true" && (
         <Script
           defer
-          src="https://umami-production-101d.up.railway.app/script.js"
-          data-website-id="6e6265bb-25ed-4f8b-819b-44a27434ed51"
+          src="http://145.223.79.119:3000/script.js"
+          data-website-id="9591881c-31c9-4fea-9c33-cf8272fa2b4e"
         />
       )}
       <html lang="en" suppressHydrationWarning>
