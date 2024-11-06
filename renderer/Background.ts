@@ -71,19 +71,26 @@ export function getBitMask(
   x: number,
   y: number,
   outOfBoundToken = " ",
+  cmp = (x: string) => x === "R",
 ) {
-  let bitmask = 0;
+  const [topLeft, top, topRight, left, right, bottomLeft, bottom, bottomRight] =
+    neighborOffsets.map(([dx, dy]) => map[y + dy]?.[x + dx] ?? outOfBoundToken);
 
-  for (let i = 0; i < neighborOffsets.length; i++) {
-    const [dx, dy] = neighborOffsets[i];
-    const token = map[y + dy]?.[x + dx] ?? outOfBoundToken;
+  const matchBottom = cmp(bottom);
+  const matchLeft = cmp(left);
+  const matchRight = cmp(right);
+  const matchTop = cmp(top);
 
-    if (token === "R") {
-      bitmask |= 1 << i;
-    }
-  }
-
-  return bitmask;
+  return [
+    matchLeft && matchTop && cmp(topLeft),
+    matchTop,
+    matchRight && matchTop && cmp(topRight),
+    matchLeft,
+    matchRight,
+    matchLeft && matchBottom && cmp(bottomLeft),
+    matchBottom,
+    matchRight && matchBottom && cmp(bottomRight),
+  ].reduce((acc, match, i) => (match ? acc | (1 << i) : acc), 0);
 }
 
 export async function generateBg(
