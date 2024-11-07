@@ -1,6 +1,7 @@
 import { authTables } from "@convex-dev/auth/server";
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
+import { multiplayerGameActionValidator } from "./helpers";
 
 // The schema is normally optional, but Convex Auth
 // requires indexes defined on `authTables`.
@@ -82,9 +83,10 @@ export default defineSchema({
     isActive: v.boolean(),
   }).index("by_active", ["isActive"]),
   multiplayerGames: defineTable({
+    map: v.array(v.array(v.string())),
     boardState: v.array(v.array(v.string())),
-    completedTurns: v.number(),
     cost: v.optional(v.number()),
+    actions: v.array(multiplayerGameActionValidator),
     playerMap: v.array(
       v.object({
         modelSlug: v.string(),

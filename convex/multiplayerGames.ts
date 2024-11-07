@@ -1,9 +1,16 @@
 import { runMultiplayerModel } from "../models/multiplayer";
-import { ZombieSurvival, fromDirectionString, move } from "../simulator";
-import { v } from "convex/values";
+import {
+  Position,
+  ZombieSurvival,
+  directionFromString,
+  move,
+} from "../simulator";
+import { type Infer, v } from "convex/values";
 import { api, internal } from "./_generated/api";
+import { Doc } from "./_generated/dataModel";
 import { internalAction, internalMutation, query } from "./_generated/server";
-import { ModelSlug } from "./constants";
+import { ActionType, ModelSlug } from "./constants";
+import { multiplayerGameActionValidator } from "./helpers";
 
 const TURN_DELAY = 500;
 
@@ -18,6 +25,32 @@ const boardState = `
  . . . . . . .B. . . . . . . ,
  . . . . . . .B. . . . . . . ,
 `;
+
+function multiplayerGameTurn(multiplayerGame: Doc<"multiplayerGames">): string {
+  const prevAction = multiplayerGame.actions.at(-1);
+
+  if (prevAction === undefined) {
+    return multiplayerGame.playerMap[0].playerToken;
+  }
+
+  const players = multiplayerGame.playerMap;
+  const simulator = new ZombieSurvival(multiplayerGame.boardState);
+
+  const playerIndex = players.findIndex(
+    (player) => player.playerToken === prevAction.token,
+  );
+
+  for (let i = playerIndex + 1; i < players.length; i++) {
+    const turn = players[i].playerToken;
+    const player = simulator.getPlayer(turn);
+
+    if (player !== undefined) {
+      return turn;
+    }
+  }
+
+  return "Z";
+}
 
 export const startMultiplayerGame = internalMutation({
   args: {
@@ -50,18 +83,16 @@ export const startMultiplayerGame = internalMutation({
     }
 
     const gameId = await ctx.db.insert("multiplayerGames", {
+      map: initialBoard,
       boardState: initialBoard,
       playerMap: args.playerMap,
-      completedTurns: 0,
+      actions: [],
     });
 
     await ctx.scheduler.runAfter(
       0,
       internal.multiplayerGames.runMultiplayerGameTurn,
-      {
-        multiplayerGameId: gameId,
-        turn: args.playerMap[0].playerToken,
-      },
+      { multiplayerGameId: gameId },
     );
 
     return gameId;
@@ -81,68 +112,74 @@ export const updateMultiplayerGameBoardState = internalMutation({
   args: {
     multiplayerGameId: v.id("multiplayerGames"),
     boardState: v.array(v.array(v.string())),
-    completedTurns: v.number(),
     cost: v.optional(v.number()),
+    actions: v.array(multiplayerGameActionValidator),
   },
   handler: async (ctx, args) => {
-    const patch: {
-      boardState: string[][];
-      completedTurns: number;
-      cost?: number;
-    } = {
-      boardState: args.boardState,
-      completedTurns: args.completedTurns,
-    };
-
-    if (args.cost !== undefined) {
-      patch.cost = args.cost;
-    }
-
-    await ctx.db.patch(args.multiplayerGameId, patch);
-  },
-});
-
-export const runMultiplayerGameTurn = internalAction({
-  args: {
-    turn: v.string(),
-    multiplayerGameId: v.id("multiplayerGames"),
-  },
-  handler: async (ctx, args) => {
-    const { turn, multiplayerGameId } = args;
+    const { actions, boardState, cost, multiplayerGameId } = args;
 
     const multiplayerGame = await ctx.runQuery(
       api.multiplayerGames.getMultiplayerGame,
-      {
-        multiplayerGameId,
-      },
+      { multiplayerGameId },
     );
 
     if (!multiplayerGame) {
       throw new Error("Multiplayer game not found");
     }
 
-    const map = new ZombieSurvival(multiplayerGame.boardState);
+    await ctx.db.patch(multiplayerGame._id, {
+      boardState: boardState,
+      cost: cost ?? multiplayerGame.cost,
+      actions: [...multiplayerGame.actions, ...actions],
+    });
+  },
+});
+
+export const runMultiplayerGameTurn = internalAction({
+  args: {
+    multiplayerGameId: v.id("multiplayerGames"),
+  },
+  handler: async (ctx, args) => {
+    const { multiplayerGameId } = args;
+
+    const multiplayerGame = await ctx.runQuery(
+      api.multiplayerGames.getMultiplayerGame,
+      { multiplayerGameId },
+    );
+
+    if (!multiplayerGame) {
+      throw new Error("Multiplayer game not found");
+    }
+
+    const simulator = new ZombieSurvival(multiplayerGame.boardState);
+    const turn = multiplayerGameTurn(multiplayerGame);
+    const actions: Array<Infer<typeof multiplayerGameActionValidator>> = [];
+    let cost = multiplayerGame.cost ?? 0;
 
     if (turn === "Z") {
-      map.stepZombies();
+      simulator.stepZombies();
+
+      actions.push({
+        type: ActionType.ZombieStep,
+        token: "Z",
+      });
 
       const numPlayers = multiplayerGame.playerMap.length;
+
       const zombiesToSpawn = Math.min(
         Math.floor(Math.random() * numPlayers) + 1,
         numPlayers,
       );
-      for (let i = 0; i < zombiesToSpawn; i++) {
-        map.spawnRandomZombie();
-      }
 
-      await ctx.runMutation(
-        internal.multiplayerGames.updateMultiplayerGameBoardState,
-        {
-          multiplayerGameId,
-          boardState: map.getState(),
-          completedTurns: multiplayerGame.completedTurns + 1,
-        },
-      );
+      for (let i = 0; i < zombiesToSpawn && simulator.hasEmptyCells(); i++) {
+        const position = simulator.spawnRandomZombie();
+
+        actions.push({
+          type: ActionType.ZombieSpawn,
+          token: "Z",
+          position,
+        });
+      }
     } else {
       const model = multiplayerGame.playerMap.find(
         (entry) => entry.playerToken === turn,
@@ -152,92 +189,73 @@ export const runMultiplayerGameTurn = internalAction({
         throw new Error("Model not found");
       }
 
-      const player = map.getPlayer(turn);
-      if (!player) {
-        const currentPlayerIndex = multiplayerGame.playerMap.findIndex(
-          (entry) => entry.playerToken === turn,
-        );
-        const nextPlayerIndex = currentPlayerIndex + 1;
-        let nextPlayer: string;
-        if (nextPlayerIndex >= multiplayerGame.playerMap.length) {
-          nextPlayer = "Z";
-        } else {
-          nextPlayer = multiplayerGame.playerMap[nextPlayerIndex].playerToken;
-        }
-
-        await ctx.scheduler.runAfter(
-          0,
-          internal.multiplayerGames.runMultiplayerGameTurn,
-          {
-            multiplayerGameId,
-            turn: nextPlayer,
-          },
-        );
-
-        return;
-      }
-
       const results = await runMultiplayerModel(
         model.modelSlug as ModelSlug,
-        map.getState(),
+        simulator.getState(),
         turn,
       );
 
       console.log("cost", results.cost);
 
       if (results.moveDirection && results.moveDirection !== "STAY") {
-        const moveDirection = fromDirectionString(results.moveDirection);
-        const p = map.getPlayer(turn);
+        const moveDirection = directionFromString(results.moveDirection);
+        const player = simulator.getPlayer(turn);
 
-        if (p) {
-          const movePosition = move(p.getPosition(), moveDirection);
+        if (player) {
+          const movePosition = move(player.getPosition(), moveDirection);
 
           if (
-            map.isValidPosition(movePosition) &&
-            map.isPositionEmpty(movePosition)
+            simulator.isValidPosition(movePosition) &&
+            simulator.isPositionEmpty(movePosition)
           ) {
-            // only move if the position was valid, otherwise we don't move
-            p.moveTo(movePosition);
+            player.moveTo(movePosition);
+
+            actions.push({
+              type: ActionType.PlayerWalk,
+              token: turn,
+              position: movePosition,
+            });
           }
         }
       }
 
-      if (results.zombieToShoot) {
-        const zombieToShoot = results.zombieToShoot;
-        map.getZombieAt({ x: zombieToShoot[1], y: zombieToShoot[0] })?.hit();
+      if (results.zombieToShoot !== undefined) {
+        const zombiePosition: Position = {
+          x: results.zombieToShoot[1],
+          y: results.zombieToShoot[0],
+        };
+
+        const zombie = simulator.getZombieAt(zombiePosition);
+
+        if (zombie !== undefined) {
+          zombie.hit();
+
+          actions.push({
+            type: ActionType.PlayerShoot,
+            token: turn,
+            position: zombiePosition,
+          });
+        }
       }
 
-      await ctx.runMutation(
-        internal.multiplayerGames.updateMultiplayerGameBoardState,
-        {
-          multiplayerGameId,
-          boardState: map.getState(),
-          completedTurns: multiplayerGame.completedTurns,
-          cost: (multiplayerGame.cost ?? 0) + (results.cost ?? 0),
-        },
-      );
+      cost += results.cost ?? 0;
     }
 
-    if (!map.allPlayersDead()) {
-      let nextPlayer: string;
+    await ctx.runMutation(
+      internal.multiplayerGames.updateMultiplayerGameBoardState,
+      {
+        multiplayerGameId,
+        boardState: simulator.getState(),
+        actions,
+        cost,
+      },
+    );
 
-      const currentPlayerIndex = multiplayerGame.playerMap.findIndex(
-        (entry) => entry.playerToken === turn,
-      );
-      const nextPlayerIndex = currentPlayerIndex + 1;
-      if (nextPlayerIndex >= multiplayerGame.playerMap.length) {
-        nextPlayer = "Z";
-      } else {
-        nextPlayer = multiplayerGame.playerMap[nextPlayerIndex].playerToken;
-      }
-
+    if (!simulator.allPlayersDead()) {
       await ctx.scheduler.runAfter(
         TURN_DELAY,
         internal.multiplayerGames.runMultiplayerGameTurn,
-        {
-          multiplayerGameId,
-          turn: nextPlayer,
-        },
+        { multiplayerGameId },
       );
     }
   },
