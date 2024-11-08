@@ -24,7 +24,7 @@ export function ReplayVisualizer({
     ),
   );
 
-  const cachedActions = useRef(actions);
+  const actionsCount = useRef(actions.length);
   const canvas = useRef<HTMLCanvasElement | null>(null);
   const renderer = useRenderer(map, canvas, playerLabels, cellSize);
 
@@ -35,10 +35,10 @@ export function ReplayVisualizer({
   }, [renderer]);
 
   useEffect(() => {
-    const newActions = actions.slice(cachedActions.current.length);
+    const newActions = actions.slice(actionsCount.current);
     simulator.current.resetVisualEvents();
     replay(simulator.current, newActions);
-    cachedActions.current.push(...newActions);
+    actionsCount.current += newActions.length;
     renderer?.render(simulator.current.getAllEntities());
   }, [actions]);
 
