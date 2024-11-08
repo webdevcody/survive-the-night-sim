@@ -1,14 +1,8 @@
 import { v } from "convex/values";
-import { ActionType } from "./constants";
+import { ActionType } from "@/simulator/Action";
 
 export const multiplayerGameActionValidator = v.object({
-  // type: v.union(...Object.values(ActionType).map((t) => v.literal(t))),
-  type: v.union(
-    v.literal("player-shoot"),
-    v.literal("player-walk"),
-    v.literal("zombie-spawn"),
-    v.literal("zombie-step"),
-  ),
+  type: v.union(...Object.values(ActionType).map((t) => v.literal(t))),
   token: v.string(),
   position: v.optional(
     v.object({

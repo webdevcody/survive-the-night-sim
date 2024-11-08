@@ -9,8 +9,9 @@ import { type Infer, v } from "convex/values";
 import { api, internal } from "./_generated/api";
 import { Doc } from "./_generated/dataModel";
 import { internalAction, internalMutation, query } from "./_generated/server";
-import { ActionType, ModelSlug } from "./constants";
+import { ModelSlug } from "./constants";
 import { multiplayerGameActionValidator } from "./helpers";
+import { ActionType } from "@/simulator/Action";
 
 const TURN_DELAY = 500;
 

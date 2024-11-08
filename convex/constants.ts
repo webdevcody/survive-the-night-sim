@@ -21,13 +21,6 @@ export const AI_MODELS = {
   },
 } as const;
 
-export enum ActionType {
-  PlayerShoot = "player-shoot",
-  PlayerWalk = "player-walk",
-  ZombieSpawn = "zombie-spawn",
-  ZombieStep = "zombie-step",
-}
-
 export type ModelSlug = (typeof AI_MODELS)[keyof typeof AI_MODELS]["slug"];
 
 export const AI_MODEL_SLUGS = Object.keys(AI_MODELS) as ModelSlug[];
