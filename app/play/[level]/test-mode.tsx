@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ReloadIcon } from "@radix-ui/react-icons";
+import { useAITesting } from "@/components/AITesting";
 import { Map } from "@/components/Map";
 import { Visualizer } from "@/components/Visualizer";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { AI_MODELS } from "@/convex/constants";
-import { useAITesting } from "@/hooks/useAITesting";
 
 interface TestModeProps {
   level: number;
