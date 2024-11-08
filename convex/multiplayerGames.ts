@@ -11,9 +11,11 @@ import { Doc } from "./_generated/dataModel";
 import { internalAction, internalMutation, query } from "./_generated/server";
 import { ModelSlug } from "./constants";
 import { multiplayerGameActionValidator } from "./helpers";
+import { DEFAULT_REPLAY_SPEED } from "@/constants/visualizer";
 import { ActionType } from "@/simulator/Action";
+import { replay } from "@/simulator/Replay";
 
-const TURN_DELAY = 500;
+const TURN_DELAY = DEFAULT_REPLAY_SPEED;
 
 const boardState = `
  . . . . . .B. . . . . . . . ,
@@ -35,7 +37,8 @@ function multiplayerGameTurn(multiplayerGame: Doc<"multiplayerGames">): string {
   }
 
   const players = multiplayerGame.playerMap;
-  const simulator = new ZombieSurvival(multiplayerGame.boardState);
+  const simulator = new ZombieSurvival(multiplayerGame.map);
+  replay(simulator, multiplayerGame.actions);
 
   const playerIndex = players.findIndex(
     (player) => player.playerToken === prevAction.token,
@@ -85,7 +88,6 @@ export const startMultiplayerGame = internalMutation({
 
     const gameId = await ctx.db.insert("multiplayerGames", {
       map: initialBoard,
-      boardState: initialBoard,
       playerMap: args.playerMap,
       actions: [],
     });
@@ -112,12 +114,11 @@ export const getMultiplayerGame = query({
 export const updateMultiplayerGameBoardState = internalMutation({
   args: {
     multiplayerGameId: v.id("multiplayerGames"),
-    boardState: v.array(v.array(v.string())),
     cost: v.optional(v.number()),
     actions: v.array(multiplayerGameActionValidator),
   },
   handler: async (ctx, args) => {
-    const { actions, boardState, cost, multiplayerGameId } = args;
+    const { actions, cost, multiplayerGameId } = args;
 
     const multiplayerGame = await ctx.runQuery(
       api.multiplayerGames.getMultiplayerGame,
@@ -129,7 +130,6 @@ export const updateMultiplayerGameBoardState = internalMutation({
     }
 
     await ctx.db.patch(multiplayerGame._id, {
-      boardState: boardState,
       cost: cost ?? multiplayerGame.cost,
       actions: [...multiplayerGame.actions, ...actions],
     });
@@ -152,7 +152,8 @@ export const runMultiplayerGameTurn = internalAction({
       throw new Error("Multiplayer game not found");
     }
 
-    const simulator = new ZombieSurvival(multiplayerGame.boardState);
+    const simulator = new ZombieSurvival(multiplayerGame.map);
+    replay(simulator, multiplayerGame.actions);
     const turn = multiplayerGameTurn(multiplayerGame);
     const actions: Array<Infer<typeof multiplayerGameActionValidator>> = [];
     let cost = multiplayerGame.cost ?? 0;
@@ -246,7 +247,6 @@ export const runMultiplayerGameTurn = internalAction({
       internal.multiplayerGames.updateMultiplayerGameBoardState,
       {
         multiplayerGameId,
-        boardState: simulator.getState(),
         actions,
         cost,
       },

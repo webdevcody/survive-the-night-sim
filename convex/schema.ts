@@ -84,7 +84,6 @@ export default defineSchema({
   }).index("by_active", ["isActive"]),
   multiplayerGames: defineTable({
     map: v.array(v.array(v.string())),
-    boardState: v.array(v.array(v.string())),
     cost: v.optional(v.number()),
     actions: v.array(multiplayerGameActionValidator),
     playerMap: v.array(

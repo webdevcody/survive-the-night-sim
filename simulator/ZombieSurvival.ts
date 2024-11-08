@@ -321,12 +321,20 @@ export class ZombieSurvival {
       const position = { x, y };
 
       if (this.isPositionEmpty(position)) {
-        this.zombies.push(new Zombie(this, position));
+        this.spawnZombieAt(position);
         return position;
       }
     }
 
     throw new Error("Unable to spawn random zombie");
+  }
+
+  public spawnZombieAt(position: Position) {
+    if (!this.isPositionEmpty(position)) {
+      throw new Error("Trying to spawn a zombie at non-empty position");
+    }
+
+    this.zombies.push(new Zombie(this, position));
   }
 
   public getZombieAt(position: Position): Zombie | undefined {

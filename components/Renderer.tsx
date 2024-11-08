@@ -5,9 +5,9 @@ import { Renderer } from "@/renderer";
 export function useRenderer(
   map: string[][] | null | undefined,
   canvas: React.MutableRefObject<HTMLCanvasElement | null>,
+  playerLabels?: Record<string, string>,
   cellSize: number = 64,
   replaySpeed: number = DEFAULT_REPLAY_SPEED,
-  playerLabels?: Record<string, string>,
 ) {
   const [renderer, setRenderer] = useState<Renderer | null>(null);
 
@@ -25,7 +25,6 @@ export function useRenderer(
     );
 
     void renderer.initialize().then(() => {
-      console.log("renderer initialized");
       setRenderer(renderer);
     });
   }, [map, cellSize, replaySpeed, playerLabels]);
