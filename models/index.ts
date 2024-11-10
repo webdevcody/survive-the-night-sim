@@ -52,6 +52,7 @@ export async function runModel(
   modelId: string,
   map: string[][],
   prompt: string,
+  maxBlocks?: number,
   retry = 1,
 ): Promise<RunModelResult> {
   const userPrompt =
@@ -60,7 +61,7 @@ export async function runModel(
 
   let result;
   let reasoning: string | null = null;
-
+  prompt.replace("{MAX_BLOCKS}", maxBlocks?.toString() ?? "");
   try {
     switch (modelId) {
       case AI_MODELS["gemini-1.5-pro"].slug: {
@@ -125,6 +126,6 @@ export async function runModel(
       };
     }
 
-    return await runModel(modelId, map, prompt, retry + 1);
+    return await runModel(modelId, map, prompt, maxBlocks, retry + 1);
   }
 }

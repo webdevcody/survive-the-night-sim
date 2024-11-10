@@ -223,20 +223,27 @@ export default function PlayLevelPage({
                 >
                   Place Player
                 </Button>
-                <Button
-                  onClick={() => handlePlacementModeChange("block")}
-                  variant={placementMode === "block" ? "default" : "outline"}
-                  className="h-10"
-                >
-                  Place Block ({maxBlocks - blockCount} left)
-                </Button>
-                <Button
-                  onClick={() => handlePlacementModeChange("landmine")}
-                  variant={placementMode === "landmine" ? "default" : "outline"}
-                  className="h-10"
-                >
-                  Place Landmine ({maxLandmines - landmineCount} left)
-                </Button>
+                {maxBlocks > 0 && (
+                  <Button
+                    onClick={() => handlePlacementModeChange("block")}
+                    variant={placementMode === "block" ? "default" : "outline"}
+                    className="h-10"
+                  >
+                    Place Block ({maxBlocks - blockCount} left)
+                  </Button>
+                )}
+
+                {maxLandmines > 0 && (
+                  <Button
+                    onClick={() => handlePlacementModeChange("landmine")}
+                    variant={
+                      placementMode === "landmine" ? "default" : "outline"
+                    }
+                    className="h-10"
+                  >
+                    Place Landmine ({maxLandmines - landmineCount} left)
+                  </Button>
+                )}
               </div>
               <div className="mb-8 flex flex-col items-center">
                 <h2 className="mb-4 text-xl font-semibold">
