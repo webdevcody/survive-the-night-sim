@@ -296,7 +296,13 @@ export class ZombieSurvival {
     return undefined;
   }
 
-  public spawnRandomZombie() {
+  public hasEmptyCells(): boolean {
+    return this.getState()
+      .flat()
+      .some((it) => it === " ");
+  }
+
+  public spawnRandomZombie(): Position {
     for (let i = 0; i < 10; i++) {
       let x: number;
       let y: number;
@@ -312,11 +318,23 @@ export class ZombieSurvival {
         y = Math.random() < 0.5 ? 0 : this.boardHeight - 1;
       }
 
-      if (this.isPositionEmpty({ x, y })) {
-        this.zombies.push(new Zombie(this, { x, y }));
-        return;
+      const position = { x, y };
+
+      if (this.isPositionEmpty(position)) {
+        this.spawnZombieAt(position);
+        return position;
       }
     }
+
+    throw new Error("Unable to spawn random zombie");
+  }
+
+  public spawnZombieAt(position: Position) {
+    if (!this.isPositionEmpty(position)) {
+      throw new Error("Trying to spawn a zombie at non-empty position");
+    }
+
+    this.zombies.push(new Zombie(this, position));
   }
 
   public getZombieAt(position: Position): Zombie | undefined {

@@ -2,7 +2,7 @@
 
 import { useQuery } from "convex/react";
 import { Page, PageTitle } from "@/components/Page";
-import { Visualizer } from "@/components/Visualizer";
+import { ReplayVisualizer } from "@/components/ReplayVisualizer";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 
@@ -34,13 +34,15 @@ export default function MultiplayerPage({
   return (
     <Page>
       <PageTitle>Multiplayer</PageTitle>
-      <div className="mb-4 flex justify-center">
-        <span>Cost: ${multiplayerGame.cost?.toFixed(2)}</span>
-      </div>
+      {multiplayerGame.cost && (
+        <div className="mb-4 flex justify-center">
+          <span>Cost: ${multiplayerGame.cost?.toFixed(2)}</span>
+        </div>
+      )}
       <div className="flex justify-center">
-        <Visualizer
-          controls={false}
-          map={multiplayerGame.boardState}
+        <ReplayVisualizer
+          actions={multiplayerGame.actions}
+          map={multiplayerGame.map}
           playerLabels={playerLabels}
           simulatorOptions={{ multiplayer: true }}
         />

@@ -14,6 +14,7 @@ import type * as constants from "../constants.js";
 import type * as crons from "../crons.js";
 import type * as flags from "../flags.js";
 import type * as games from "../games.js";
+import type * as helpers from "../helpers.js";
 import type * as http from "../http.js";
 import type * as init from "../init.js";
 import type * as leaderboard from "../leaderboard.js";
@@ -47,6 +48,7 @@ declare const fullApi: ApiFromModules<{
   crons: typeof crons;
   flags: typeof flags;
   games: typeof games;
+  helpers: typeof helpers;
   http: typeof http;
   init: typeof init;
   leaderboard: typeof leaderboard;

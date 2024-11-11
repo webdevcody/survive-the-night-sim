@@ -40,9 +40,9 @@ export function Visualizer({
   const renderer = useRenderer(
     map,
     canvas,
+    playerLabels,
     cellSize,
     replaySpeed,
-    playerLabels,
   );
   const visible = useRef(false);
   const [running, setRunning] = useState(false);

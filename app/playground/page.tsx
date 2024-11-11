@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useAITesting } from "@/components/AITesting";
 import { Map } from "@/components/Map";
 import { MapStatus } from "@/components/MapStatus";
 import { ModelSelector } from "@/components/ModelSelector";
@@ -31,7 +32,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { SIGN_IN_ERROR_MESSAGE } from "@/convex/users";
-import { useAITesting } from "@/hooks/useAITesting";
 import { errorMessage } from "@/lib/utils";
 import { ZombieSurvival } from "@/simulator";
 
