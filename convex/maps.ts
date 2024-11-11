@@ -159,8 +159,8 @@ export const addMap = mutation({
 export const submitMap = authenticatedMutation({
   args: {
     map: v.array(v.array(v.string())),
-    blocks: v.number(),
-    landmines: v.number(),
+    maxBlocks: v.number(),
+    maxLandmines: v.number(),
   },
   handler: async (ctx, args) => {
     try {
@@ -172,8 +172,8 @@ export const submitMap = authenticatedMutation({
         await ctx.db.insert("maps", {
           grid: args.map,
           level: undefined,
-          maxBlocks: args.blocks,
-          maxLandmines: args.landmines,
+          maxBlocks: args.maxBlocks,
+          maxLandmines: args.maxLandmines,
           submittedBy: ctx.userId,
           isReviewed: false,
         });

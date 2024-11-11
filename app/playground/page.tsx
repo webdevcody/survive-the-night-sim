@@ -63,8 +63,8 @@ export default function PlaygroundPage() {
   const [userSolution, setUserSolution] = useState<string[][]>([]);
   const [visualizingUserSolution, setVisualizingUserSolution] = useState(false);
   const [openSignInModal, setOpenSignInModal] = useState(false);
-  const [blocks, setBlocks] = useState(2);
-  const [landmines, setLandmines] = useState(2);
+  const [maxBlocks, setMaxBlocks] = useState(2);
+  const [maxLandmines, setMaxLandmines] = useState(0);
 
   const {
     isSimulating,
@@ -93,7 +93,7 @@ export default function PlaygroundPage() {
     setPublishing(true);
 
     try {
-      const submitted = await submitMap({ map, blocks, landmines });
+      const submitted = await submitMap({ map, maxBlocks, maxLandmines });
 
       if (submitted == 200) {
         toast({
@@ -345,9 +345,9 @@ export default function PlaygroundPage() {
                                 if (cell === " ") {
                                   if (playerCount === 0) {
                                     newMap[y][x] = "P";
-                                  } else if (blockCount < 2) {
+                                  } else if (blockCount < maxBlocks) {
                                     newMap[y][x] = "B";
-                                  } else if (landmineCount === 0) {
+                                  } else if (landmineCount === maxLandmines) {
                                     newMap[y][x] = "L";
                                   }
                                 } else if (cell === "P") {
@@ -483,8 +483,8 @@ export default function PlaygroundPage() {
                         placeholder="Max Blocks"
                         type="number"
                         id="block"
-                        onChange={(e) => setBlocks(Number(e.target.value))}
-                        value={blocks}
+                        onChange={(e) => setMaxBlocks(Number(e.target.value))}
+                        value={maxBlocks}
                       />
                     </div>
                     <div>
@@ -493,8 +493,10 @@ export default function PlaygroundPage() {
                         placeholder="Max Landmines"
                         type="number"
                         id="landmine"
-                        onChange={(e) => setLandmines(Number(e.target.value))}
-                        value={landmines}
+                        onChange={(e) =>
+                          setMaxLandmines(Number(e.target.value))
+                        }
+                        value={maxLandmines}
                       />
                     </div>
                   </div>
