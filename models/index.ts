@@ -52,6 +52,7 @@ export async function runModel(
   modelId: string,
   map: string[][],
   prompt: string,
+  maxBlocks?: number,
   retry = 1,
 ): Promise<RunModelResult> {
   const userPrompt =
@@ -60,27 +61,31 @@ export async function runModel(
 
   let result;
   let reasoning: string | null = null;
+  const modifiedPrompt = prompt.replace(
+    "{MAX_BLOCKS}",
+    maxBlocks?.toString() ?? "",
+  );
 
   try {
     switch (modelId) {
       case AI_MODELS["gemini-1.5-pro"].slug: {
-        result = await gemini15pro(prompt, userPrompt, CONFIG);
+        result = await gemini15pro(modifiedPrompt, userPrompt, CONFIG);
         break;
       }
       case AI_MODELS["gpt-4o"].slug: {
-        result = await gpt4o(prompt, userPrompt, CONFIG);
+        result = await gpt4o(modifiedPrompt, userPrompt, CONFIG);
         break;
       }
       case AI_MODELS["claude-3.5-sonnet"].slug: {
-        result = await claude35sonnet(prompt, userPrompt, CONFIG);
+        result = await claude35sonnet(modifiedPrompt, userPrompt, CONFIG);
         break;
       }
       case AI_MODELS["perplexity-llama-3.1"].slug: {
-        result = await perplexityLlama31(prompt, userPrompt, CONFIG);
+        result = await perplexityLlama31(modifiedPrompt, userPrompt, CONFIG);
         break;
       }
       case AI_MODELS["mistral-large-2"].slug: {
-        result = await mistralLarge2(prompt, userPrompt, CONFIG);
+        result = await mistralLarge2(modifiedPrompt, userPrompt, CONFIG);
         break;
       }
       default: {
@@ -125,6 +130,6 @@ export async function runModel(
       };
     }
 
-    return await runModel(modelId, map, prompt, retry + 1);
+    return await runModel(modelId, map, modifiedPrompt, maxBlocks, retry + 1);
   }
 }

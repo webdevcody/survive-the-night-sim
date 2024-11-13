@@ -26,6 +26,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
@@ -61,6 +63,8 @@ export default function PlaygroundPage() {
   const [userSolution, setUserSolution] = useState<string[][]>([]);
   const [visualizingUserSolution, setVisualizingUserSolution] = useState(false);
   const [openSignInModal, setOpenSignInModal] = useState(false);
+  const [maxBlocks, setMaxBlocks] = useState(2);
+  const [maxLandmines, setMaxLandmines] = useState(0);
 
   const {
     isSimulating,
@@ -89,7 +93,7 @@ export default function PlaygroundPage() {
     setPublishing(true);
 
     try {
-      const submitted = await submitMap({ map });
+      const submitted = await submitMap({ map, maxBlocks, maxLandmines });
 
       if (submitted == 200) {
         toast({
@@ -341,9 +345,9 @@ export default function PlaygroundPage() {
                                 if (cell === " ") {
                                   if (playerCount === 0) {
                                     newMap[y][x] = "P";
-                                  } else if (blockCount < 2) {
+                                  } else if (blockCount < maxBlocks) {
                                     newMap[y][x] = "B";
-                                  } else if (landmineCount === 0) {
+                                  } else if (landmineCount === maxLandmines) {
                                     newMap[y][x] = "L";
                                   }
                                 } else if (cell === "P") {
@@ -472,6 +476,31 @@ export default function PlaygroundPage() {
                 </>
               ) : (
                 <>
+                  <div className="flex gap-2">
+                    <div>
+                      <Label htmlFor="block">Max Block</Label>
+                      <Input
+                        placeholder="Max Blocks"
+                        type="number"
+                        id="block"
+                        onChange={(e) => setMaxBlocks(Number(e.target.value))}
+                        value={maxBlocks}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="landmine">Max Landmine</Label>
+                      <Input
+                        placeholder="Max Landmines"
+                        type="number"
+                        id="landmine"
+                        onChange={(e) =>
+                          setMaxLandmines(Number(e.target.value))
+                        }
+                        value={maxLandmines}
+                      />
+                    </div>
+                  </div>
+
                   <div className="flex flex-col">
                     <Button
                       disabled={publishing}

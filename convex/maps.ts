@@ -159,6 +159,8 @@ export const addMap = mutation({
 export const submitMap = authenticatedMutation({
   args: {
     map: v.array(v.array(v.string())),
+    maxBlocks: v.number(),
+    maxLandmines: v.number(),
   },
   handler: async (ctx, args) => {
     try {
@@ -170,6 +172,8 @@ export const submitMap = authenticatedMutation({
         await ctx.db.insert("maps", {
           grid: args.map,
           level: undefined,
+          maxBlocks: args.maxBlocks,
+          maxLandmines: args.maxLandmines,
           submittedBy: ctx.userId,
           isReviewed: false,
         });
@@ -193,11 +197,15 @@ export const seedMaps = internalMutation({
         if (existingMap) {
           ctx.db.patch(existingMap._id, {
             grid: map.grid,
+            maxBlocks: 2,
+            maxLandmines: 0,
           });
         } else {
           ctx.db.insert("maps", {
             level: idx + 1,
             grid: map.grid,
+            maxBlocks: 2,
+            maxLandmines: 0,
             isReviewed: true,
           });
         }
@@ -362,6 +370,7 @@ export const playMapAction = internalAction({
       args.modelId,
       map.grid,
       activePrompt.prompt,
+      map.maxBlocks,
     );
 
     await ctx.runMutation(internal.results.updateResult, {
@@ -423,7 +432,12 @@ export const testAIModel = action({
       outputTokens,
       totalTokensUsed,
       totalRunCost,
-    } = await runModel(args.modelId, map.grid, activePrompt.prompt);
+    } = await runModel(
+      args.modelId,
+      map.grid,
+      activePrompt.prompt,
+      map.maxBlocks,
+    );
 
     return {
       map: solution,
