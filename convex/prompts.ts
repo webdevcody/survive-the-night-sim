@@ -4,7 +4,7 @@ import { adminMutationBuilder } from "./users";
 
 const defaultPrompt = `Your task is to play a game.  We will give you a 2d array of characters that represent the game board.  Before the game starts, you have these two tasks:
 
-1. Place two blocks ("B") in locations which maximize the player's survival.
+1. Place {MAX_BLOCKS} blocks ("B") in locations which maximize the player's survival.
 2. Place the player ("P") in a location which maximize the player's survival.
 
 # Placing Rules
@@ -12,7 +12,6 @@ const defaultPrompt = `Your task is to play a game.  We will give you a 2d array
 - You can not place the player in a location already used by a zombie or rock.
 - You can not place a block over the player or another block.
 - You must place both blocks and the player before starting the game.
-- You can place {MAX_BLOCKS} blocks on the map.
 
 # Grid Descriptions
 The 2d Grid is made up of characters, where each character has a meaning.

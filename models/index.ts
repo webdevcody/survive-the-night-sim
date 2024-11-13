@@ -52,7 +52,7 @@ export async function runModel(
   modelId: string,
   map: string[][],
   prompt: string,
-  maxBlocks?: number,
+  maxBlocks: number,
   retry = 1,
 ): Promise<RunModelResult> {
   const userPrompt =

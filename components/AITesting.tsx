@@ -40,7 +40,11 @@ export function useAITesting({ testingType, level }: UseAITestingProps) {
   const testAIModel = useAction(api.maps.testAIModel);
   const testMap = useAction(api.maps.testMap);
 
-  const runTest = async (modelId: string, map: string[][]) => {
+  const runTest = async (
+    modelId: string,
+    map: string[][],
+    maxBlocks: number,
+  ) => {
     setIsSimulating(true);
     setGameResult(null);
     setAiError(null);
@@ -66,6 +70,7 @@ export function useAITesting({ testingType, level }: UseAITestingProps) {
         result = await testMap({
           modelId,
           map,
+          maxBlocks,
         });
       }
 

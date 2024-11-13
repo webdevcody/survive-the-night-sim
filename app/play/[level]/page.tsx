@@ -128,7 +128,7 @@ export default function PlayLevelPage({
       if (newMap[y][x] === "B") {
         newMap[y][x] = " ";
         setBlockCount(blockCount - 1);
-      } else if (blockCount < 2) {
+      } else if (blockCount < maxBlocks) {
         if (newMap[y][x] === " ") {
           newMap[y][x] = "B";
           setBlockCount(blockCount + 1);
@@ -139,7 +139,7 @@ export default function PlayLevelPage({
       if (newMap[y][x] === "L") {
         newMap[y][x] = " ";
         setLandmineCount(landmineCount - 1);
-      } else if (landmineCount < 2) {
+      } else if (landmineCount < maxLandmines) {
         if (newMap[y][x] === " ") {
           newMap[y][x] = "L";
           setLandmineCount(landmineCount + 1);
@@ -280,7 +280,7 @@ export default function PlayLevelPage({
                         row.map((cell, x) => (
                           <div
                             key={`${x}-${y}`}
-                            className={` ${cell === " " || cell === "B" ? "z-10 cursor-pointer hover:border-2 hover:border-dashed hover:border-slate-300" : ""} border border-transparent`}
+                            className={` ${cell === " " || cell === "B" || cell === "L" || cell === "P" ? "z-10 cursor-pointer hover:border-2 hover:border-dashed hover:border-slate-300" : ""} border border-transparent`}
                             onClick={() => handleCellClick(x, y)}
                           />
                         )),
@@ -294,16 +294,19 @@ export default function PlayLevelPage({
                   <>
                     <div className="flex flex-col items-center gap-2">
                       <h3>Choose the speed (200ms to 2s)</h3>
-                      <Slider
-                        className="w-2/3"
-                        defaultValue={[DEFAULT_REPLAY_SPEED]}
-                        min={200}
-                        max={2000}
-                        step={100}
-                        onValueChange={(value) => {
-                          setReplaySpeed(value[0]);
-                        }}
-                      />
+                      <div className="flex w-full justify-center gap-2">
+                        <Slider
+                          className="w-2/3"
+                          defaultValue={[replaySpeed]}
+                          min={200}
+                          max={2000}
+                          step={100}
+                          onValueChange={(value) => {
+                            setReplaySpeed(value[0]);
+                          }}
+                        />
+                        <p className="text-sm">{replaySpeed}</p>
+                      </div>
                     </div>
                     <div className="flex justify-center gap-4">
                       <Button onClick={runSimulation} className="h-10">

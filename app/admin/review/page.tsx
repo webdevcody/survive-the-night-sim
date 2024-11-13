@@ -35,24 +35,30 @@ export default function AdminReviewPage() {
                 <Map map={map.grid} />
               </CardContent>
 
-              <CardFooter className="flex justify-center gap-2">
-                <Button
-                  variant="outline"
-                  onClick={async () => {
-                    await adminApprovalMutation({ mapId: map._id });
-                  }}
-                >
-                  Approve
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={async () => {
-                    await adminRejectMapMutation({ mapId: map._id });
-                  }}
-                >
-                  Reject
-                </Button>
-                <PlayMapButton mapId={map._id} />
+              <CardFooter className="flex flex-col gap-2">
+                <p className="text-sm">
+                  Blocks: {map.maxBlocks ?? 0}, Landmines:{" "}
+                  {map.maxLandmines ?? 0}
+                </p>
+                <div className="flex justify-center gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={async () => {
+                      await adminApprovalMutation({ mapId: map._id });
+                    }}
+                  >
+                    Approve
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    onClick={async () => {
+                      await adminRejectMapMutation({ mapId: map._id });
+                    }}
+                  >
+                    Reject
+                  </Button>
+                  <PlayMapButton mapId={map._id} />
+                </div>
               </CardFooter>
             </Card>
           ))}

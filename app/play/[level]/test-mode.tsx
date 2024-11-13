@@ -39,7 +39,7 @@ export default function TestMode({ level, map }: TestModeProps) {
 
   const handleAITest = async () => {
     setShowOriginalMap(false);
-    await runTest(selectedModel, map);
+    await runTest(selectedModel, map, 2);
   };
 
   const handleReset = () => {

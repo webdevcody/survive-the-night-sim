@@ -163,6 +163,14 @@ export const submitMap = authenticatedMutation({
     maxLandmines: v.number(),
   },
   handler: async (ctx, args) => {
+    if (args.maxBlocks < 0 || args.maxBlocks > 10) {
+      throw new Error("maxBlock is invalid");
+    }
+
+    if (args.maxLandmines < 0 || args.maxLandmines > 10) {
+      throw new Error("maxLandmines is invalid");
+    }
+
     try {
       const status = await rateLimiter.limit(ctx, "submitMap", {
         key: ctx.userId,
@@ -179,10 +187,12 @@ export const submitMap = authenticatedMutation({
         });
         return 200;
       }
-    } catch (e) {
-      if (isRateLimitError(e)) {
+    } catch (err) {
+      if (isRateLimitError(err)) {
         return 429;
       }
+
+      throw err;
     }
   },
 });
@@ -343,7 +353,7 @@ export const playMapAction = internalAction({
       const validLocations = ZombieSurvival.validLocations(existingMap);
 
       if (validLocations.length > 0) {
-        existingMap[validLocations[0][0]][validLocations[0][1]] = "P";
+        existingMap[validLocations[0][0]][validLocations[0][1]] = "B";
       }
 
       if (validLocations.length > 1) {
@@ -351,7 +361,7 @@ export const playMapAction = internalAction({
       }
 
       if (validLocations.length > 2) {
-        existingMap[validLocations[2][0]][validLocations[2][1]] = "B";
+        existingMap[validLocations[2][0]][validLocations[2][1]] = "P";
       }
 
       await ctx.runMutation(internal.results.updateResult, {
@@ -370,7 +380,7 @@ export const playMapAction = internalAction({
       args.modelId,
       map.grid,
       activePrompt.prompt,
-      map.maxBlocks,
+      map.maxBlocks ?? 2,
     );
 
     await ctx.runMutation(internal.results.updateResult, {
@@ -387,6 +397,7 @@ export const testMap = action({
   args: {
     modelId: v.string(),
     map: v.array(v.array(v.string())),
+    maxBlocks: v.number(),
   },
   handler: async (ctx, args) => {
     const isAdmin = await ctx.runQuery(api.users.isAdmin);
@@ -395,11 +406,20 @@ export const testMap = action({
       throw new Error("Test map is available only for admin");
     }
 
+    if (args.maxBlocks < 0 || args.maxBlocks > 10) {
+      throw new Error("maxBlocks is invalid");
+    }
+
     const activePrompt: Doc<"prompts"> = await ctx.runQuery(
       api.prompts.getActivePrompt,
     );
 
-    return await runModel(args.modelId, args.map, activePrompt.prompt);
+    return await runModel(
+      args.modelId,
+      args.map,
+      activePrompt.prompt,
+      args.maxBlocks,
+    );
   },
 });
 
@@ -436,7 +456,7 @@ export const testAIModel = action({
       args.modelId,
       map.grid,
       activePrompt.prompt,
-      map.maxBlocks,
+      map.maxBlocks ?? 2,
     );
 
     return {

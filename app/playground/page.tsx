@@ -126,7 +126,7 @@ export default function PlaygroundPage() {
       return;
     }
 
-    await runTest(model, map);
+    await runTest(model, map, maxBlocks);
   }
 
   function handleChangeMap(value: string[][]) {
@@ -227,7 +227,7 @@ export default function PlaygroundPage() {
     }
   }
 
-  // function handleresetAITest() {
+  // function handleResetAITest() {
   //   handleChangeMap([]);
   //   setSolution(null);
   //   setReasoning(null);
@@ -253,6 +253,12 @@ export default function PlaygroundPage() {
   useEffect(() => {
     if (adminMap !== null) {
       setMap(adminMap.grid);
+      if (adminMap.maxBlocks !== undefined) {
+        setMaxBlocks(adminMap.maxBlocks);
+      }
+      if (adminMap.maxLandmines !== undefined) {
+        setMaxLandmines(adminMap.maxLandmines);
+      }
     }
   }, [adminMap]);
 
@@ -347,7 +353,7 @@ export default function PlaygroundPage() {
                                     newMap[y][x] = "P";
                                   } else if (blockCount < maxBlocks) {
                                     newMap[y][x] = "B";
-                                  } else if (landmineCount === maxLandmines) {
+                                  } else if (landmineCount < maxLandmines) {
                                     newMap[y][x] = "L";
                                   }
                                 } else if (cell === "P") {
@@ -478,20 +484,24 @@ export default function PlaygroundPage() {
                 <>
                   <div className="flex gap-2">
                     <div>
-                      <Label htmlFor="block">Max Block</Label>
+                      <Label htmlFor="block">Max Blocks</Label>
                       <Input
                         placeholder="Max Blocks"
                         type="number"
                         id="block"
+                        max={10}
+                        min={0}
                         onChange={(e) => setMaxBlocks(Number(e.target.value))}
                         value={maxBlocks}
                       />
                     </div>
                     <div>
-                      <Label htmlFor="landmine">Max Landmine</Label>
+                      <Label htmlFor="landmine">Max Landmines</Label>
                       <Input
                         placeholder="Max Landmines"
                         type="number"
+                        max={10}
+                        min={0}
                         id="landmine"
                         onChange={(e) =>
                           setMaxLandmines(Number(e.target.value))
@@ -527,8 +537,8 @@ export default function PlaygroundPage() {
                 </>
               )}
 
-              {error !== null && (
-                <p className="text-sm text-red-500">{error}</p>
+              {error !== null && aiError !== null && (
+                <p className="text-sm text-red-500">{error ?? aiError}</p>
               )}
               {visualizingUserSolution && <MapStatus map={userSolution} />}
               {aiReasoning !== null && (
